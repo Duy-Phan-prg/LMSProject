@@ -1,13 +1,13 @@
-package com.Library.LMSProject;
+package com.Library.lmsproject;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LmsProjectApplication {
+public class lmsProjectApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LmsProjectApplication.class, args);
+		SpringApplication.run(lmsProjectApplication.class, args);
 	}
 
 }
