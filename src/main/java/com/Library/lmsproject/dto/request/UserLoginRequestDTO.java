@@ -1,7 +1,8 @@
 package com.Library.lmsproject.dto.request;
 
-import jakarta.validation.constraints.Email;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,15 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRegisterRequestDTO {
+public class UserLoginRequestDTO {
     @Email
-    @NotBlank
+    @NotBlank (message = "Email is required")
     private String email;
 
-    @NotBlank
+    @NotBlank (message = "Password is required")
     private String password;
 
-    private String fullName;
-    private String phone;
-    private String address;
 }
