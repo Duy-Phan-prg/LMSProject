@@ -16,16 +16,32 @@ public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;
-    private String password;
-    private String fullName; // can phai duoc tieng viet
-    private String phone;
-    private String address;   // CAN PHAI DUOC TIENG VIET
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String fullName;
+
+    private String phone;
+
+    private String address;
+
+    @Enumerated(EnumType.STRING)
     private Roles role;
+
     private String status;
+
     private String avatarUrl;
+
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
+
     private LocalDateTime lastLoginAt;
 }

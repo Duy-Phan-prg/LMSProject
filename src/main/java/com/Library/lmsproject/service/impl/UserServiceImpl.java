@@ -1,6 +1,6 @@
 package com.Library.lmsproject.service.impl;
 
-import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
+//import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
 import com.Library.lmsproject.dto.response.UsersResponseDTO;
 import com.Library.lmsproject.entity.Users;
 import com.Library.lmsproject.mapper.UserMapper;
@@ -23,10 +23,10 @@ public class UserServiceImpl implements UsersService {
         Users user = userRepo.findUserById(id);
         return userMapper.toUsersDTO(user);
     }
-
-    @Override
-    public UserRegisterRequestDTO registerUser(UserRegisterRequestDTO userRegisterRequestDTO) {
-
-        return null;
-    }
+//
+//    @Override
+//    public UserRegisterRequestDTO registerUser(UserRegisterRequestDTO userRegisterRequestDTO) {
+//
+//        return null;
+//    }
 }
