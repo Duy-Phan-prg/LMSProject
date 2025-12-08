@@ -8,8 +8,9 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import java.util.List;
+
+//Là lớp cấu hình cho OpenAPI (Swagger) trong một ứng dụng Spring Boot, nhằm mục đích tạo tài liệu API tự động và tích hợp bảo mật JWT.
 
 @Configuration
 public class OpenApiConfig {

@@ -22,6 +22,20 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private static final String[] SWAGGER_WHITELIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/v3/api-docs.yaml"
+    };
+
+    private static final String[] PUBLIC_API = {
+            "/api/auth/**",
+            "/api/users/register",
+            "/api/users/login"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -34,34 +48,17 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        // Allow Swagger
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-
-                        // Allow auth APIs
-                        .requestMatchers("/api/auth/**").permitAll()
-
-                        // Allow register/login without token
-                        .requestMatchers("/api/users/register").permitAll()
-                        .requestMatchers("/api/users/login").permitAll()
-
-                        // All other APIs require authentication
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                        .requestMatchers(PUBLIC_API).permitAll()
                         .anyRequest().authenticated()
                 )
 
-                // Disable form login & basic auth
                 .formLogin(login -> login.disable())
                 .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
 
-    // ==========================
-    // CORS CONFIG
-    // ==========================
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -79,17 +76,11 @@ public class SecurityConfig {
         return source;
     }
 
-    // ==========================
-    // PasswordEncoder
-    // ==========================
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ==========================
-    // AuthenticationManager
-    // ==========================
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {

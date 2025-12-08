@@ -1,4 +1,4 @@
 package com.Library.lmsproject.controller;
 
-public class UsersController {
+public class AuthController {
 }

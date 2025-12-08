@@ -1,12 +1,12 @@
 package com.Library.lmsproject.dto.request;
-
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRegisterRequestDTO {
+public class LoginRequestDTO {
 
     @Email
     @NotBlank
@@ -14,9 +14,4 @@ public class UserRegisterRequestDTO {
 
     @NotBlank
     private String password;
-
-    @NotBlank
-    private String fullName;
-
-    private String role; // ADMIN / LIBRARIAN / MEMBER
 }
