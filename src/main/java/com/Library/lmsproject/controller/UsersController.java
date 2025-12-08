@@ -18,12 +18,12 @@ public class UsersController {
     @Autowired
     private UsersService usersService;
 
-//
-//    @Operation(summary = "Get user by ID", description = "Retrieve user details by their unique ID")
-//    @GetMapping("/getById")
-//    public UsersResponseDTO getUserById(Long id){
-//        return usersService.findUserById(id);
-//    }
+
+    @Operation(summary = "Get user by ID", description = "Retrieve user details by their unique ID")
+    @GetMapping("/getById")
+    public UsersResponseDTO getUserById(Long id){
+        return usersService.findUserById(id);
+    }
 
     // API REGISTER USER
     // B1. TẠO DTO REQUEST VÀ DTO RESPONSE , REQUEST VALIDATION,
