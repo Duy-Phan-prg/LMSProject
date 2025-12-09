@@ -1,10 +1,7 @@
 package com.Library.lmsproject.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -13,35 +10,36 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Users {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(100)")
     private String fullName;
-
-    private String phone;
-
-    private String address;
 
     @Enumerated(EnumType.STRING)
     private Roles role;
 
-    private String status;
+    @Column(nullable = false)
+    private String phone;
 
-    private String avatarUrl;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
+    private String address;
 
-    @Column(nullable = false, updatable = false)
+    private boolean isActive = true;
+
+    private String avatar;
+
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    private LocalDateTime lastLoginAt;
+
 }

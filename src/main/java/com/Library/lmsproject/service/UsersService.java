@@ -1,11 +1,14 @@
 package com.Library.lmsproject.service;
 
-//import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
-import com.Library.lmsproject.dto.response.UsersResponseDTO;
-import com.Library.lmsproject.entity.Users;
+import com.Library.lmsproject.dto.request.LoginRequestDTO;
+import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
+import com.Library.lmsproject.dto.response.LoginResponseDTO;
 
 public interface UsersService {
-    UsersResponseDTO findUserById(Long id);
+    LoginResponseDTO getUserById(Long id);
 
-//    UserRegisterRequestDTO registerUser(UserRegisterRequestDTO userRegisterRequestDTO);
+    LoginResponseDTO register(UserRegisterRequestDTO request);
+
+    LoginResponseDTO login(LoginRequestDTO request);
+
 }

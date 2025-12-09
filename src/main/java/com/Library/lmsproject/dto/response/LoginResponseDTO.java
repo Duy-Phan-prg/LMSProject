@@ -11,21 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsersResponseDTO {
+public class LoginResponseDTO {
     private Long id;
-
     private String email;
-
     private String fullName;
-
-    private String phone;
-
-    private String address;
-
     private Roles role;
-
-    private String status;
-
-    private String avatarUrl;
-
+    private String token;
 }
