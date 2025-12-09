@@ -22,12 +22,27 @@ public class JwtTokenProvider {
     }
 
     public String extractEmail(String token) {
-        JwtParser parser = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                .build();
+        try {
+            JwtParser parser = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                    .build();
 
-        return parser.parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+            Claims claims = parser.parseClaimsJws(token).getBody();
+            return claims.getSubject();
+        } catch (JwtException | IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            JwtParser parser = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                    .build();
+            parser.parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException ex) {
+            return false;
+        }
     }
 }
