@@ -3,6 +3,7 @@ package com.Library.lmsproject.service.impl;
 import com.Library.lmsproject.dto.request.LoginRequestDTO;
 import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
 import com.Library.lmsproject.dto.response.LoginResponseDTO;
+import com.Library.lmsproject.entity.Roles;
 import com.Library.lmsproject.entity.Users;
 import com.Library.lmsproject.mapper.UserMapper;
 import com.Library.lmsproject.repository.UsersRepository;
@@ -39,6 +40,7 @@ public class UsersServiceImpl implements UsersService {
         }
         Users user = userMapper.toUserEntity(request);
         user.setActive(true);
+        user.setRole(Roles.MEMBER);
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
