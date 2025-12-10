@@ -3,12 +3,13 @@ package com.Library.lmsproject.service.impl;
 import com.Library.lmsproject.dto.request.LoginRequestDTO;
 import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
 import com.Library.lmsproject.dto.response.LoginResponseDTO;
+import com.Library.lmsproject.dto.response.UserResponseDTO;
 import com.Library.lmsproject.entity.Roles;
 import com.Library.lmsproject.entity.Users;
 import com.Library.lmsproject.mapper.UserMapper;
 import com.Library.lmsproject.repository.UsersRepository;
 import com.Library.lmsproject.security.JwtTokenProvider;
-import com.Library.lmsproject.service.UsersService;
+import com.Library.lmsproject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,42 +18,34 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class UsersServiceImpl implements UsersService {
+public class UserServiceImpl implements UserService {
 
     private final UsersRepository usersRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Override
-    public LoginResponseDTO getUserById(Long id) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return userMapper.toUserResponseDTO(user);
-    }
 
     @Override
-    public LoginResponseDTO register(UserRegisterRequestDTO request) {
+    public UserResponseDTO register(UserRegisterRequestDTO request) {
 
         if (usersRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
+
         Users user = userMapper.toUserEntity(request);
-        user.setActive(true);
         user.setRole(Roles.MEMBER);
+        user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         usersRepository.save(user);
-        String token = jwtTokenProvider.generateToken(user.getEmail());
-        LoginResponseDTO dto = userMapper.toUserResponseDTO(user);
-        dto.setToken(token);
 
-        return dto;
+        return userMapper.toUserResponseDTO(user);
     }
 
-    @Override
+
+
     public LoginResponseDTO login(LoginRequestDTO request) {
 
         Users user = usersRepository.findByEmail(request.getEmail())
@@ -64,9 +57,6 @@ public class UsersServiceImpl implements UsersService {
 
         String token = jwtTokenProvider.generateToken(user.getEmail());
 
-        LoginResponseDTO dto = userMapper.toUserResponseDTO(user);
-        dto.setToken(token);
-
-        return dto;
+        return new LoginResponseDTO(token, userMapper.toUserResponseDTO(user));
     }
 }

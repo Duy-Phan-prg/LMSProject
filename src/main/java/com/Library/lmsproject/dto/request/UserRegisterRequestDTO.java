@@ -9,7 +9,6 @@ import lombok.*;
 public class UserRegisterRequestDTO {
 
     @Email(message = "Email không hợp lệ")
-    @NotBlank(message = "Email là bắt buộc")
     private String email;
 
     @NotBlank(message = "Mật khẩu là bắt buộc")

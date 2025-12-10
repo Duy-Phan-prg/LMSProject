@@ -3,8 +3,10 @@ package com.Library.lmsproject.controller;
 import com.Library.lmsproject.dto.request.LoginRequestDTO;
 import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
 import com.Library.lmsproject.dto.response.LoginResponseDTO;
-import com.Library.lmsproject.service.UsersService;
+import com.Library.lmsproject.dto.response.UserResponseDTO;
+import com.Library.lmsproject.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,18 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class UserController {
 
-    private final UsersService usersService;
+    private final UserService userService;
 
     @PostMapping("/login")
-    public LoginResponseDTO login(@RequestBody LoginRequestDTO request) {
-        return usersService.login(request);
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+        return ResponseEntity.ok(userService.login(request));
     }
 
 
+    // fix
     @PostMapping("/register")
-    public LoginResponseDTO register(@RequestBody UserRegisterRequestDTO request) {
-        return usersService.register(request);
+    public ResponseEntity<UserResponseDTO> register(@RequestBody UserRegisterRequestDTO request) {
+        return ResponseEntity.ok(userService.register(request));
     }
 }

@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UsersRepository extends JpaRepository<Users, Long> {
+public interface UsersRepository
+        extends JpaRepository<Users, Long> {   //→ Tự có đầy đủ CRUD: save(), findById(), findAll(), delete(), …
 
     Optional<Users> findByEmail(String email);
 
