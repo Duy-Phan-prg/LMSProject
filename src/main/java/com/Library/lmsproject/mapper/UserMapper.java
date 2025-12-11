@@ -11,13 +11,5 @@ public interface UserMapper {
 
     UserResponseDTO toUserResponseDTO(Users user);
 
-//    // RegisterDTO -> Entity (nhận từ client để lưu DB)
-//    @Mapping(target = "id", ignore = true)
-//    @Mapping(target = "role", ignore = true)
-//    @Mapping(target = "active", ignore = true)
-//    @Mapping(target = "avatar", ignore = true)
-//    @Mapping(target = "createdAt", ignore = true)
-//    @Mapping(target = "updatedAt", ignore = true)
-//    @Mapping(target = "password", ignore = true)
     Users toUserEntity(UserRegisterRequestDTO request);
 }

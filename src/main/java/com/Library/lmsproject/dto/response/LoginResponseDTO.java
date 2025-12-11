@@ -1,5 +1,6 @@
 package com.Library.lmsproject.dto.response;
 
+import com.Library.lmsproject.entity.Roles;
 import lombok.*;
 
 @Data
@@ -7,6 +8,8 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 public class LoginResponseDTO {
-    private String token;
-    private UserResponseDTO user;
+    private Long id;
+    private Roles role;
+    private String accessToken;
+    private String refreshToken;
 }

@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService {
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
         usersRepository.save(user);
 
         return userMapper.toUserResponseDTO(user);
@@ -55,8 +54,14 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid email or password");
         }
 
-        String token = jwtTokenProvider.generateToken(user.getEmail());
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
 
-        return new LoginResponseDTO(token, userMapper.toUserResponseDTO(user));
+        return LoginResponseDTO.builder()
+                .id(user.getId())
+                .role(user.getRole())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

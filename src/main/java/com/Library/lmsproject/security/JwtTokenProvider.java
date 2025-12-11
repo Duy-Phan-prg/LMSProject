@@ -9,39 +9,46 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final String secretKey = "THIS_IS_SECRET_KEY_256_ABCXYZ1234567890";
-    private final long expirationMs = 86400000;
+    private final String secretKey = "THIS_IS_SECRET_KEY_256_ABCXYZ1234567890THIS_IS_SECRET_KEY_256";
 
-    public String generateToken(String email) {
+    private final long accessTokenExpiration = 15 * 60 * 1000;     // 15 phút
+    private final long refreshTokenExpiration = 7 * 24 * 60 * 60 * 1000; // 7 ngày
+
+    public String generateAccessToken(String email) {
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .compact();
+    }
+
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .compact();
     }
 
     public String extractEmail(String token) {
-        try {
-            JwtParser parser = Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                    .build();
-
-            Claims claims = parser.parseClaimsJws(token).getBody();
-            return claims.getSubject();
-        } catch (JwtException | IllegalArgumentException ex) {
-            return null;
-        }
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 
     public boolean validateToken(String token) {
         try {
-            JwtParser parser = Jwts.parser()
+            Jwts.parser()
                     .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                    .build();
-            parser.parseClaimsJws(token);
+                    .build()
+                    .parseSignedClaims(token);
             return true;
-        } catch (JwtException | IllegalArgumentException ex) {
+        } catch (Exception ex) {
             return false;
         }
     }

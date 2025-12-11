@@ -54,8 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (Exception ex) {
-                // If token is invalid or any error happens during validation, do not set authentication.
-                // Let the request proceed; Security will handle access control and return 401/403 as configured.
+
             }
         }
 
