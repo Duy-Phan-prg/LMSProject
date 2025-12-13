@@ -1,6 +1,7 @@
 package com.Library.lmsproject.service.impl;
 
 import com.Library.lmsproject.dto.request.LoginRequestDTO;
+import com.Library.lmsproject.dto.request.RefreshTokenRequestDTO;
 import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
 import com.Library.lmsproject.dto.response.LoginResponseDTO;
 import com.Library.lmsproject.dto.response.UserResponseDTO;
@@ -9,7 +10,7 @@ import com.Library.lmsproject.entity.Users;
 import com.Library.lmsproject.mapper.UserMapper;
 import com.Library.lmsproject.repository.UsersRepository;
 import com.Library.lmsproject.security.JwtTokenProvider;
-import com.Library.lmsproject.service.UserService;
+import com.Library.lmsproject.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class AuthServiceImpl implements AuthService {
 
     private final UsersRepository usersRepository;
     private final UserMapper userMapper;
@@ -61,6 +62,35 @@ public class UserServiceImpl implements UserService {
                 .id(user.getId())
                 .role(user.getRole())
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    @Override
+    public LoginResponseDTO refreshToken(RefreshTokenRequestDTO request) {
+
+        String refreshToken = request.getRefreshToken();
+
+        // 1. Validate token (basic)
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        // 2. Lấy email từ refresh token
+        String email = jwtTokenProvider.extractEmail(refreshToken);
+
+        // 3. Check user còn tồn tại không
+        Users user = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 4. Generate access token mới
+        String newAccessToken = jwtTokenProvider.generateAccessToken(email);
+
+        // 5. Trả response (giữ refresh token cũ)
+        return LoginResponseDTO.builder()
+                .id(user.getId())
+                .role(user.getRole())
+                .accessToken(newAccessToken)
                 .refreshToken(refreshToken)
                 .build();
     }

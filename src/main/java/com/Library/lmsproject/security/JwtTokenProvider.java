@@ -17,6 +17,7 @@ public class JwtTokenProvider {
     public String generateAccessToken(String email) {
         return Jwts.builder()
                 .subject(email)
+                .claim("type", "ACCESS")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
@@ -26,10 +27,25 @@ public class JwtTokenProvider {
     public String generateRefreshToken(String email) {
         return Jwts.builder()
                 .subject(email)
+                .claim("type", "REFRESH")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .compact();
+    }
+
+    public boolean isAccessToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            return "ACCESS".equals(claims.get("type"));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public String extractEmail(String token) {
