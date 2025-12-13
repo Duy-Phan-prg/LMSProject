@@ -4,8 +4,8 @@ import com.Library.lmsproject.entity.Roles;
 import lombok.*;
 
 @Data
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class LoginResponseDTO {
     private Long id;

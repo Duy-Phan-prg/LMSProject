@@ -33,7 +33,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             // Auth
-            "/api/auth/**",
+            "/api/user/**",
             // Swagger
             "/swagger-ui.html",
             "/swagger-ui/**",
