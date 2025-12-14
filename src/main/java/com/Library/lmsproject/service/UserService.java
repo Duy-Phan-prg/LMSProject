@@ -24,7 +24,14 @@ public interface UserService {
      void logoutUser(Long userId);
     LoginResponseDTO refreshToken(RefreshTokenRequestDTO request);
 
-    Page<UserResponseDTO> getAllUser(String keyword, int page, int size);
+//    Page<UserResponseDTO> getAllUser(String keyword, int page, int size);
+
+    Page<UserResponseDTO> getAllUser(
+            String keyword,
+            Boolean isActive,
+            int page,
+            int size
+    );
 
     UserResponseDTO createUser(CreateUserRequestDTO request);
 

@@ -38,11 +38,15 @@ public class UserController {
 
     @GetMapping("/getAllUsers")
     public ResponseEntity<Page<UserResponseDTO>> getAllUser(
-            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean isActive,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(userService.getAllUser(keyword, page, size));
+        Page<UserResponseDTO> result =
+                userService.getAllUser(keyword, isActive, page, size);
+
+        return ResponseEntity.ok(result);
     }
 
     // logout

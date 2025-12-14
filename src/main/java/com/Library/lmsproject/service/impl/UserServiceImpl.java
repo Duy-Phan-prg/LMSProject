@@ -56,8 +56,6 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         return userMapper.toUserResponseDTO(usersRepository.save(user));
-
-
     }
 
     @Override
@@ -131,21 +129,6 @@ public class UserServiceImpl implements UserService {
                     new BlacklistedToken(null, s.getSessionToken(), exp)
             );
         }
-    }
-
-
-    @Override
-    public Page<UserResponseDTO> getAllUser(String keyword, int page, int size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
-        Page<Users> usersPage =
-                usersRepository.findByIsActiveTrueAndFullNameContainingIgnoreCase( // lay danh sach user isactive = true và false
-                        keyword == null ? "" : keyword,
-                        pageable
-                );
-
-        return usersPage.map(userMapper::toUserResponseDTO);
     }
 
     @Override
@@ -224,5 +207,18 @@ public class UserServiceImpl implements UserService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    @Override
+    public Page<UserResponseDTO> getAllUser(String keyword, Boolean isActive, int page, int size) {
+        Pageable pageable =
+                PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<Users> usersPage =
+                usersRepository.findAllUsers(keyword, isActive, pageable);
+
+        return usersPage.map(userMapper::toUserResponseDTO);
+
+    }
+
 
 }
