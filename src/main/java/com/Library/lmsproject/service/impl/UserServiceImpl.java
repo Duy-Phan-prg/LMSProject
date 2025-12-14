@@ -3,9 +3,13 @@ package com.Library.lmsproject.service.impl;
 import com.Library.lmsproject.dto.request.*;
 import com.Library.lmsproject.dto.response.LoginResponseDTO;
 import com.Library.lmsproject.dto.response.UserResponseDTO;
+import com.Library.lmsproject.entity.BlacklistedToken;
 import com.Library.lmsproject.entity.Roles;
+import com.Library.lmsproject.entity.UserSession;
 import com.Library.lmsproject.entity.Users;
 import com.Library.lmsproject.mapper.UserMapper;
+import com.Library.lmsproject.repository.BlacklistRepository;
+import com.Library.lmsproject.repository.UserSessionRepository;
 import com.Library.lmsproject.repository.UsersRepository;
 import com.Library.lmsproject.security.JwtTokenProvider;
 import com.Library.lmsproject.service.UserService;
@@ -19,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +35,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-
+    private final UserSessionRepository userSessionRepository;
+    private final BlacklistRepository blacklistRepository;
 
     @Override
     public UserResponseDTO register(UserRegisterRequestDTO request) {
@@ -54,6 +61,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public LoginResponseDTO login(LoginRequestDTO request) {
 
         Users user = usersRepository.findByEmail(request.getEmail())
@@ -70,6 +78,15 @@ public class UserServiceImpl implements UserService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
 
+        // 🔥 LƯU USER SESSION
+        UserSession session = new UserSession();
+        session.setUser(user);                // ManyToOne
+        session.setSessionToken(accessToken); // access token
+        session.setLoginTime(LocalDateTime.now());
+        session.setIsActive(true);
+
+        userSessionRepository.save(session);
+
         return LoginResponseDTO.builder()
                 .id(user.getId())
                 .role(user.getRole())
@@ -77,6 +94,45 @@ public class UserServiceImpl implements UserService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    @Override
+    public void logout(String token) {
+
+        // 1. Blacklist token
+        Date exp = jwtTokenProvider.getExpiration(token);
+        BlacklistedToken blacklistedToken =
+                new BlacklistedToken(null, token, exp);
+        blacklistRepository.save(blacklistedToken);
+
+        // 2. Invalidate session
+        userSessionRepository
+                .findBySessionTokenAndIsActive(token, true)
+                .ifPresent(session -> {
+                    session.setIsActive(false);
+                    session.setLogoutTime(LocalDateTime.now());
+                });
+    }
+
+    @Override
+    public void logoutUser(Long userId) {
+
+        Users user = usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<UserSession> sessions =
+                userSessionRepository.findAllByUserAndIsActive(user, true);
+
+        for (UserSession s : sessions) {
+            s.setIsActive(false);
+            s.setLogoutTime(LocalDateTime.now());
+
+            Date exp = jwtTokenProvider.getExpiration(s.getSessionToken());
+            blacklistRepository.save(
+                    new BlacklistedToken(null, s.getSessionToken(), exp)
+            );
+        }
+    }
+
 
     @Override
     public Page<UserResponseDTO> getAllUser(String keyword, int page, int size) {

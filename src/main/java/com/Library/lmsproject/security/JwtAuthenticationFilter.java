@@ -1,5 +1,7 @@
 package com.Library.lmsproject.security;
 
+import com.Library.lmsproject.repository.BlacklistRepository;
+import com.Library.lmsproject.repository.UserSessionRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+    private final BlacklistRepository blacklistRepository;
+    private final UserSessionRepository userSessionRepository;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
@@ -34,32 +38,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
+
             String token = authHeader.substring(7);
 
             try {
-                if (jwtTokenProvider.validateToken(token)
-                        && jwtTokenProvider.isAccessToken(token)) {
-
-                    String email = jwtTokenProvider.extractEmail(token);
-
-                    if (email != null
-                            && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                        UserDetails userDetails =
-                                customUserDetailsService.loadUserByUsername(email);
-
-                        UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails,
-                                        null,
-                                        userDetails.getAuthorities()
-                                );
-
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+                // ❌ 1. Token đã bị blacklist
+                if (blacklistRepository.existsByToken(token)) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token revoked");
+                    return;
                 }
+
+                // ❌ 2. Token không hợp lệ hoặc không phải access token
+                if (!jwtTokenProvider.validateToken(token)
+                        || !jwtTokenProvider.isAccessToken(token)) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+                    return;
+                }
+
+                // ❌ 3. Session không active (đã logout / bị kick)
+                userSessionRepository
+                        .findBySessionTokenAndIsActive(token, true)
+                        .orElseThrow(() ->
+                                new RuntimeException("Session inactive")
+                        );
+
+                // ✅ 4. Authenticate
+                String email = jwtTokenProvider.extractEmail(token);
+
+                if (email != null
+                        && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                    UserDetails userDetails =
+                            customUserDetailsService.loadUserByUsername(email);
+
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+
             } catch (Exception ex) {
-                // optional: log
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+                return;
             }
         }
 

@@ -24,6 +24,20 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public Date getExpiration(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            return claims.getExpiration();
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid JWT token");
+        }
+    }
+
     public String generateRefreshToken(String email) {
         return Jwts.builder()
                 .subject(email)

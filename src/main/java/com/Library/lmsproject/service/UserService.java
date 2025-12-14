@@ -16,15 +16,12 @@ import java.util.List;
 
 public interface UserService {
 
-    //kiểu dữ liệu (class)   tên hàm(kiểu của biến   biến đầu vào)
-    // UserResponseDTO là những gì trả về sau khi đăng ký thành công
-    // UserRegisterRequestDTO là những gì user cần nhập
      UserResponseDTO register(UserRegisterRequestDTO request);
 
-
-    // LoginResponseDTO là những gì trả về sau khi đăng nhập thành công
-    // Login RequestDTO là những gì user cần nhập
      LoginResponseDTO login(LoginRequestDTO request);
+     void logout(String token);
+
+     void logoutUser(Long userId);
     LoginResponseDTO refreshToken(RefreshTokenRequestDTO request);
 
     Page<UserResponseDTO> getAllUser(String keyword, int page, int size);

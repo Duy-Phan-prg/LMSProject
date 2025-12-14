@@ -46,7 +46,14 @@ public class UserController {
     }
 
     // logout
-
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(
+            @RequestHeader("Authorization") String header
+    ) {
+        String token = header.replace("Bearer ", "");
+        userService.logout(token);
+        return ResponseEntity.ok("Logout success");
+    }
 
     // create user (by admin)
     @PostMapping("/create")
