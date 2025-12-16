@@ -3,6 +3,7 @@ package com.Library.lmsproject.config;
 import com.Library.lmsproject.security.JwtAuthenticationFilter;
 import com.Library.lmsproject.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,16 +26,26 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
+    @Autowired
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, RestAuthenticationEntryPoint restAuthenticationEntryPoint) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
+    }
+
+
+
     private static final String[] PUBLIC_ENDPOINTS = {
             // Auth
             "/api/user/**",
             // Swagger
+            "/api/categories/**",
+            "/api/books/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/webjars/swagger-ui/**",

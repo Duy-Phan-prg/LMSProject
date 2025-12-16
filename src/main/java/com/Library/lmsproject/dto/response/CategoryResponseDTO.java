@@ -15,5 +15,5 @@ public class CategoryResponseDTO {
     private Long categoryId;
     private String categoryName;
     private String categoryDescription;
-    private boolean isActive;
+    private boolean active;
 }

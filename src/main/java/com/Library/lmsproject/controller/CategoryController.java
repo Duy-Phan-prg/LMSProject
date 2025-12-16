@@ -2,9 +2,11 @@ package com.Library.lmsproject.controller;
 
 
 import com.Library.lmsproject.dto.request.CreateCategoryRequestDTO;
+import com.Library.lmsproject.dto.request.UpdateCategoryRequestDTO;
 import com.Library.lmsproject.dto.response.BookResponseDTO;
 import com.Library.lmsproject.dto.response.CategoryResponseDTO;
 import com.Library.lmsproject.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -38,4 +40,23 @@ public class CategoryController {
         );
     }
 
+    //delete category
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long id){
+        boolean deleted = categoryService.deleteCategory(id);
+        if(deleted){
+            return ResponseEntity.ok("Book with ID " + id + " has been deactivated.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    //Update category
+    @PutMapping("/update/{id}")
+    public CategoryResponseDTO updateCategory(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateCategoryRequestDTO request
+    ) {
+        return categoryService.updateCategory(id, request);
+    }
 }
