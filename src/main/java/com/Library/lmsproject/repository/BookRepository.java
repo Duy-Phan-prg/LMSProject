@@ -29,7 +29,6 @@ public interface BookRepository extends JpaRepository<Books, Long> {
     );
 
 
-    Long bookId(Long bookId);
 
 
 }

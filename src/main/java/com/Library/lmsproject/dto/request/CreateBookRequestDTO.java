@@ -33,4 +33,6 @@ public class CreateBookRequestDTO {
     @Min(1)
     private Integer copiesTotal;
 
+
+
 }

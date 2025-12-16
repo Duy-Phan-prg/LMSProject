@@ -26,6 +26,9 @@ public class Categories {
     @Column(name = "description")
     private String categoryDescription;
 
+    @Column(nullable = false)
+    private boolean isActive = true;
+
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     private Set<Books> books = new HashSet<>();
 
