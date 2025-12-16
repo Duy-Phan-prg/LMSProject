@@ -2,11 +2,10 @@ package com.Library.lmsproject.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Table(name = "books")
@@ -14,24 +13,45 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "categories")
+@EqualsAndHashCode(exclude = "categories")
+
 public class Books {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "book_id")
     private Long bookId;
-    private String isbn;
-    private String title;
-    private String author;
-    private String publisher;
-    private Integer yearPublished;
-    private Integer pages;
-    private String language;
-    private String description;
-    private String imageCover;
-    private Integer copiesTotal;
-    private Integer copiesAvailable;
 
-    @Column(nullable = false)
-    private boolean isActive = true;
+    private String isbn;
+
+    private String title;
+
+    private String author;
+
+    private String publisher;
+
+    /* publication_year */
+    @Column(name = "publication_year")
+    private Integer yearPublished;
+
+    private Integer pages;
+
+    private String language;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String description;
+
+    @Column(name = "cover_image")
+    private String imageCover;
+
+    @Column(name = "total_copies", nullable = false)
+    private Integer copiesTotal = 1;
+
+    @Column(name = "available_copies", nullable = false)
+    private Integer copiesAvailable = 1;
+
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isActive = true;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -39,8 +59,16 @@ public class Books {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "book")
-    private Set<BookCategory> bookCategories;
+
+    //Many to Many
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "book_category",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+
+    private Set<Categories> categories = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -52,6 +80,7 @@ public class Books {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
 
 
 

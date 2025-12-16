@@ -2,29 +2,32 @@ package com.Library.lmsproject.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.awt.print.Book;
+import java.util.HashSet;
 import java.util.Set;
 
-@Table(name = "categories")
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
 @Entity
+@Table(name = "categories")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = "books")
+@EqualsAndHashCode(exclude = "books")
 
 public class Categories {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
-    @Column(nullable = false, unique = true, length = 100)
+
+    @Column(name = "name", nullable = false, unique = true, length = 100)
     private String categoryName;
+
+    @Column(name = "description")
     private String categoryDescription;
 
-    @OneToMany(mappedBy = "category")
-    private Set<BookCategory> bookCategories;
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    private Set<Books> books = new HashSet<>();
 
 
 }

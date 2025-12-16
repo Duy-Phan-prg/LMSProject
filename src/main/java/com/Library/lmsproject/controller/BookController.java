@@ -2,16 +2,17 @@ package com.Library.lmsproject.controller;
 
 
 import com.Library.lmsproject.dto.request.CreateBookRequestDTO;
+import com.Library.lmsproject.dto.request.UpdateBookRequestDTO;
 import com.Library.lmsproject.dto.response.BookResponseDTO;
+import com.Library.lmsproject.dto.response.UserResponseDTO;
 import com.Library.lmsproject.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/books")
@@ -33,7 +34,33 @@ public class BookController {
 
     //xem danh sach
 
+    @GetMapping("/getAllBooks")
+    public ResponseEntity<Page<BookResponseDTO>> getAllBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword
+    ) {
+        return ResponseEntity.ok(
+                bookService.getAllBooks(page, size, keyword)
+        );
+    }
     //cap nhat sach
-
+    @PutMapping("/update/{id}")
+        public ResponseEntity<BookResponseDTO> updateBook(@PathVariable Long id, @RequestBody @Valid UpdateBookRequestDTO request
+    ) {
+        return ResponseEntity.ok(
+                bookService.updateBook(id, request)
+        );
+    }
     //xoa mem sach
+    @DeleteMapping("/delete/{id}")
+        public ResponseEntity<String> deleteBook(@PathVariable Long id) {
+        Boolean deleted = bookService.deleteBook(id);
+        if (deleted) {
+            return ResponseEntity.ok("Book with ID " + id + " has been deactivated.");
+        } else {
+            return ResponseEntity.status(404).body("Book with ID " + id + " not found.");
+        }
+    }
+
 }
