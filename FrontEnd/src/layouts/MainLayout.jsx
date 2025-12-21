@@ -1,0 +1,255 @@
+import { Outlet } from "react-router-dom";
+import { Container, Row, Col } from "react-bootstrap";
+import { 
+  BookOpen, Search, Bell, User, ChevronRight, Mail, Phone, MapPin,
+  ChevronDown, Heart, ShoppingCart, Menu, X, Home, Grid3X3, Users, Headphones
+} from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+
+export default function MainLayout() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+
+  const navLinks = [
+    { path: "/", label: "Trang chủ", icon: <Home size={18} /> },
+    { path: "/books", label: "Sách", icon: <BookOpen size={18} /> },
+    { path: "/categories", label: "Thể loại", icon: <Grid3X3 size={18} /> },
+    { path: "/authors", label: "Tác giả", icon: <Users size={18} /> },
+    { path: "/audiobook", label: "Audiobook", icon: <Headphones size={18} /> },
+  ];
+
+  const isActive = (path) => location.pathname === path;
+
+  return (
+    <div className="main-layout">
+      {/* Top Bar */}
+      <div className="top-bar">
+        <Container>
+          <div className="top-bar-content">
+            <div className="top-bar-left">
+              <span><Phone size={14} /> Hotline: 1900 1234</span>
+              <span><Mail size={14} /> contact@libraryhub.vn</span>
+            </div>
+            <div className="top-bar-right">
+              <Link to="/help">Trợ giúp</Link>
+              <Link to="/about">Giới thiệu</Link>
+              <Link to="/contact">Liên hệ</Link>
+            </div>
+          </div>
+        </Container>
+      </div>
+
+      {/* Main Navbar */}
+      <nav className="navbar-main">
+        <Container>
+          <div className="navbar-content">
+            {/* Logo */}
+            <Link to="/" className="navbar-brand-custom">
+              <div className="brand-icon">
+                <BookOpen size={24} />
+              </div>
+              <div className="brand-text">
+                <h1>LibraryHub</h1>
+                <span>Thư viện số hiện đại</span>
+              </div>
+            </Link>
+
+            {/* Search Box */}
+            <form className="search-box" onSubmit={handleSearch}>
+              <input
+                type="text"
+                placeholder="Tìm kiếm sách, tác giả, thể loại..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button type="submit" className="search-btn">
+                <Search size={20} />
+              </button>
+            </form>
+
+            {/* Nav Actions */}
+            <div className="nav-actions">
+              <button className="nav-action-btn" title="Yêu thích">
+                <Heart size={20} />
+                <span className="action-badge">3</span>
+              </button>
+              <button className="nav-action-btn" title="Giỏ mượn">
+                <ShoppingCart size={20} />
+                <span className="action-badge">2</span>
+              </button>
+              <button className="nav-action-btn" title="Thông báo">
+                <Bell size={20} />
+                <span className="action-badge pulse">5</span>
+              </button>
+              <Link to="/login" className="login-btn">
+                <User size={18} />
+                <span>Đăng nhập</span>
+              </Link>
+              <button 
+                className="mobile-menu-btn"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+          </div>
+        </Container>
+      </nav>
+
+      {/* Navigation Bar */}
+      <div className="nav-bar">
+        <Container>
+          <div className="nav-bar-content">
+            <ul className="nav-links">
+              {navLinks.map((link) => (
+                <li key={link.path}>
+                  <Link 
+                    to={link.path} 
+                    className={`nav-link ${isActive(link.path) ? 'active' : ''}`}
+                  >
+                    {link.icon}
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li className="nav-dropdown">
+                <button className="nav-link">
+                  Thêm <ChevronDown size={16} />
+                </button>
+                <div className="dropdown-menu">
+                  <Link to="/ebook">Ebook</Link>
+                  <Link to="/new-releases">Sách mới</Link>
+                  <Link to="/bestsellers">Bán chạy</Link>
+                  <Link to="/promotions">Khuyến mãi</Link>
+                </div>
+              </li>
+            </ul>
+            <div className="nav-bar-right">
+              <span className="promo-text">🔥 Miễn phí giao sách cho đơn từ 200k</span>
+            </div>
+          </div>
+        </Container>
+      </div>
+
+      {/* Mobile Menu */}
+      <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-menu-content">
+          <form className="mobile-search" onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="Tìm kiếm..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Search size={20} />
+          </form>
+          <ul className="mobile-nav-links">
+            {navLinks.map((link) => (
+              <li key={link.path}>
+                <Link 
+                  to={link.path} 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={isActive(link.path) ? 'active' : ''}
+                >
+                  {link.icon}
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mobile-menu-footer">
+            <Link to="/login" className="mobile-login-btn" onClick={() => setMobileMenuOpen(false)}>
+              <User size={18} /> Đăng nhập
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main>
+        <Outlet />
+      </main>
+
+      {/* Footer */}
+      <footer className="footer-main">
+        <Container>
+          <Row>
+            <Col lg={4} md={6} className="mb-4">
+              <div className="footer-brand">
+                <div className="footer-brand-icon">
+                  <BookOpen size={24} color="white" />
+                </div>
+                <h3>LibraryHub</h3>
+              </div>
+              <p className="footer-description">
+                Nền tảng thư viện số hiện đại, mang đến trải nghiệm đọc sách 
+                tuyệt vời cho mọi người. Khám phá hàng nghìn đầu sách từ nhiều thể loại.
+              </p>
+              <div className="footer-contact mt-4">
+                <p><Mail size={16} /> contact@libraryhub.vn</p>
+                <p><Phone size={16} /> 1900 1234</p>
+                <p><MapPin size={16} /> Hà Nội, Việt Nam</p>
+              </div>
+            </Col>
+            <Col lg={2} md={6} className="mb-4">
+              <div className="footer-links">
+                <h4>Khám phá</h4>
+                <ul>
+                  <li><Link to="/"><ChevronRight size={14} /> Trang chủ</Link></li>
+                  <li><Link to="/books"><ChevronRight size={14} /> Sách mới</Link></li>
+                  <li><Link to="/categories"><ChevronRight size={14} /> Thể loại</Link></li>
+                  <li><Link to="/authors"><ChevronRight size={14} /> Tác giả</Link></li>
+                </ul>
+              </div>
+            </Col>
+            <Col lg={2} md={6} className="mb-4">
+              <div className="footer-links">
+                <h4>Dịch vụ</h4>
+                <ul>
+                  <li><Link to="/borrow"><ChevronRight size={14} /> Mượn sách</Link></li>
+                  <li><Link to="/ebook"><ChevronRight size={14} /> Ebook</Link></li>
+                  <li><Link to="/audiobook"><ChevronRight size={14} /> Audiobook</Link></li>
+                  <li><Link to="/membership"><ChevronRight size={14} /> Thành viên</Link></li>
+                </ul>
+              </div>
+            </Col>
+            <Col lg={2} md={6} className="mb-4">
+              <div className="footer-links">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                  <li><Link to="/help"><ChevronRight size={14} /> Trợ giúp</Link></li>
+                  <li><Link to="/faq"><ChevronRight size={14} /> FAQ</Link></li>
+                  <li><Link to="/contact"><ChevronRight size={14} /> Liên hệ</Link></li>
+                  <li><Link to="/feedback"><ChevronRight size={14} /> Góp ý</Link></li>
+                </ul>
+              </div>
+            </Col>
+            <Col lg={2} md={6} className="mb-4">
+              <div className="footer-links">
+                <h4>Pháp lý</h4>
+                <ul>
+                  <li><Link to="/terms"><ChevronRight size={14} /> Điều khoản</Link></li>
+                  <li><Link to="/privacy"><ChevronRight size={14} /> Bảo mật</Link></li>
+                  <li><Link to="/copyright"><ChevronRight size={14} /> Bản quyền</Link></li>
+                </ul>
+              </div>
+            </Col>
+          </Row>
+          <div className="footer-bottom">
+            © 2025 LibraryHub. All rights reserved. Made with ❤️ in Vietnam
+          </div>
+        </Container>
+      </footer>
+    </div>
+  );
+}
