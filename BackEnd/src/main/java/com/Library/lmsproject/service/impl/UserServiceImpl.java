@@ -164,12 +164,11 @@ public class UserServiceImpl implements UserService {
         Users user = usersRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found or inactive"));
 
-        if (usersRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email " + request.getEmail() + " đã được sử dụng");
+        if (usersRepository.existsByEmailAndIdNot(request.getEmail(), id)) {
+            throw new RuntimeException("Email đã được sử dụng");
         }
-
-        if (usersRepository.findByPhone(request.getPhone()).isPresent()) {
-            throw new RuntimeException("Số điện thoại " + request.getPhone() + " đã được sử dụng");
+        if (usersRepository.existsByPhoneAndIdNot(request.getPhone(), id)) {
+            throw new RuntimeException("Số điện thoại đã được sử dụng");
         }
 
         // validate email and phone uniqueness if they are being updated

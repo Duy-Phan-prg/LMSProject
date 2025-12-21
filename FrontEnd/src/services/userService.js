@@ -43,6 +43,7 @@ export const createUser = async (userData) => {
 // PUT - Cập nhật user
 export const updateUser = async (id, userData) => {
   const payload = {
+    email: userData.email,
     fullName: userData.fullName,
     phone: userData.phone || "",
     address: userData.address || "",
