@@ -4,14 +4,19 @@ import com.Library.lmsproject.dto.request.CreateBookRequestDTO;
 import com.Library.lmsproject.dto.request.UpdateBookRequestDTO;
 import com.Library.lmsproject.dto.response.BookResponseDTO;
 import com.Library.lmsproject.entity.Books;
+import com.Library.lmsproject.entity.Categories;
 import com.Library.lmsproject.mapper.BookMapper;
 import com.Library.lmsproject.repository.BookRepository;
+import com.Library.lmsproject.repository.CategoryRespository;
 import com.Library.lmsproject.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
@@ -21,6 +26,7 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final CategoryRespository categoryRespository;
 
     @Override
     public BookResponseDTO createBook(CreateBookRequestDTO request) {
@@ -29,8 +35,14 @@ public class BookServiceImpl implements BookService {
         book.setIsActive(true);
         book.setCopiesAvailable(request.getCopiesTotal());
 
-        Books savedBook = bookRepository.save(book);
+        if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
+            Set<Categories> categories =
+                    new HashSet<>(categoryRespository.findAllById(request.getCategoryIds()));
 
+            book.setCategories(categories);
+        }
+
+        Books savedBook = bookRepository.save(book);
         return bookMapper.toResponseDTO(savedBook);
     }
 

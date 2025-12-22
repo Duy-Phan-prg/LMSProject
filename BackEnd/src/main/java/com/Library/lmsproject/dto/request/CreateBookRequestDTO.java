@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 public class CreateBookRequestDTO {
     @NotBlank
@@ -33,6 +35,6 @@ public class CreateBookRequestDTO {
     @Min(1)
     private Integer copiesTotal;
 
-
+    private Set<Long> categoryIds;
 
 }

@@ -44,6 +44,7 @@ public class SecurityConfig {
             // Auth
             "/api/user/**",
             // Swagger
+
             "/api/categories/**",
             "/api/books/**",
             "/swagger-ui.html",
