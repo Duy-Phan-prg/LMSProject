@@ -21,24 +21,26 @@ public class Borrowings {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "borrowing_id")
     private Long borrowingId;
 
+    // USER
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
+    // BOOK
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private Books book;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BorrowingStatus status;
+    private BorrowStatus status;
 
-    @Column(name = "request_at", nullable = false)
     private LocalDateTime requestAt;
-
-    @Column(name = "due_date")
+    private LocalDateTime pickupAt;
     private LocalDate dueDate;
+    private LocalDateTime returnRequestedAt;
+    private LocalDateTime returnedAt;
 }
+
