@@ -1,6 +1,6 @@
 package com.Library.lmsproject.service.impl;
 
-import com.Library.lmsproject.dto.request.BorrowRequestDTO;
+import com.Library.lmsproject.dto.request.CreateBorrowRequestDTO;
 import com.Library.lmsproject.entity.Books;
 import com.Library.lmsproject.entity.BorrowStatus;
 import com.Library.lmsproject.entity.Borrowings;
@@ -26,7 +26,7 @@ public class BorrowingServiceImpl implements BorrowingService {
     private final BorrowingRepository borrowingRepository;
 
     @Override
-    public void borrowBook(Long userId, BorrowRequestDTO request) {
+    public void borrowBook(Long userId, CreateBorrowRequestDTO request) {
 
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

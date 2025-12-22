@@ -27,6 +27,18 @@ export const logoutApi = async () => {
   return response.data;
 };
 
+// POST - Refresh Token
+export const refreshTokenApi = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) {
+    throw new Error("No refresh token");
+  }
+  const response = await axiosClient.post("/api/user/refresh-token", {
+    refreshToken,
+  });
+  return response.data;
+};
+
 // Lưu token vào localStorage
 export const saveTokens = (data) => {
   localStorage.setItem("accessToken", data.accessToken);

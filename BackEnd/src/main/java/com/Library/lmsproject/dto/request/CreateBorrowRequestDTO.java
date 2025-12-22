@@ -3,6 +3,6 @@ package com.Library.lmsproject.dto.request;
 import lombok.Data;
 
 @Data
-public class BorrowRequestDTO {
+public class CreateBorrowRequestDTO {
     private Long bookId;
 }

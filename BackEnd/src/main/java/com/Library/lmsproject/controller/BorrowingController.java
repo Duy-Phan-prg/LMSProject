@@ -2,7 +2,7 @@ package com.Library.lmsproject.controller;
 
 
 
-import com.Library.lmsproject.dto.request.BorrowRequestDTO;
+import com.Library.lmsproject.dto.request.CreateBorrowRequestDTO;
 import com.Library.lmsproject.security.CustomUserDetails;
 import com.Library.lmsproject.service.BorrowingService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class BorrowingController {
     @PostMapping
     public ResponseEntity<?> borrowBook(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody BorrowRequestDTO request
+            @RequestBody CreateBorrowRequestDTO request
     ) {
         Long userId = userDetails.getId();
         borrowingService.borrowBook(userId, request);
