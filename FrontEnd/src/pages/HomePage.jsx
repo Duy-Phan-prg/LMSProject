@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getAllBooks } from "../services/bookService";
 import { getAllCategories } from "../services/categoryService";
+import "../styles/home.css";
 
 export default function HomePage() {
   const [categories, setCategories] = useState([]);

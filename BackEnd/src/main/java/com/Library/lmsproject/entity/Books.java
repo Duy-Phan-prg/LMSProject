@@ -60,7 +60,7 @@ public class Books {
     private LocalDateTime updatedAt;
 
 
-    //Many to Many
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "book_category",
