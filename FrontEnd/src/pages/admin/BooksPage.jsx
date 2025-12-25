@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   BookOpen, Plus, Search, Download, Upload,
   Edit, Trash2, Eye, ChevronLeft, ChevronRight,
   RefreshCw, AlertCircle, X, Calendar, FileText, Image
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { getAllBooks, deleteBook, createBook, updateBook } from "../../services/bookService";
+import { getAllCategories } from "../../services/categoryService";
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -19,22 +22,34 @@ export default function BooksPage() {
   const [editingBook, setEditingBook] = useState(null);
   const [viewingBook, setViewingBook] = useState(null);
 
-  // Mock data
-  useEffect(() => {
+  const fetchBooks = useCallback(async () => {
     setLoading(true);
-    setTimeout(() => {
-      setBooks([
-        { bookId: 1, isbn: "978-0-13-468599-1", title: "Đắc Nhân Tâm", author: "Dale Carnegie", publisher: "NXB Tổng hợp", yearPublished: 2020, pages: 320, language: "Tiếng Việt", copiesTotal: 10, copiesAvailable: 7, imageCover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=200", active: true, categories: ["Kỹ năng sống", "Tâm lý"] },
-        { bookId: 2, isbn: "978-0-06-112008-4", title: "Nhà Giả Kim", author: "Paulo Coelho", publisher: "NXB Văn học", yearPublished: 2019, pages: 228, language: "Tiếng Việt", copiesTotal: 8, copiesAvailable: 3, imageCover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200", active: true, categories: ["Văn học", "Triết học"] },
-        { bookId: 3, isbn: "978-0-06-231609-7", title: "Sapiens: Lược Sử Loài Người", author: "Yuval Noah Harari", publisher: "NXB Tri thức", yearPublished: 2021, pages: 560, language: "Tiếng Việt", copiesTotal: 5, copiesAvailable: 0, imageCover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=200", active: true, categories: ["Lịch sử", "Khoa học"] },
-        { bookId: 4, isbn: "978-0-7352-1129-2", title: "Atomic Habits", author: "James Clear", publisher: "NXB Lao động", yearPublished: 2022, pages: 320, language: "Tiếng Việt", copiesTotal: 12, copiesAvailable: 9, imageCover: "https://images.unsplash.com/photo-1589998059171-988d887df646?w=200", active: true, categories: ["Kỹ năng sống"] },
-        { bookId: 5, isbn: "978-1-59448-190-9", title: "Think and Grow Rich", author: "Napoleon Hill", publisher: "NXB Kinh tế", yearPublished: 2018, pages: 280, language: "Tiếng Việt", copiesTotal: 6, copiesAvailable: 4, imageCover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=200", active: false, categories: ["Kinh doanh"] },
-      ]);
-      setTotalElements(5);
-      setTotalPages(1);
+    try {
+      const data = await getAllBooks(currentPage, pageSize);
+      setBooks(data.content || []);
+      setTotalElements(data.totalElements || 0);
+      setTotalPages(data.totalPages || 0);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      Swal.fire("Lỗi!", "Không thể tải danh sách sách", "error");
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   }, [currentPage, pageSize]);
+
+  const fetchCategories = async () => {
+    try {
+      const data = await getAllCategories(0, 100);
+      setCategories(data.content || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+    fetchCategories();
+  }, [fetchBooks]);
 
   const handleDelete = async (bookId) => {
     const result = await Swal.fire({
@@ -48,7 +63,14 @@ export default function BooksPage() {
       cancelButtonText: "Hủy"
     });
     if (result.isConfirmed) {
-      Swal.fire("Thành công!", "Đã xóa sách.", "success");
+      try {
+        await deleteBook(bookId);
+        Swal.fire("Thành công!", "Đã xóa sách.", "success");
+        fetchBooks();
+      } catch (error) {
+        console.error("Error deleting book:", error);
+        Swal.fire("Lỗi!", error.response?.data?.message || "Không thể xóa sách", "error");
+      }
     }
   };
 
@@ -71,8 +93,8 @@ export default function BooksPage() {
           </div>
         </div>
         <div className="page-header-right">
-          <button className="btn-secondary" onClick={() => setLoading(true)}>
-            <RefreshCw size={18} /> Làm mới
+          <button className="btn-secondary" onClick={fetchBooks} disabled={loading}>
+            <RefreshCw size={18} className={loading ? "spin" : ""} /> Làm mới
           </button>
           <button className="btn-primary" onClick={() => { setEditingBook(null); setShowModal(true); }}>
             <Plus size={18} /> Thêm sách
@@ -210,7 +232,14 @@ export default function BooksPage() {
       {viewingBook && <BookViewModal book={viewingBook} onClose={() => setViewingBook(null)} />}
       
       {/* Form Modal */}
-      {showModal && <BookFormModal book={editingBook} onClose={() => { setShowModal(false); setEditingBook(null); }} />}
+      {showModal && (
+        <BookFormModal 
+          book={editingBook} 
+          categories={categories}
+          onClose={() => { setShowModal(false); setEditingBook(null); }}
+          onSuccess={fetchBooks}
+        />
+      )}
     </div>
   );
 }
@@ -254,7 +283,7 @@ function BookViewModal({ book, onClose }) {
   );
 }
 
-function BookFormModal({ book, onClose }) {
+function BookFormModal({ book, onClose, onSuccess, categories = [] }) {
   const [formData, setFormData] = useState({
     title: book?.title || "",
     author: book?.author || "",
@@ -265,12 +294,111 @@ function BookFormModal({ book, onClose }) {
     language: book?.language || "Tiếng Việt",
     copiesTotal: book?.copiesTotal || 1,
     description: book?.description || "",
+    imageCover: book?.imageCover || "",
+    categoryIds: book?.categoryIds || [],
   });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleCategoryChange = (categoryId) => {
+    setFormData(prev => ({
+      ...prev,
+      categoryIds: prev.categoryIds.includes(categoryId)
+        ? prev.categoryIds.filter(id => id !== categoryId)
+        : [...prev.categoryIds, categoryId]
+    }));
+    if (errors.categoryIds) setErrors(prev => ({ ...prev, categoryIds: "" }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    const currentYear = new Date().getFullYear();
+
+    // ISBN: bắt buộc, phải 10 hoặc 13 số
+    if (!formData.isbn.trim()) {
+      newErrors.isbn = "ISBN không được để trống";
+    } else if (!/^(\d{10}|\d{13})$/.test(formData.isbn.trim())) {
+      newErrors.isbn = "ISBN phải gồm 10 hoặc 13 chữ số";
+    }
+
+    // Title: bắt buộc
+    if (!formData.title.trim()) {
+      newErrors.title = "Tên sách không được để trống";
+    }
+
+    // Author: bắt buộc
+    if (!formData.author.trim()) {
+      newErrors.author = "Tác giả không được để trống";
+    }
+
+    // Year: không được lớn hơn năm hiện tại
+    if (formData.yearPublished) {
+      const year = Number(formData.yearPublished);
+      if (year < 0) {
+        newErrors.yearPublished = "Năm xuất bản không hợp lệ";
+      } else if (year > currentYear) {
+        newErrors.yearPublished = "Năm xuất bản không được lớn hơn năm hiện tại";
+      }
+    }
+
+    // Pages: phải >= 1
+    if (formData.pages && Number(formData.pages) < 1) {
+      newErrors.pages = "Số trang phải lớn hơn 0";
+    }
+
+    // CopiesTotal: bắt buộc, >= 1
+    if (!formData.copiesTotal || Number(formData.copiesTotal) < 1) {
+      newErrors.copiesTotal = "Số lượng phải lớn hơn 0";
+    }
+
+    // Categories: bắt buộc ít nhất 1
+    if (formData.categoryIds.length === 0) {
+      newErrors.categoryIds = "Vui lòng chọn ít nhất một danh mục";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    Swal.fire("Thành công!", book ? "Đã cập nhật sách" : "Đã thêm sách mới", "success");
-    onClose();
+    
+    if (!validateForm()) {
+      Swal.fire("Lỗi!", "Vui lòng kiểm tra lại thông tin", "warning");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = {
+        isbn: formData.isbn.trim(),
+        title: formData.title.trim(),
+        author: formData.author.trim(),
+        publisher: formData.publisher.trim() || null,
+        yearPublished: formData.yearPublished ? Number(formData.yearPublished) : null,
+        pages: formData.pages ? Number(formData.pages) : null,
+        language: formData.language || null,
+        description: formData.description.trim() || null,
+        imageCover: formData.imageCover.trim() || null,
+        copiesTotal: Number(formData.copiesTotal),
+        categoryIds: formData.categoryIds,
+      };
+
+      if (book) {
+        await updateBook(book.bookId, payload);
+        Swal.fire("Thành công!", "Đã cập nhật sách", "success");
+      } else {
+        await createBook(payload);
+        Swal.fire("Thành công!", "Đã thêm sách mới", "success");
+      }
+      onSuccess?.();
+      onClose();
+    } catch (error) {
+      console.error("Error saving book:", error);
+      Swal.fire("Lỗi!", error.response?.data?.message || "Không thể lưu sách", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -284,46 +412,128 @@ function BookFormModal({ book, onClose }) {
           <div className="modal-body">
             <div className="form-group">
               <label>Tên sách <span className="required">*</span></label>
-              <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
+              <input 
+                type="text" 
+                value={formData.title} 
+                onChange={e => { setFormData({...formData, title: e.target.value}); if (errors.title) setErrors(prev => ({...prev, title: ""})); }}
+                placeholder="Nhập tên sách" 
+                className={errors.title ? "input-error" : ""}
+              />
+              {errors.title && <span className="error-text">{errors.title}</span>}
             </div>
             <div className="form-row">
               <div className="form-group">
                 <label>Tác giả <span className="required">*</span></label>
-                <input type="text" value={formData.author} onChange={e => setFormData({...formData, author: e.target.value})} required />
+                <input 
+                  type="text" 
+                  value={formData.author} 
+                  onChange={e => { setFormData({...formData, author: e.target.value}); if (errors.author) setErrors(prev => ({...prev, author: ""})); }}
+                  placeholder="Nhập tên tác giả" 
+                  className={errors.author ? "input-error" : ""}
+                />
+                {errors.author && <span className="error-text">{errors.author}</span>}
               </div>
               <div className="form-group">
-                <label>ISBN</label>
-                <input type="text" value={formData.isbn} onChange={e => setFormData({...formData, isbn: e.target.value})} />
+                <label>ISBN <span className="required">*</span></label>
+                <input 
+                  type="text" 
+                  value={formData.isbn} 
+                  onChange={e => { setFormData({...formData, isbn: e.target.value}); if (errors.isbn) setErrors(prev => ({...prev, isbn: ""})); }}
+                  placeholder="10 hoặc 13 chữ số" 
+                  className={errors.isbn ? "input-error" : ""}
+                />
+                {errors.isbn && <span className="error-text">{errors.isbn}</span>}
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
                 <label>Nhà xuất bản</label>
-                <input type="text" value={formData.publisher} onChange={e => setFormData({...formData, publisher: e.target.value})} />
+                <input type="text" value={formData.publisher} onChange={e => setFormData({...formData, publisher: e.target.value})} placeholder="Nhập nhà xuất bản" />
               </div>
               <div className="form-group">
                 <label>Năm xuất bản</label>
-                <input type="number" value={formData.yearPublished} onChange={e => setFormData({...formData, yearPublished: e.target.value})} />
+                <input 
+                  type="number" 
+                  value={formData.yearPublished} 
+                  onChange={e => { setFormData({...formData, yearPublished: e.target.value}); if (errors.yearPublished) setErrors(prev => ({...prev, yearPublished: ""})); }}
+                  placeholder="VD: 2024" 
+                  min="0"
+                  max={new Date().getFullYear()}
+                  className={errors.yearPublished ? "input-error" : ""}
+                />
+                {errors.yearPublished && <span className="error-text">{errors.yearPublished}</span>}
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
                 <label>Số trang</label>
-                <input type="number" value={formData.pages} onChange={e => setFormData({...formData, pages: e.target.value})} />
+                <input 
+                  type="number" 
+                  value={formData.pages} 
+                  onChange={e => { setFormData({...formData, pages: e.target.value}); if (errors.pages) setErrors(prev => ({...prev, pages: ""})); }}
+                  placeholder="VD: 320" 
+                  min="1"
+                  className={errors.pages ? "input-error" : ""}
+                />
+                {errors.pages && <span className="error-text">{errors.pages}</span>}
               </div>
               <div className="form-group">
-                <label>Số lượng</label>
-                <input type="number" value={formData.copiesTotal} onChange={e => setFormData({...formData, copiesTotal: e.target.value})} min="1" />
+                <label>Ngôn ngữ</label>
+                <select value={formData.language} onChange={e => setFormData({...formData, language: e.target.value})}>
+                  <option value="Tiếng Việt">Tiếng Việt</option>
+                  <option value="Tiếng Anh">Tiếng Anh</option>
+                  <option value="Tiếng Trung">Tiếng Trung</option>
+                  <option value="Tiếng Nhật">Tiếng Nhật</option>
+                  <option value="Tiếng Hàn">Tiếng Hàn</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Số lượng <span className="required">*</span></label>
+                <input 
+                  type="number" 
+                  value={formData.copiesTotal} 
+                  onChange={e => { setFormData({...formData, copiesTotal: e.target.value}); if (errors.copiesTotal) setErrors(prev => ({...prev, copiesTotal: ""})); }}
+                  min="1" 
+                  className={errors.copiesTotal ? "input-error" : ""}
+                />
+                {errors.copiesTotal && <span className="error-text">{errors.copiesTotal}</span>}
+              </div>
+              <div className="form-group">
+                <label>Ảnh bìa (URL)</label>
+                <input type="url" value={formData.imageCover} onChange={e => setFormData({...formData, imageCover: e.target.value})} placeholder="https://example.com/image.jpg" />
               </div>
             </div>
             <div className="form-group">
+              <label>Danh mục <span className="required">*</span></label>
+              <div className={`category-checkbox-list ${errors.categoryIds ? "input-error" : ""}`}>
+                {categories.length > 0 ? categories.map(cat => (
+                  <label key={cat.categoryId} className="checkbox-item">
+                    <input
+                      type="checkbox"
+                      checked={formData.categoryIds.includes(cat.categoryId)}
+                      onChange={() => handleCategoryChange(cat.categoryId)}
+                    />
+                    <span>{cat.categoryName}</span>
+                  </label>
+                )) : (
+                  <p className="text-muted">Chưa có danh mục nào</p>
+                )}
+              </div>
+              {errors.categoryIds && <span className="error-text">{errors.categoryIds}</span>}
+            </div>
+            <div className="form-group">
               <label>Mô tả</label>
-              <textarea rows="3" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}></textarea>
+              <textarea rows="3" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Nhập mô tả sách"></textarea>
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn-secondary" onClick={onClose}>Hủy</button>
-            <button type="submit" className="btn-primary">{book ? "Cập nhật" : "Thêm mới"}</button>
+            <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Hủy</button>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? "Đang xử lý..." : (book ? "Cập nhật" : "Thêm mới")}
+            </button>
           </div>
         </form>
       </div>

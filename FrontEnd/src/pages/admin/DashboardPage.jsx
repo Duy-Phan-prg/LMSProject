@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   LayoutDashboard, Users, BookOpen, ShoppingCart, TrendingUp,
   TrendingDown, ArrowUpRight, ArrowDownRight, Calendar, Clock,
@@ -7,31 +7,34 @@ import {
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
-    totalUsers: 1250,
-    totalBooks: 3420,
-    totalBorrows: 856,
-    totalCategories: 24,
-    newUsersToday: 12,
-    borrowsToday: 45,
-    returnsToday: 32,
-    overdueBooks: 8
+    totalUsers: 0,
+    totalBooks: 0,
+    totalBorrows: 0,
+    totalCategories: 0,
+    newUsersToday: 0,
+    borrowsToday: 0,
+    returnsToday: 0,
+    overdueBooks: 0
   });
 
-  const recentActivities = [
-    { id: 1, type: "borrow", user: "Nguyễn Văn A", book: "Đắc Nhân Tâm", time: "5 phút trước" },
-    { id: 2, type: "return", user: "Trần Thị B", book: "Nhà Giả Kim", time: "15 phút trước" },
-    { id: 3, type: "register", user: "Lê Văn C", book: null, time: "30 phút trước" },
-    { id: 4, type: "borrow", user: "Phạm Thị D", book: "Sapiens", time: "1 giờ trước" },
-    { id: 5, type: "overdue", user: "Hoàng Văn E", book: "Tư Duy Nhanh Và Chậm", time: "2 giờ trước" },
-  ];
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [topBooks, setTopBooks] = useState([]);
 
-  const topBooks = [
-    { id: 1, title: "Đắc Nhân Tâm", author: "Dale Carnegie", borrows: 156, cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=100" },
-    { id: 2, title: "Nhà Giả Kim", author: "Paulo Coelho", borrows: 142, cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=100" },
-    { id: 3, title: "Sapiens", author: "Yuval Harari", borrows: 128, cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=100" },
-    { id: 4, title: "Atomic Habits", author: "James Clear", borrows: 115, cover: "https://images.unsplash.com/photo-1589998059171-988d887df646?w=100" },
-    { id: 5, title: "Think and Grow Rich", author: "Napoleon Hill", borrows: 98, cover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=100" },
-  ];
+  const fetchDashboardData = useCallback(async () => {
+    // TODO: Gọi API khi backend sẵn sàng
+    // try {
+    //   const data = await getDashboardStats();
+    //   setStats(data.stats);
+    //   setRecentActivities(data.recentActivities);
+    //   setTopBooks(data.topBooks);
+    // } catch (error) {
+    //   console.error("Error fetching dashboard:", error);
+    // }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const getActivityIcon = (type) => {
     switch (type) {

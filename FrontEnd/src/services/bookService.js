@@ -15,6 +15,21 @@ export const getBooksByCategory = async (categoryId, page = 0, size = 10) => {
 };
 
 export const getBookById = async (bookId) => {
-  const response = await axiosClient.get(`/api/books/${bookId}`);
+  const response = await axiosClient.get(`/api/books/getBookById/${bookId}`);
+  return response.data;
+};
+
+export const createBook = async (bookData) => {
+  const response = await axiosClient.post("/api/books/create", bookData);
+  return response.data;
+};
+
+export const updateBook = async (bookId, bookData) => {
+  const response = await axiosClient.put(`/api/books/update/${bookId}`, bookData);
+  return response.data;
+};
+
+export const deleteBook = async (bookId) => {
+  const response = await axiosClient.delete(`/api/books/delete/${bookId}`);
   return response.data;
 };

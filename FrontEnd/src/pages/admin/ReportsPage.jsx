@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   BarChart3, TrendingUp, TrendingDown, Download, Calendar,
   BookOpen, Users, ShoppingCart, DollarSign
@@ -7,42 +7,37 @@ import {
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState("month");
 
-  const stats = {
-    totalBorrows: 1256,
-    borrowsChange: 12.5,
-    totalReturns: 1180,
-    returnsChange: 8.3,
-    newUsers: 89,
-    usersChange: 15.2,
-    newBooks: 45,
-    booksChange: -5.1,
-  };
+  const [stats, setStats] = useState({
+    totalBorrows: 0,
+    borrowsChange: 0,
+    totalReturns: 0,
+    returnsChange: 0,
+    newUsers: 0,
+    usersChange: 0,
+    newBooks: 0,
+    booksChange: 0,
+  });
 
-  const topBorrowedBooks = [
-    { rank: 1, title: "Đắc Nhân Tâm", borrows: 156, change: 12 },
-    { rank: 2, title: "Nhà Giả Kim", borrows: 142, change: 8 },
-    { rank: 3, title: "Sapiens", borrows: 128, change: -3 },
-    { rank: 4, title: "Atomic Habits", borrows: 115, change: 15 },
-    { rank: 5, title: "Think and Grow Rich", borrows: 98, change: 5 },
-  ];
+  const [topBorrowedBooks, setTopBorrowedBooks] = useState([]);
+  const [topCategories, setTopCategories] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
 
-  const topCategories = [
-    { name: "Văn học", percentage: 28, count: 352 },
-    { name: "Kỹ năng sống", percentage: 22, count: 276 },
-    { name: "Kinh tế", percentage: 18, count: 226 },
-    { name: "Khoa học", percentage: 15, count: 188 },
-    { name: "Lịch sử", percentage: 10, count: 126 },
-    { name: "Khác", percentage: 7, count: 88 },
-  ];
+  const fetchReportData = useCallback(async () => {
+    // TODO: Gọi API khi backend sẵn sàng
+    // try {
+    //   const data = await getReportStats(dateRange);
+    //   setStats(data.stats);
+    //   setTopBorrowedBooks(data.topBooks);
+    //   setTopCategories(data.categories);
+    //   setMonthlyData(data.monthly);
+    // } catch (error) {
+    //   console.error("Error fetching reports:", error);
+    // }
+  }, [dateRange]);
 
-  const monthlyData = [
-    { month: "T1", borrows: 980, returns: 920 },
-    { month: "T2", borrows: 1050, returns: 1000 },
-    { month: "T3", borrows: 1120, returns: 1080 },
-    { month: "T4", borrows: 1200, returns: 1150 },
-    { month: "T5", borrows: 1180, returns: 1120 },
-    { month: "T6", borrows: 1256, returns: 1180 },
-  ];
+  useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
 
   return (
     <div className="admin-page reports-page">

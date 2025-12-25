@@ -23,3 +23,8 @@ export const deleteCategory = async (id) => {
   const response = await axiosClient.delete(`${BASE_URL}/delete/${id}`);
   return response.data;
 };
+
+export const getCategoryById = async (id) => {
+  const response = await axiosClient.get(`${BASE_URL}/getCategoriesById/${id}`);
+  return response.data;
+};

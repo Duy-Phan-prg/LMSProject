@@ -4,6 +4,7 @@ import RegisterPage from "../pages/RegisterPage";
 import AdminLayout from "../layouts/AdminLayout";
 import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/HomePage";
+import BookDetailPage from "../pages/BookDetailPage";
 
 // Admin Pages
 import DashboardPage from "../pages/admin/DashboardPage";
@@ -25,6 +26,7 @@ export default function AppRoutes() {
       {/* Public - Main Layout */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/book/:id" element={<BookDetailPage />} />
       </Route>
 
       {/* Admin - Admin Layout */}

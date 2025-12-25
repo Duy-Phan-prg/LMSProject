@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   ShoppingCart, Search, Eye, CheckCircle, XCircle, Clock,
   ChevronLeft, ChevronRight, RefreshCw, AlertCircle, X, BookOpen, User, Calendar
@@ -7,26 +7,29 @@ import Swal from "sweetalert2";
 
 export default function BorrowsPage() {
   const [borrows, setBorrows] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [searchInput, setSearchInput] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [viewingBorrow, setViewingBorrow] = useState(null);
 
+  const fetchBorrows = useCallback(async () => {
+    // TODO: Gọi API khi backend sẵn sàng
+    // setLoading(true);
+    // try {
+    //   const data = await getAllBorrows(currentPage, pageSize);
+    //   setBorrows(data.content || []);
+    // } catch (error) {
+    //   console.error("Error fetching borrows:", error);
+    // } finally {
+    //   setLoading(false);
+    // }
+  }, [currentPage, pageSize]);
+
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setBorrows([
-        { id: 1, user: { id: 1, fullName: "Nguyễn Văn A", email: "nguyenvana@gmail.com" }, book: { title: "Đắc Nhân Tâm", author: "Dale Carnegie" }, borrowDate: "2025-12-15", dueDate: "2025-12-29", returnDate: null, status: "BORROWING" },
-        { id: 2, user: { id: 2, fullName: "Trần Thị B", email: "tranthib@gmail.com" }, book: { title: "Nhà Giả Kim", author: "Paulo Coelho" }, borrowDate: "2025-12-10", dueDate: "2025-12-24", returnDate: "2025-12-20", status: "RETURNED" },
-        { id: 3, user: { id: 3, fullName: "Lê Văn C", email: "levanc@gmail.com" }, book: { title: "Sapiens", author: "Yuval Harari" }, borrowDate: "2025-12-01", dueDate: "2025-12-15", returnDate: null, status: "OVERDUE" },
-        { id: 4, user: { id: 4, fullName: "Phạm Thị D", email: "phamthid@gmail.com" }, book: { title: "Atomic Habits", author: "James Clear" }, borrowDate: "2025-12-18", dueDate: "2026-01-01", returnDate: null, status: "BORROWING" },
-        { id: 5, user: { id: 5, fullName: "Hoàng Văn E", email: "hoangvane@gmail.com" }, book: { title: "Think and Grow Rich", author: "Napoleon Hill" }, borrowDate: "2025-12-05", dueDate: "2025-12-19", returnDate: "2025-12-18", status: "RETURNED" },
-      ]);
-      setLoading(false);
-    }, 500);
-  }, []);
+    fetchBorrows();
+  }, [fetchBorrows]);
 
   const getStatusBadge = (status) => {
     const statuses = {
@@ -49,8 +52,14 @@ export default function BorrowsPage() {
       cancelButtonText: "Hủy"
     });
     if (result.isConfirmed) {
-      setBorrows(prev => prev.map(b => b.id === borrowId ? {...b, status: "RETURNED", returnDate: new Date().toISOString().split('T')[0]} : b));
-      Swal.fire("Thành công!", "Đã xác nhận trả sách.", "success");
+      // TODO: Gọi API khi backend sẵn sàng
+      // try {
+      //   await returnBook(borrowId);
+      //   fetchBorrows();
+      //   Swal.fire("Thành công!", "Đã xác nhận trả sách.", "success");
+      // } catch (error) {
+      //   Swal.fire("Lỗi!", "Không thể xác nhận trả sách", "error");
+      // }
     }
   };
 
@@ -79,7 +88,9 @@ export default function BorrowsPage() {
           </div>
         </div>
         <div className="page-header-right">
-          <button className="btn-secondary"><RefreshCw size={18} /> Làm mới</button>
+          <button className="btn-secondary" onClick={fetchBorrows} disabled={loading}>
+            <RefreshCw size={18} className={loading ? "spin" : ""} /> Làm mới
+          </button>
         </div>
       </div>
 

@@ -8,72 +8,47 @@ import {
   Gift, Truck
 } from "lucide-react";
 import { getAllCategories } from "../services/categoryService";
+import { getAllBooks } from "../services/bookService";
 import "../styles/home.css";
-
-// Mock books data (sau này thay bằng API)
-const mockBooks = [
-  // Văn học
-  { bookId: 1, title: "Đắc Nhân Tâm", author: "Dale Carnegie", categoryId: 1, imageCover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop", copiesAvailable: 5, yearPublished: 2020 },
-  { bookId: 2, title: "Nhà Giả Kim", author: "Paulo Coelho", categoryId: 1, imageCover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop", copiesAvailable: 3, yearPublished: 2019 },
-  { bookId: 3, title: "Tuổi Trẻ Đáng Giá Bao Nhiêu", author: "Rosie Nguyễn", categoryId: 1, imageCover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop", copiesAvailable: 0, yearPublished: 2021 },
-  { bookId: 4, title: "Cho Tôi Xin Một Vé Đi Tuổi Thơ", author: "Nguyễn Nhật Ánh", categoryId: 1, imageCover: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=300&h=400&fit=crop", copiesAvailable: 7, yearPublished: 2018 },
-  { bookId: 5, title: "Mắt Biếc", author: "Nguyễn Nhật Ánh", categoryId: 1, imageCover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=300&h=400&fit=crop", copiesAvailable: 2, yearPublished: 2019 },
-  { bookId: 6, title: "Tôi Thấy Hoa Vàng Trên Cỏ Xanh", author: "Nguyễn Nhật Ánh", categoryId: 1, imageCover: "https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=300&h=400&fit=crop", copiesAvailable: 4, yearPublished: 2020 },
-  { bookId: 7, title: "Dế Mèn Phiêu Lưu Ký", author: "Tô Hoài", categoryId: 1, imageCover: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=300&h=400&fit=crop", copiesAvailable: 6, yearPublished: 2017 },
-  // Kinh tế
-  { bookId: 8, title: "Cha Giàu Cha Nghèo", author: "Robert Kiyosaki", categoryId: 2, imageCover: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=300&h=400&fit=crop", copiesAvailable: 4, yearPublished: 2020 },
-  { bookId: 9, title: "Nghĩ Giàu Làm Giàu", author: "Napoleon Hill", categoryId: 2, imageCover: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=300&h=400&fit=crop", copiesAvailable: 2, yearPublished: 2019 },
-  { bookId: 10, title: "Người Giàu Có Nhất Thành Babylon", author: "George S. Clason", categoryId: 2, imageCover: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=300&h=400&fit=crop", copiesAvailable: 5, yearPublished: 2021 },
-  { bookId: 11, title: "Bí Mật Tư Duy Triệu Phú", author: "T. Harv Eker", categoryId: 2, imageCover: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=300&h=400&fit=crop", copiesAvailable: 3, yearPublished: 2020 },
-  { bookId: 12, title: "Tâm Lý Học Về Tiền", author: "Morgan Housel", categoryId: 2, imageCover: "https://images.unsplash.com/photo-1565373679580-fc0cb538f49d?w=300&h=400&fit=crop", copiesAvailable: 0, yearPublished: 2022 },
-  { bookId: 13, title: "Khởi Nghiệp Tinh Gọn", author: "Eric Ries", categoryId: 2, imageCover: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=400&fit=crop", copiesAvailable: 4, yearPublished: 2019 },
-  // Kỹ năng sống
-  { bookId: 14, title: "7 Thói Quen Hiệu Quả", author: "Stephen Covey", categoryId: 3, imageCover: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=300&h=400&fit=crop", copiesAvailable: 6, yearPublished: 2020 },
-  { bookId: 15, title: "Đời Ngắn Đừng Ngủ Dài", author: "Robin Sharma", categoryId: 3, imageCover: "https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=300&h=400&fit=crop", copiesAvailable: 3, yearPublished: 2019 },
-  { bookId: 16, title: "Sức Mạnh Của Thói Quen", author: "Charles Duhigg", categoryId: 3, imageCover: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&h=400&fit=crop", copiesAvailable: 5, yearPublished: 2021 },
-  { bookId: 17, title: "Tư Duy Nhanh Và Chậm", author: "Daniel Kahneman", categoryId: 3, imageCover: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=300&h=400&fit=crop", copiesAvailable: 2, yearPublished: 2020 },
-  { bookId: 18, title: "Atomic Habits", author: "James Clear", categoryId: 3, imageCover: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=300&h=400&fit=crop", copiesAvailable: 8, yearPublished: 2022 },
-  // Khoa học
-  { bookId: 19, title: "Lược Sử Thời Gian", author: "Stephen Hawking", categoryId: 4, imageCover: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=300&h=400&fit=crop", copiesAvailable: 4, yearPublished: 2018 },
-  { bookId: 20, title: "Sapiens: Lược Sử Loài Người", author: "Yuval Noah Harari", categoryId: 4, imageCover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=400&fit=crop", copiesAvailable: 6, yearPublished: 2020 },
-  { bookId: 21, title: "Cosmos", author: "Carl Sagan", categoryId: 4, imageCover: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=300&h=400&fit=crop", copiesAvailable: 3, yearPublished: 2019 },
-  { bookId: 22, title: "Gen Ích Kỷ", author: "Richard Dawkins", categoryId: 4, imageCover: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=300&h=400&fit=crop", copiesAvailable: 2, yearPublished: 2021 },
-  { bookId: 23, title: "Vũ Trụ Trong Vỏ Hạt Dẻ", author: "Stephen Hawking", categoryId: 4, imageCover: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=300&h=400&fit=crop", copiesAvailable: 5, yearPublished: 2020 },
-  // Thiếu nhi
-  { bookId: 24, title: "Harry Potter", author: "J.K. Rowling", categoryId: 5, imageCover: "https://images.unsplash.com/photo-1618666012174-83b441c0bc76?w=300&h=400&fit=crop", copiesAvailable: 10, yearPublished: 2020 },
-  { bookId: 25, title: "Hoàng Tử Bé", author: "Antoine de Saint-Exupéry", categoryId: 5, imageCover: "https://images.unsplash.com/photo-1589998059171-988d887df646?w=300&h=400&fit=crop", copiesAvailable: 7, yearPublished: 2019 },
-  { bookId: 26, title: "Doraemon", author: "Fujiko F. Fujio", categoryId: 5, imageCover: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=300&h=400&fit=crop", copiesAvailable: 15, yearPublished: 2021 },
-  { bookId: 27, title: "Conan", author: "Gosho Aoyama", categoryId: 5, imageCover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop", copiesAvailable: 12, yearPublished: 2022 },
-  { bookId: 28, title: "Shin - Cậu Bé Bút Chì", author: "Yoshito Usui", categoryId: 5, imageCover: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=300&h=400&fit=crop", copiesAvailable: 8, yearPublished: 2020 },
-];
 
 export default function HomePage() {
   const [categories, setCategories] = useState([]);
-  const [books] = useState(mockBooks);
+  const [allBooks, setAllBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(null);
   const categoryRefs = useRef({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
+    const loadData = async () => {
       setLoading(true);
-      const response = await getAllCategories(0, 100);
-      const activeCategories = response.content?.filter(c => c.active) || [];
-      setCategories(activeCategories);
-      if (activeCategories.length > 0) {
-        setActiveTab(activeCategories[0].categoryId);
+      try {
+        // Fetch categories và books song song
+        const [catResponse, bookResponse] = await Promise.all([
+          getAllCategories(0, 100),
+          getAllBooks(0, 100)
+        ]);
+        
+        const activeCategories = catResponse.content?.filter(c => c.active) || [];
+        setCategories(activeCategories);
+        
+        if (activeCategories.length > 0) {
+          setActiveTab(activeCategories[0].categoryId);
+        }
+        
+        // Lấy danh sách sách (chỉ lấy sách active)
+        const books = bookResponse.content?.filter(b => b.active !== false) || [];
+        setAllBooks(books);
+        
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    
+    loadData();
+  }, []);
 
   const scrollToCategory = (categoryId) => {
     setActiveTab(categoryId);
@@ -99,8 +74,22 @@ export default function HomePage() {
     { icon: <Gift size={28} />, title: "Ưu đãi thành viên", desc: "Tích điểm đổi quà, giảm giá độc quyền" },
   ];
 
-  const getBooksByCategory = (categoryId) => {
-    return books.filter(book => book.categoryId === categoryId);
+  const getBooksForCategory = (categoryId) => {
+    // Filter sách theo category - sách có thể có nhiều categories
+    return allBooks.filter(book => {
+      // Kiểm tra nếu book.categories là array của tên category
+      if (book.categories && Array.isArray(book.categories)) {
+        const category = categories.find(c => c.categoryId === categoryId);
+        if (category) {
+          return book.categories.includes(category.categoryName);
+        }
+      }
+      // Kiểm tra nếu book.categoryIds là array của ID
+      if (book.categoryIds && Array.isArray(book.categoryIds)) {
+        return book.categoryIds.includes(categoryId);
+      }
+      return false;
+    });
   };
 
   return (
@@ -199,7 +188,7 @@ export default function HomePage() {
               >
                 <BookCategoryRow 
                   category={category}
-                  books={getBooksByCategory(category.categoryId)}
+                  books={getBooksForCategory(category.categoryId)}
                   navigate={navigate}
                 />
               </div>
@@ -289,7 +278,12 @@ function BookCategoryRow({ category, books, navigate }) {
 
   if (books.length === 0) return null;
 
-  const defaultCover = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop";
+  const defaultCover = "https://placehold.co/300x400/1a2744/d4a853?text=No+Cover";
+  
+  const isValidImageUrl = (url) => {
+    if (!url || url === "string" || url.trim() === "") return false;
+    return url.startsWith("http://") || url.startsWith("https://");
+  };
 
   return (
     <div className="book-category-row">
@@ -319,7 +313,7 @@ function BookCategoryRow({ category, books, navigate }) {
             >
               <div className="book-slide-cover">
                 <img
-                  src={book.imageCover || defaultCover}
+                  src={isValidImageUrl(book.imageCover) ? book.imageCover : defaultCover}
                   alt={book.title}
                   onError={(e) => { e.target.src = defaultCover; }}
                 />
