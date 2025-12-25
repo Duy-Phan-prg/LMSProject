@@ -59,5 +59,11 @@ public class BookController {
             return ResponseEntity.status(404).body("Book with ID " + id + " not found.");
         }
     }
+    //xem chi tiet sach
+    @GetMapping("/getBookById/{id}")
+    public ResponseEntity<BookResponseDTO> getBookById(@PathVariable Long id) {
+        BookResponseDTO response = bookService.getBookById(id);
+        return ResponseEntity.ok(response);
+    }
 
 }

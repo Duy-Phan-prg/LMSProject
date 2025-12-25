@@ -59,4 +59,10 @@ public class CategoryController {
     ) {
         return categoryService.updateCategory(id, request);
     }
+
+    //Category by id
+    @GetMapping("/getCategoriesById/{id}")
+    public ResponseEntity<CategoryResponseDTO> getCategoryById(@PathVariable Long id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
+    }
 }

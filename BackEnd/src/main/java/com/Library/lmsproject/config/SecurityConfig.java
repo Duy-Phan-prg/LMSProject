@@ -44,7 +44,7 @@ public class SecurityConfig {
             // Auth
             "/api/user/**",
             // Swagger
-
+            "/api/borrowings/**",
             "/api/categories/**",
             "/api/books/**",
             "/swagger-ui.html",
@@ -54,6 +54,7 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/v3/api-docs.yaml",
             "/api-docs/**",
+
     };
 
     @Bean

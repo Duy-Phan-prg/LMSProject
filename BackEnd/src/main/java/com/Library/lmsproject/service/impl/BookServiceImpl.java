@@ -7,7 +7,7 @@ import com.Library.lmsproject.entity.Books;
 import com.Library.lmsproject.entity.Categories;
 import com.Library.lmsproject.mapper.BookMapper;
 import com.Library.lmsproject.repository.BookRepository;
-import com.Library.lmsproject.repository.CategoryRespository;
+import com.Library.lmsproject.repository.CategoryRepository;
 import com.Library.lmsproject.service.BookService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
-    private final CategoryRespository categoryRespository;
+    private final CategoryRepository categoryRepository;
 
     @Transactional
     @Override
@@ -49,7 +49,7 @@ public class BookServiceImpl implements BookService {
         }
 
         Set<Categories> categories = new HashSet<>(
-                categoryRespository.findAllById(request.getCategoryIds())
+                categoryRepository.findAllById(request.getCategoryIds())
         );
 
         if (categories.size() != request.getCategoryIds().size()) {
@@ -108,7 +108,7 @@ public class BookServiceImpl implements BookService {
             }
 
             Set<Categories> categories = new HashSet<>(
-                    categoryRespository.findAllById(request.getCategoryIds())
+                    categoryRepository.findAllById(request.getCategoryIds())
             );
 
             if (categories.size() != request.getCategoryIds().size()) {
@@ -145,5 +145,12 @@ public class BookServiceImpl implements BookService {
         book.setIsActive(false);
 
         return true;
+    }
+
+    @Override
+    public BookResponseDTO getBookById(Long id) {
+        Books book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+        return bookMapper.toResponseDTO(book);
     }
 }

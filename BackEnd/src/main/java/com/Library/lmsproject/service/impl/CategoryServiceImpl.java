@@ -6,7 +6,7 @@ import com.Library.lmsproject.dto.request.UpdateCategoryRequestDTO;
 import com.Library.lmsproject.dto.response.CategoryResponseDTO;
 import com.Library.lmsproject.entity.Categories;
 import com.Library.lmsproject.mapper.CategoryMapper;
-import com.Library.lmsproject.repository.CategoryRespository;
+import com.Library.lmsproject.repository.CategoryRepository;
 import com.Library.lmsproject.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,18 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
-    private final CategoryRespository categoryRespository;
+    private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     @Transactional
     @Override
     public CategoryResponseDTO createCategory(CreateCategoryRequestDTO request) {
-        categoryRespository.findByCategoryName(request.getCategoryName())
+        categoryRepository.findByCategoryName(request.getCategoryName())
                 .ifPresent(c -> {
                     throw new RuntimeException("Category already exists");
                 });
         Categories category = categoryMapper.toEntity(request);
 
-        Categories savedCategory = categoryRespository.save(category);
+        Categories savedCategory = categoryRepository.save(category);
 
         return categoryMapper.toResponseDTO(savedCategory);
     }
@@ -40,16 +40,16 @@ public class CategoryServiceImpl implements CategoryService {
 
         Page<Categories> categoriesPage;
         if (keyword != null && !keyword.isBlank()) {
-            categoriesPage = categoryRespository.searchActiveCategories(keyword, pageable);
+            categoriesPage = categoryRepository.searchActiveCategories(keyword, pageable);
         } else {
-            categoriesPage = categoryRespository.findByIsActive(true, pageable);
+            categoriesPage = categoryRepository.findByIsActive(true, pageable);
         }
         return categoriesPage.map(categoryMapper::toResponseDTO);
     }
     @Transactional
     @Override
     public Boolean deleteCategory(Long categoryId) {
-        Categories category = categoryRespository.findById(categoryId)
+        Categories category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         //INVERSE SIDE
         //Nên xóa mối quan hệ ở bên nhiều (books) trước ở category book
@@ -57,18 +57,18 @@ public class CategoryServiceImpl implements CategoryService {
         category.getBooks().clear();
 
         category.setActive(false);
-        categoryRespository.save(category);
+        categoryRepository.save(category);
         return true;
     }
     @Transactional
     @Override
     public CategoryResponseDTO updateCategory(Long categoryId, UpdateCategoryRequestDTO request) {
-        Categories category = categoryRespository.findById(categoryId)
+        Categories category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
 
         if (!category.getCategoryName().equals(request.getCategoryName())) {
-            categoryRespository.findByCategoryName(request.getCategoryName())
+            categoryRepository.findByCategoryName(request.getCategoryName())
                     .ifPresent(c -> {
                         throw new RuntimeException("Category name already exists");
                     });
@@ -77,8 +77,17 @@ public class CategoryServiceImpl implements CategoryService {
         category.setCategoryName(request.getCategoryName());
         category.setCategoryDescription(request.getCategoryDescription());
 
-        Categories updated = categoryRespository.save(category);
+        Categories updated = categoryRepository.save(category);
 
         return categoryMapper.toResponseDTO(updated);
+    }
+
+    @Override
+    public CategoryResponseDTO getCategoryById(Long categoryId) {
+
+        Categories category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        return categoryMapper.toResponseDTO(category);
     }
 }
