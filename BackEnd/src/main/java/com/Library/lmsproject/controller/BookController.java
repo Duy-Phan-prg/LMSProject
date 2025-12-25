@@ -23,13 +23,10 @@ public class BookController {
 
     @PostMapping("/create")
     public ResponseEntity<BookResponseDTO> createBook(
-            @Valid @RequestBody CreateBookRequestDTO request) {
-
+            @Valid @RequestBody CreateBookRequestDTO request)
+    {
         BookResponseDTO response = bookService.createBook(request);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     //xem danh sach

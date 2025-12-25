@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { register } from "../services/authService";
-import { BookOpen, Mail, Lock, Eye, EyeOff, UserPlus, User, Phone, MapPin } from "lucide-react";
+import { BookOpen, Mail, Lock, Eye, EyeOff, UserPlus, User, Phone, MapPin, Home } from "lucide-react";
 import Swal from "sweetalert2";
 import "../styles/login.css";
 
@@ -248,6 +248,14 @@ export default function RegisterPage() {
 
             <div className="login-footer">
               <p>Đã có tài khoản? <Link to="/login">Đăng nhập</Link></p>
+              <button 
+                type="button" 
+                className="btn-back-home"
+                onClick={() => navigate("/")}
+              >
+                <Home size={16} />
+                Quay về trang chủ
+              </button>
             </div>
           </div>
         </div>

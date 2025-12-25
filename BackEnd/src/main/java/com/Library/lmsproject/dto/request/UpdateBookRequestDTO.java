@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 public class UpdateBookRequestDTO {
     @NotBlank
@@ -11,15 +13,14 @@ public class UpdateBookRequestDTO {
 
     @NotBlank
     private String author;
-
     private String publisher;
     private Integer yearPublished;
     private Integer pages;
     private String language;
     private String description;
     private String imageCover;
-
     @NotNull
-    private Integer copiesTotal;
+    private Integer copiesTotal; // phai duoc update category
 
+    private Set<Long> categoryIds;
 }

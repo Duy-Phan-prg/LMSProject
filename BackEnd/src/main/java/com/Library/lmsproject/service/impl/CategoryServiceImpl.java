@@ -13,20 +13,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRespository categoryRespository;
     private final CategoryMapper categoryMapper;
-
+    @Transactional
     @Override
     public CategoryResponseDTO createCategory(CreateCategoryRequestDTO request) {
         categoryRespository.findByCategoryName(request.getCategoryName())
                 .ifPresent(c -> {
                     throw new RuntimeException("Category already exists");
                 });
-
         Categories category = categoryMapper.toEntity(request);
 
         Categories savedCategory = categoryRespository.save(category);
@@ -46,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return categoriesPage.map(categoryMapper::toResponseDTO);
     }
-
+    @Transactional
     @Override
     public Boolean deleteCategory(Long categoryId) {
         Categories category = categoryRespository.findById(categoryId)
@@ -56,13 +56,13 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRespository.save(category);
         return true;
     }
-
+    @Transactional
     @Override
     public CategoryResponseDTO updateCategory(Long categoryId, UpdateCategoryRequestDTO request) {
         Categories category = categoryRespository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        // Nếu đổi tên thì check trùng
+
         if (!category.getCategoryName().equals(request.getCategoryName())) {
             categoryRespository.findByCategoryName(request.getCategoryName())
                     .ifPresent(c -> {

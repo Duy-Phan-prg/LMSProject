@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
             );
         }
     }
-
+    @Transactional
     @Override
     public UserResponseDTO createUser(CreateUserRequestDTO request) {
         if (usersRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -148,7 +148,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserResponseDTO(usersRepository.save(user));
 
     }
-
+    @Transactional
     @Override
     public Boolean deleteUser(Long id) {
         return usersRepository.findByIdAndIsActive(id, true).map(user -> {
@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService {
                 })
                 .orElse(false);
     }
-
+    @Transactional
     @Override
     public UserResponseDTO updateUser(Long id, UpdateUserRequestDTO request) {
         Users user = usersRepository.findById(id)

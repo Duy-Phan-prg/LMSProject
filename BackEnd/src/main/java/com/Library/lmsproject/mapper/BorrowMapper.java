@@ -8,7 +8,15 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface BorrowMapper {
 
+    @Mapping(source = "borrowingId", target = "borrowingId")
+
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.fullName", target = "userName")
+
     @Mapping(source = "book.bookId", target = "bookId")
     @Mapping(source = "book.title", target = "bookTitle")
+
+    @Mapping(source = "status", target = "status")
+
     BorrowResponseDTO toResponse(Borrowings borrowing);
 }

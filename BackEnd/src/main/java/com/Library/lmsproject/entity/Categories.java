@@ -20,10 +20,11 @@ public class Categories {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
-    @Column(name = "name", nullable = false, unique = true, length = 100)
+
+    @Column(name = "name",columnDefinition = "NVARCHAR(100)", nullable = false, unique = true, length = 100)
     private String categoryName;
 
-    @Column(name = "description")
+    @Column(name = "description",columnDefinition = "NVARCHAR(2000)")
     private String categoryDescription;
 
     @Column(nullable = false)

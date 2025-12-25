@@ -1,38 +1,62 @@
 import { useState, useEffect } from "react";
 import {
-  FolderTree, Plus, Search, Edit, Trash2, Eye,
+  FolderTree, Plus, Search, Edit, Trash2,
   ChevronLeft, ChevronRight, RefreshCw, AlertCircle, X, BookOpen
 } from "lucide-react";
 import Swal from "sweetalert2";
+import {
+  getAllCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory
+} from "../../services/categoryService";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState("");
+  const [keyword, setKeyword] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [size] = useState(12);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllCategories(page, size, keyword);
+      setCategories(data.content || []);
+      setTotalPages(data.totalPages || 0);
+      setTotalElements(data.totalElements || 0);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      Swal.fire("Lỗi!", "Không thể tải danh sách danh mục", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setCategories([
-        { categoryId: 1, categoryName: "Văn học", categoryDescription: "Sách văn học trong và ngoài nước", bookCount: 245, active: true },
-        { categoryId: 2, categoryName: "Kinh tế", categoryDescription: "Sách về kinh tế, tài chính, đầu tư", bookCount: 189, active: true },
-        { categoryId: 3, categoryName: "Kỹ năng sống", categoryDescription: "Sách phát triển bản thân", bookCount: 156, active: true },
-        { categoryId: 4, categoryName: "Khoa học", categoryDescription: "Sách khoa học tự nhiên và xã hội", bookCount: 134, active: true },
-        { categoryId: 5, categoryName: "Lịch sử", categoryDescription: "Sách lịch sử Việt Nam và thế giới", bookCount: 98, active: true },
-        { categoryId: 6, categoryName: "Thiếu nhi", categoryDescription: "Sách dành cho trẻ em", bookCount: 87, active: true },
-        { categoryId: 7, categoryName: "Tâm lý", categoryDescription: "Sách tâm lý học", bookCount: 76, active: false },
-        { categoryId: 8, categoryName: "Triết học", categoryDescription: "Sách triết học đông tây", bookCount: 54, active: true },
-      ]);
-      setLoading(false);
-    }, 500);
-  }, []);
+    fetchCategories();
+  }, [page, keyword]);
 
-  const handleDelete = async (id) => {
+  const handleSearch = () => {
+    setPage(0);
+    setKeyword(searchInput);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") handleSearch();
+  };
+
+  const handleDelete = async (id, name) => {
     const result = await Swal.fire({
       title: "Xác nhận xóa?",
-      text: "Bạn có chắc muốn xóa danh mục này?",
+      text: `Bạn có chắc muốn xóa danh mục "${name}"?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
@@ -40,15 +64,26 @@ export default function CategoriesPage() {
       confirmButtonText: "Xóa",
       cancelButtonText: "Hủy"
     });
+    
     if (result.isConfirmed) {
-      setCategories(prev => prev.filter(c => c.categoryId !== id));
-      Swal.fire("Thành công!", "Đã xóa danh mục.", "success");
+      try {
+        await deleteCategory(id);
+        Swal.fire("Thành công!", "Đã xóa danh mục.", "success");
+        fetchCategories();
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        Swal.fire("Lỗi!", error.response?.data?.message || "Không thể xóa danh mục", "error");
+      }
     }
   };
 
-  const filteredCategories = categories.filter(c => 
-    c.categoryName.toLowerCase().includes(searchInput.toLowerCase())
-  );
+  const handleFormSuccess = () => {
+    setShowModal(false);
+    setEditingCategory(null);
+    fetchCategories();
+  };
+
+  const activeCount = categories.filter(c => c.active).length;
 
   return (
     <div className="admin-page categories-page">
@@ -57,11 +92,13 @@ export default function CategoriesPage() {
           <div className="page-icon"><FolderTree size={28} /></div>
           <div>
             <h1 className="page-title">Quản lý danh mục</h1>
-            <p className="page-subtitle">Quản lý các danh mục sách</p>
+            <p className="page-subtitle">Quản lý các danh mục sách trong thư viện</p>
           </div>
         </div>
         <div className="page-header-right">
-          <button className="btn-secondary"><RefreshCw size={18} /> Làm mới</button>
+          <button className="btn-secondary" onClick={fetchCategories}>
+            <RefreshCw size={18} /> Làm mới
+          </button>
           <button className="btn-primary" onClick={() => { setEditingCategory(null); setShowModal(true); }}>
             <Plus size={18} /> Thêm danh mục
           </button>
@@ -73,15 +110,15 @@ export default function CategoriesPage() {
         <div className="stat-card">
           <div className="stat-card-icon blue"><FolderTree size={24} /></div>
           <div className="stat-card-info">
-            <span className="stat-card-value">{categories.length}</span>
+            <span className="stat-card-value">{totalElements}</span>
             <span className="stat-card-label">Tổng danh mục</span>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon green"><BookOpen size={24} /></div>
           <div className="stat-card-info">
-            <span className="stat-card-value">{categories.reduce((sum, c) => sum + c.bookCount, 0)}</span>
-            <span className="stat-card-label">Tổng sách</span>
+            <span className="stat-card-value">{activeCount}</span>
+            <span className="stat-card-label">Đang hoạt động</span>
           </div>
         </div>
       </div>
@@ -91,8 +128,15 @@ export default function CategoriesPage() {
         <div className="toolbar-left">
           <div className="search-input">
             <Search size={18} />
-            <input type="text" placeholder="Tìm kiếm danh mục..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm danh mục..." 
+              value={searchInput} 
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
           </div>
+          <button className="btn-secondary" onClick={handleSearch}>Tìm kiếm</button>
         </div>
       </div>
 
@@ -100,43 +144,63 @@ export default function CategoriesPage() {
       <div className="categories-grid">
         {loading ? (
           <div className="table-loading"><div className="spinner"></div><p>Đang tải...</p></div>
-        ) : filteredCategories.length === 0 ? (
+        ) : categories.length === 0 ? (
           <div className="table-empty"><AlertCircle size={48} /><h3>Không có danh mục</h3></div>
         ) : (
-          filteredCategories.map((category) => (
+          categories.map((category) => (
             <div key={category.categoryId} className={`category-card ${!category.active ? "inactive" : ""}`}>
               <div className="category-card-header">
                 <div className="category-icon"><FolderTree size={24} /></div>
                 <div className="category-actions">
-                  <button className="action-btn edit" onClick={() => { setEditingCategory(category); setShowModal(true); }}><Edit size={16} /></button>
-                  <button className="action-btn delete" onClick={() => handleDelete(category.categoryId)}><Trash2 size={16} /></button>
+                  <button className="action-btn edit" onClick={() => { setEditingCategory(category); setShowModal(true); }}>
+                    <Edit size={16} />
+                  </button>
+                  <button className="action-btn delete" onClick={() => handleDelete(category.categoryId, category.categoryName)}>
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
               <h3 className="category-name">{category.categoryName}</h3>
-              <p className="category-desc">{category.categoryDescription}</p>
+              <p className="category-desc">{category.categoryDescription || "Chưa có mô tả"}</p>
               <div className="category-footer">
-                <span className="book-count"><BookOpen size={14} /> {category.bookCount} sách</span>
-                <span className={`status-dot ${category.active ? "active" : "inactive"}`}></span>
+                <span className={`status-badge ${category.active ? "active" : "inactive"}`}>
+                  {category.active ? "Hoạt động" : "Tạm ẩn"}
+                </span>
               </div>
             </div>
           ))
         )}
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button 
+            className="pagination-btn" 
+            disabled={page === 0}
+            onClick={() => setPage(p => p - 1)}
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <span className="pagination-info">
+            Trang {page + 1} / {totalPages}
+          </span>
+          <button 
+            className="pagination-btn" 
+            disabled={page >= totalPages - 1}
+            onClick={() => setPage(p => p + 1)}
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
+
       {/* Modal */}
       {showModal && (
         <CategoryFormModal 
           category={editingCategory} 
           onClose={() => { setShowModal(false); setEditingCategory(null); }}
-          onSuccess={(data) => {
-            if (editingCategory) {
-              setCategories(prev => prev.map(c => c.categoryId === editingCategory.categoryId ? {...c, ...data} : c));
-            } else {
-              setCategories(prev => [...prev, { categoryId: Date.now(), ...data, bookCount: 0, active: true }]);
-            }
-            setShowModal(false);
-            setEditingCategory(null);
-          }}
+          onSuccess={handleFormSuccess}
         />
       )}
     </div>
@@ -148,11 +212,38 @@ function CategoryFormModal({ category, onClose, onSuccess }) {
     categoryName: category?.categoryName || "",
     categoryDescription: category?.categoryDescription || "",
   });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.categoryName.trim()) {
+      newErrors.categoryName = "Vui lòng nhập tên danh mục";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSuccess(formData);
-    Swal.fire("Thành công!", category ? "Đã cập nhật danh mục" : "Đã thêm danh mục mới", "success");
+    if (!validate()) return;
+
+    setLoading(true);
+    try {
+      if (category) {
+        await updateCategory(category.categoryId, formData);
+        Swal.fire("Thành công!", "Đã cập nhật danh mục", "success");
+      } else {
+        await createCategory(formData);
+        Swal.fire("Thành công!", "Đã thêm danh mục mới", "success");
+      }
+      onSuccess();
+    } catch (error) {
+      console.error("Error saving category:", error);
+      Swal.fire("Lỗi!", error.response?.data?.message || "Không thể lưu danh mục", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -166,16 +257,32 @@ function CategoryFormModal({ category, onClose, onSuccess }) {
           <div className="modal-body">
             <div className="form-group">
               <label>Tên danh mục <span className="required">*</span></label>
-              <input type="text" value={formData.categoryName} onChange={e => setFormData({...formData, categoryName: e.target.value})} required />
+              <input 
+                type="text" 
+                value={formData.categoryName} 
+                onChange={e => setFormData({...formData, categoryName: e.target.value})} 
+                className={errors.categoryName ? "input-error" : ""}
+                placeholder="Nhập tên danh mục"
+              />
+              {errors.categoryName && <span className="error-text">{errors.categoryName}</span>}
             </div>
             <div className="form-group">
               <label>Mô tả</label>
-              <textarea rows="3" value={formData.categoryDescription} onChange={e => setFormData({...formData, categoryDescription: e.target.value})}></textarea>
+              <textarea 
+                rows="3" 
+                value={formData.categoryDescription} 
+                onChange={e => setFormData({...formData, categoryDescription: e.target.value})}
+                placeholder="Nhập mô tả danh mục (không bắt buộc)"
+              ></textarea>
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn-secondary" onClick={onClose}>Hủy</button>
-            <button type="submit" className="btn-primary">{category ? "Cập nhật" : "Thêm mới"}</button>
+            <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>
+              Hủy
+            </button>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? "Đang xử lý..." : (category ? "Cập nhật" : "Thêm mới")}
+            </button>
           </div>
         </form>
       </div>

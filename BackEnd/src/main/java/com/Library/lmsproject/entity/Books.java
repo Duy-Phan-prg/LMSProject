@@ -50,7 +50,7 @@ public class Books {
     @Column(name = "available_copies", nullable = false)
     private Integer copiesAvailable = 1;
 
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_Active", nullable = false)
     private Boolean isActive = true;
 
     @Column(name = "created_at", nullable = false)
