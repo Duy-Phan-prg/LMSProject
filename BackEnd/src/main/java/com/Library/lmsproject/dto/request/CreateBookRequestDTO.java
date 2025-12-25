@@ -3,13 +3,18 @@ package com.Library.lmsproject.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.util.Set;
 
 @Data
 public class CreateBookRequestDTO {
-    @NotBlank
+    @NotBlank(message = "ISBN không được để trống")
+    @Pattern(
+            regexp = "^(\\d{10}|\\d{13})$",
+            message = "ISBN phải gồm 10 hoặc 13 chữ số"
+    )
     private String isbn;
 
     @NotBlank

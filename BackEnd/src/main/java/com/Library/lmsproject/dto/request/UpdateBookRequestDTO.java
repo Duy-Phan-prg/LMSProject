@@ -2,6 +2,7 @@ package com.Library.lmsproject.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.util.Set;
@@ -10,7 +11,12 @@ import java.util.Set;
 public class UpdateBookRequestDTO {
     @NotBlank
     private String title;
-
+    @NotBlank(message = "ISBN không được để trống")
+    @Pattern(
+            regexp = "^(\\d{10}|\\d{13})$",
+            message = "ISBN phải gồm 10 hoặc 13 chữ số"
+    )
+    private String isbn;
     @NotBlank
     private String author;
     private String publisher;

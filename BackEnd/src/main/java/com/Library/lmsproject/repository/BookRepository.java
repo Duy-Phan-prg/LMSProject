@@ -14,6 +14,7 @@ public interface BookRepository extends JpaRepository<Books, Long> {
     Optional<Books> findByBookIdAndIsActive(Long bookId, boolean  isActive);
 
     Page<Books> findByIsActive(boolean isActive, Pageable pageable);
+    boolean existsByIsbn(String isbn);
 
     @Query("""
         SELECT b FROM Books b

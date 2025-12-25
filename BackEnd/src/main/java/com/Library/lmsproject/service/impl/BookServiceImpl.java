@@ -19,8 +19,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
@@ -33,8 +31,21 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDTO createBook(CreateBookRequestDTO request) {
 
-        if (request.getCategoryIds() == null || request.getCategoryIds().isEmpty()) {
-            throw new RuntimeException("Category is required");
+        if (request.getYearPublished() != null) {
+            int currentYear = java.time.Year.now().getValue();
+            if (request.getYearPublished() > currentYear) {
+                throw new RuntimeException(
+                        "Năm xuất bản không được lớn hơn năm hiện tại"
+                );
+            }
+        }
+
+        if (request.getIsbn() == null || request.getIsbn().isEmpty()) {
+            throw new RuntimeException("ISBN is required");
+        }
+
+        if (bookRepository.existsByIsbn(request.getIsbn())) {
+            throw new RuntimeException("ISBN already exists");
         }
 
         Set<Categories> categories = new HashSet<>(
@@ -49,7 +60,7 @@ public class BookServiceImpl implements BookService {
         book.setIsActive(true);
         book.setCopiesAvailable(request.getCopiesTotal());
         book.setCategories(categories);
-        book.setUpdatedAt(null);
+
         Books savedBook = bookRepository.save(book);
 
         return bookMapper.toResponseDTO(savedBook);
@@ -57,8 +68,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookResponseDTO> getAllBooks(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size);
 
+        Pageable pageable = PageRequest.of(page, size);
         Page<Books> booksPage;
 
         if (keyword != null && !keyword.isBlank()) {
@@ -69,16 +80,31 @@ public class BookServiceImpl implements BookService {
 
         return booksPage.map(bookMapper::toResponseDTO);
     }
+
     @Transactional
     @Override
     public BookResponseDTO updateBook(Long bookId, UpdateBookRequestDTO request) {
+
         Books book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
         if (request.getCategoryIds() != null) {
 
-            if (request.getCategoryIds().isEmpty()) {
-                throw new RuntimeException("Category list cannot be empty");
+            if (request.getYearPublished() != null) {
+                int currentYear = java.time.Year.now().getValue();
+                if (request.getYearPublished() > currentYear) {
+                    throw new RuntimeException(
+                            "Năm xuất bản không được lớn hơn năm hiện tại"
+                    );
+                }
+            }
+
+            if (request.getIsbn() == null || request.getIsbn().isEmpty()) {
+                throw new RuntimeException("ISBN is required");
+            }
+
+            if (bookRepository.existsByIsbn(request.getIsbn())) {
+                throw new RuntimeException("ISBN already exists");
             }
 
             Set<Categories> categories = new HashSet<>(
@@ -108,17 +134,16 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Boolean deleteBook(Long bookId) {
+
         Books book = bookRepository
                 .findByBookIdAndIsActive(bookId, true)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
-
-        // 1️⃣ XÓA LIÊN KẾT book_category
+        //owning side
+        //Nên chỉ cần 1 dòng này là xóa liên kết rồi
         book.getCategories().clear();
 
-        // 2️⃣ SOFT DELETE BOOK
         book.setIsActive(false);
 
         return true;
     }
 }
-

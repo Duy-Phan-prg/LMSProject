@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class CreateBorrowRequestDTO {
     private Long bookId;
-    private Long userId;
 }

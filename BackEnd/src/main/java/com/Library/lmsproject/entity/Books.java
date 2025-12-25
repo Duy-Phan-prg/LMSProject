@@ -3,6 +3,8 @@ package com.Library.lmsproject.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -53,10 +55,16 @@ public class Books {
     @Column(name = "is_Active", nullable = false)
     private Boolean isActive = true;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @UpdateTimestamp
+    @Column(
+            name = "updated_at",
+            insertable = false,
+            updatable = true
+    )
     private LocalDateTime updatedAt;
 
 
