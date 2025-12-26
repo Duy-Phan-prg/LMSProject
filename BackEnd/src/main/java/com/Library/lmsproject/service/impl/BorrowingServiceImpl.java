@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,11 +70,12 @@ public class BorrowingServiceImpl implements BorrowingService {
         return response;
     }
 
+    // GET /api/borrowings/getAll (cho user)
     public List<UserBorrowResponseDTO> getAllUserBorrowings(Long userId) {
         List<Borrowings> list = borrowingRepository.findByUserId(userId);
         return list.stream()
                 .map(borrowMapper::toResponse)
-                .peek(dto -> dto.setMessage("Borrow info")) // set message tùy ý
+                .peek(dto -> dto.setMessage("Thông tin mượn sách")) // set message tùy ý
                 .collect(Collectors.toList());
     }
 
@@ -82,7 +84,47 @@ public class BorrowingServiceImpl implements BorrowingService {
         List<Borrowings> list = borrowingRepository.findByStatus(BorrowStatus.PENDING_PICKUP);
         return list.stream()
                 .map(borrowMapper::toLibrarianResponse)
-                .peek(dto -> dto.setMessage("Waiting for pickup"))
+                .peek(dto -> dto.setMessage("Chờ lấy sách"))
                 .collect(Collectors.toList());
     }
+    @Override
+    public List<LibrarianBorrowResponseDTO> getAllActive() {
+        List<BorrowStatus> activeStatuses = Arrays.asList(
+                BorrowStatus.ACTIVE,
+                BorrowStatus.OVERDUE
+        );
+
+        List<Borrowings> list = borrowingRepository.findByStatusIn(activeStatuses);
+        return list.stream()
+                .map(borrowMapper::toLibrarianResponse)
+                .peek(dto -> {
+                    if (dto.getStatus() == BorrowStatus.ACTIVE) {
+                        dto.setMessage("Đang mượn");
+                    } else if (dto.getStatus() == BorrowStatus.OVERDUE) {
+                        dto.setMessage("Quá hạn");
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LibrarianBorrowResponseDTO> getAllOverdue() {
+        List<Borrowings> list = borrowingRepository.findByStatus(BorrowStatus.OVERDUE);
+        return list.stream()
+                .map(borrowMapper::toLibrarianResponse)
+                .peek(dto -> dto.setMessage("Sách quá hạn"))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LibrarianBorrowResponseDTO> getAllReturned() {
+        List<Borrowings> list = borrowingRepository.findByStatus(BorrowStatus.RETURNED);
+        return list.stream()
+                .map(borrowMapper::toLibrarianResponse)
+                .peek(dto -> dto.setMessage("Đã trả sách"))
+                .collect(Collectors.toList());
+    }
+
+
+
 }

@@ -10,4 +10,11 @@ public interface BorrowingService {
     UserBorrowResponseDTO borrowBook(Long userId, UserCreateBorrowRequestDTO request);
     List<UserBorrowResponseDTO> getAllUserBorrowings(Long userId);
     List<LibrarianBorrowResponseDTO> getAllPending();
+    List<LibrarianBorrowResponseDTO> getAllActive();
+    List<LibrarianBorrowResponseDTO> getAllOverdue();
+    List<LibrarianBorrowResponseDTO> getAllReturned();
+
+//    //Cho librarian duyet muon sach :)))
+//    LibrarianBorrowResponseDTO approveBorrowing(Long borrowingId);
+//    LibrarianBorrowResponseDTO markReturned(Long borrowingId);
 }
