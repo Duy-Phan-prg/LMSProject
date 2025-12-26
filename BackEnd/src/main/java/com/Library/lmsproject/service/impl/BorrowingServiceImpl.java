@@ -60,14 +60,29 @@ public class BorrowingServiceImpl implements BorrowingService {
         borrowing.setBook(book);
         borrowing.setStatus(BorrowStatus.PENDING_PICKUP);
         borrowing.setRequestAt(LocalDateTime.now());
-        borrowing.setDueDate(LocalDate.now().plusDays(14));
+
 
         borrowingRepository.save(borrowing);
-
         UserBorrowResponseDTO response = borrowMapper.toResponse(borrowing);
         response.setMessage("Borrow request submitted");
 
         return response;
+    }
+
+    @Override
+    public List<UserBorrowResponseDTO> getAllAndSearchByStatus(BorrowStatus status) {
+
+        List<Borrowings> borrowings;
+
+        if (status == null) {
+            borrowings = borrowingRepository.findAll();
+        } else {
+            borrowings = borrowingRepository.findByStatus(status);
+        }
+
+        return borrowings.stream()
+                .map(borrowMapper::toResponse)
+                .toList();
     }
 
     // GET /api/borrowings/getAll (cho user)

@@ -47,10 +47,11 @@ public class Books {
     private String imageCover;
 
     @Column(name = "total_copies", nullable = false)
-    private Integer copiesTotal = 1;
+    private Integer copiesTotal = 1; //số sách còn trong kho để mượn, 200
+
 
     @Column(name = "available_copies", nullable = false)
-    private Integer copiesAvailable = 1;
+    private Integer copiesAvailable = 1; // số sách hiện có sẵn để mượn ,  199
 
     @Column(name = "is_Active", nullable = false)
     private Boolean isActive = true;
@@ -59,12 +60,7 @@ public class Books {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(
-            name = "updated_at",
-            insertable = false,
-            updatable = true
-    )
+
     private LocalDateTime updatedAt;
 
 
@@ -81,7 +77,6 @@ public class Books {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate

@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Year;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,18 +32,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDTO createBook(CreateBookRequestDTO request) {
 
-        if (request.getYearPublished() != null) {
-            int currentYear = java.time.Year.now().getValue();
-            if (request.getYearPublished() > currentYear) {
-                throw new RuntimeException(
-                        "Năm xuất bản không được lớn hơn năm hiện tại"
-                );
-            }
+        if (request.getYearPublished() != null && request.getYearPublished() > Year.now().getValue()) {
+            throw new RuntimeException("Năm xuất bản không được lớn hơn năm hiện tại");
         }
 
-        if (request.getIsbn() == null || request.getIsbn().isEmpty()) {
-            throw new RuntimeException("ISBN is required");
-        }
 
         if (bookRepository.existsByIsbn(request.getIsbn())) {
             throw new RuntimeException("ISBN already exists");
@@ -58,6 +51,7 @@ public class BookServiceImpl implements BookService {
 
         Books book = bookMapper.toEntity(request);
         book.setIsActive(true);
+        book.setUpdatedAt(null);
         book.setCopiesAvailable(request.getCopiesTotal());
         book.setCategories(categories);
 

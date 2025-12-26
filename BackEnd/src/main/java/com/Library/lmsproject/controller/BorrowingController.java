@@ -4,6 +4,7 @@ import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
 import com.Library.lmsproject.dto.response.ApiResponse;
 import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
 import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
+import com.Library.lmsproject.entity.BorrowStatus;
 import com.Library.lmsproject.security.CustomUserDetails;
 import com.Library.lmsproject.service.BorrowingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +21,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/borrowings")
 @RequiredArgsConstructor
-@Tag(name = "Quản lý mượn sách", description = "APIs quản lý việc mượn/trả sách")
 public class BorrowingController {
 
     private final BorrowingService borrowingService;
@@ -42,6 +42,23 @@ public class BorrowingController {
                 .build());
     }
 
+
+    @GetMapping("/getAllAndSearchByStatus")
+    @Operation(summary = "Admin/Librarian xem tất cả yêu cầu mượn, lọc theo status")
+    public ResponseEntity<ApiResponse<List<UserBorrowResponseDTO>>> getAllAndSearchByStatus(
+            @RequestParam(required = false) BorrowStatus status
+    ) {
+        List<UserBorrowResponseDTO> result =
+                borrowingService.getAllAndSearchByStatus(status);
+
+        return ResponseEntity.ok(ApiResponse.<List<UserBorrowResponseDTO>>builder()
+                .code(200)
+                .message("Lấy danh sách thành công")
+                .result(result)
+                .build());
+    }
+
+
     @GetMapping("/getAll")
     @Operation(summary = "Lấy danh sách yêu cầu mượn của user hiện tại")
     public ResponseEntity<ApiResponse<List<UserBorrowResponseDTO>>> getAllUserBorrowings(
@@ -57,7 +74,6 @@ public class BorrowingController {
     }
 
     @GetMapping("/getAllPending")
-    @PreAuthorize("hasRole('LIBRARIAN')") // Chỉ librarian mới được xem
     @Operation(summary = "Lấy tất cả yêu cầu mượn đang chờ duyệt (LIBRARIAN)")
     public ResponseEntity<ApiResponse<List<LibrarianBorrowResponseDTO>>> getAllPending() {
         List<LibrarianBorrowResponseDTO> pendingList = borrowingService.getAllPending();
