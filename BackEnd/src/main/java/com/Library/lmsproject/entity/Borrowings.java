@@ -40,7 +40,6 @@ public class Borrowings {
     private LocalDateTime requestAt;
     private LocalDateTime pickupAt;
     private LocalDate dueDate;
-    private LocalDateTime returnRequestedAt;
     private LocalDateTime returnedAt;
 }
 

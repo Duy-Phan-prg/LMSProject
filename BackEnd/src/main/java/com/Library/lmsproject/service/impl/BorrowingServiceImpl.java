@@ -1,7 +1,8 @@
 package com.Library.lmsproject.service.impl;
 
-import com.Library.lmsproject.dto.request.CreateBorrowRequestDTO;
-import com.Library.lmsproject.dto.response.BorrowResponseDTO;
+import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
+import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
+import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
 import com.Library.lmsproject.entity.Books;
 import com.Library.lmsproject.entity.BorrowStatus;
 import com.Library.lmsproject.entity.Borrowings;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class BorrowingServiceImpl implements BorrowingService {
     private final BorrowingRepository borrowingRepository;
     private final BorrowMapper borrowMapper;
     @Override
-    public BorrowResponseDTO borrowBook(Long userId, CreateBorrowRequestDTO request) {
+    public UserBorrowResponseDTO borrowBook(Long userId, UserCreateBorrowRequestDTO request) {
 
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -61,9 +63,26 @@ public class BorrowingServiceImpl implements BorrowingService {
 
         borrowingRepository.save(borrowing);
 
-        BorrowResponseDTO response = borrowMapper.toResponse(borrowing);
+        UserBorrowResponseDTO response = borrowMapper.toResponse(borrowing);
         response.setMessage("Borrow request submitted");
 
         return response;
+    }
+
+    public List<UserBorrowResponseDTO> getAllUserBorrowings(Long userId) {
+        List<Borrowings> list = borrowingRepository.findByUserId(userId);
+        return list.stream()
+                .map(borrowMapper::toResponse)
+                .peek(dto -> dto.setMessage("Borrow info")) // set message tùy ý
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LibrarianBorrowResponseDTO> getAllPending() {
+        List<Borrowings> list = borrowingRepository.findByStatus(BorrowStatus.PENDING_PICKUP);
+        return list.stream()
+                .map(borrowMapper::toLibrarianResponse)
+                .peek(dto -> dto.setMessage("Waiting for pickup"))
+                .collect(Collectors.toList());
     }
 }
