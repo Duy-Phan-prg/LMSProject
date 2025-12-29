@@ -37,8 +37,10 @@ public class CreateBookRequestDTO {
 
     private String imageCover;
 
-    @Min(1)
-    private Integer copiesTotal;
+
+    private Integer copiesTotal; //  Tổng số sách ban đầu trong thư viện
+
+    private Integer copiesAvailable; // số sách hiện có sẵn trong thư viện để cho mượn
 
     private Set<Long> categoryIds;
 

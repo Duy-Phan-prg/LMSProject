@@ -51,13 +51,16 @@ public class CategoryServiceImpl implements CategoryService {
     public Boolean deleteCategory(Long categoryId) {
         Categories category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
-        //INVERSE SIDE
-        //Nên xóa mối quan hệ ở bên nhiều (books) trước ở category book
-        category.getBooks().forEach(book -> book.getCategories().remove(category));
+
+        // Gỡ quan hệ many-to-many (xóa category_book)
+        category.getBooks().forEach(book ->
+                book.getCategories().remove(category)
+        );
         category.getBooks().clear();
 
-        category.setActive(false);
-        categoryRepository.save(category);
+        // XÓA CỨNG CATEGORY
+        categoryRepository.delete(category);
+
         return true;
     }
     @Transactional

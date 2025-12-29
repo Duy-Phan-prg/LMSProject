@@ -1,5 +1,6 @@
 package com.Library.lmsproject.dto.request;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -25,8 +26,9 @@ public class UpdateBookRequestDTO {
     private String language;
     private String description;
     private String imageCover;
-    @NotNull
-    private Integer copiesTotal; // phai duoc update category
 
+    private Integer copiesTotal; //  Tổng số sách ban đầu trong thư viện
+
+    private Integer copiesAvailable; // số sách hiện có sẵn trong thư viện để cho mượn
     private Set<Long> categoryIds;
 }

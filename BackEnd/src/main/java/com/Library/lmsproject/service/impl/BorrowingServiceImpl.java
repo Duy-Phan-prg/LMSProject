@@ -31,6 +31,7 @@ public class BorrowingServiceImpl implements BorrowingService {
     private final BookRepository bookRepository;
     private final BorrowingRepository borrowingRepository;
     private final BorrowMapper borrowMapper;
+    @Transactional
     @Override
     public UserBorrowResponseDTO borrowBook(Long userId, UserCreateBorrowRequestDTO request) {
 
@@ -41,6 +42,7 @@ public class BorrowingServiceImpl implements BorrowingService {
                 request.getBookId(), true
         ).orElseThrow(() -> new RuntimeException("Book not found"));
 
+        // 1️⃣ Kiểm tra đã mượn chưa
         boolean borrowed = borrowingRepository.existsByUserAndBookAndStatusIn(
                 user,
                 book,
@@ -55,14 +57,23 @@ public class BorrowingServiceImpl implements BorrowingService {
             throw new RuntimeException("You already borrowed this book");
         }
 
+        // 2️⃣ Kiểm tra kho
+        if (book.getCopiesAvailable() <= 0) {
+            throw new RuntimeException("Book is out of stock");
+        }
+
+        // 3️⃣ Trừ kho
+        book.setCopiesAvailable(book.getCopiesAvailable() - 1);
+
+        // 4️⃣ Tạo borrowing
         Borrowings borrowing = new Borrowings();
         borrowing.setUser(user);
         borrowing.setBook(book);
         borrowing.setStatus(BorrowStatus.PENDING_PICKUP);
         borrowing.setRequestAt(LocalDateTime.now());
 
-
         borrowingRepository.save(borrowing);
+
         UserBorrowResponseDTO response = borrowMapper.toResponse(borrowing);
         response.setMessage("Borrow request submitted");
 
@@ -84,62 +95,6 @@ public class BorrowingServiceImpl implements BorrowingService {
                 .map(borrowMapper::toResponse)
                 .toList();
     }
-
-    // GET /api/borrowings/getAll (cho user)
-    public List<UserBorrowResponseDTO> getAllUserBorrowings(Long userId) {
-        List<Borrowings> list = borrowingRepository.findByUserId(userId);
-        return list.stream()
-                .map(borrowMapper::toResponse)
-                .peek(dto -> dto.setMessage("Thông tin mượn sách")) // set message tùy ý
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<LibrarianBorrowResponseDTO> getAllPending() {
-        List<Borrowings> list = borrowingRepository.findByStatus(BorrowStatus.PENDING_PICKUP);
-        return list.stream()
-                .map(borrowMapper::toLibrarianResponse)
-                .peek(dto -> dto.setMessage("Chờ lấy sách"))
-                .collect(Collectors.toList());
-    }
-    @Override
-    public List<LibrarianBorrowResponseDTO> getAllActive() {
-        List<BorrowStatus> activeStatuses = Arrays.asList(
-                BorrowStatus.ACTIVE,
-                BorrowStatus.OVERDUE
-        );
-
-        List<Borrowings> list = borrowingRepository.findByStatusIn(activeStatuses);
-        return list.stream()
-                .map(borrowMapper::toLibrarianResponse)
-                .peek(dto -> {
-                    if (dto.getStatus() == BorrowStatus.ACTIVE) {
-                        dto.setMessage("Đang mượn");
-                    } else if (dto.getStatus() == BorrowStatus.OVERDUE) {
-                        dto.setMessage("Quá hạn");
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<LibrarianBorrowResponseDTO> getAllOverdue() {
-        List<Borrowings> list = borrowingRepository.findByStatus(BorrowStatus.OVERDUE);
-        return list.stream()
-                .map(borrowMapper::toLibrarianResponse)
-                .peek(dto -> dto.setMessage("Sách quá hạn"))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<LibrarianBorrowResponseDTO> getAllReturned() {
-        List<Borrowings> list = borrowingRepository.findByStatus(BorrowStatus.RETURNED);
-        return list.stream()
-                .map(borrowMapper::toLibrarianResponse)
-                .peek(dto -> dto.setMessage("Đã trả sách"))
-                .collect(Collectors.toList());
-    }
-
 
 
 }

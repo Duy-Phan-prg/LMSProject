@@ -11,13 +11,6 @@ public interface BorrowingService {
     UserBorrowResponseDTO borrowBook(Long userId, UserCreateBorrowRequestDTO request);
 
     List<UserBorrowResponseDTO> getAllAndSearchByStatus(BorrowStatus status);
-    List<UserBorrowResponseDTO> getAllUserBorrowings(Long userId);
-    List<LibrarianBorrowResponseDTO> getAllPending();
-    List<LibrarianBorrowResponseDTO> getAllActive();
-    List<LibrarianBorrowResponseDTO> getAllOverdue();
-    List<LibrarianBorrowResponseDTO> getAllReturned();
-
-
 
 //    //Cho librarian duyet muon sach :)))
 //    LibrarianBorrowResponseDTO approveBorrowing(Long borrowingId);

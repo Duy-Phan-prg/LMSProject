@@ -55,6 +55,22 @@ public class BookServiceImpl implements BookService {
         book.setCopiesAvailable(request.getCopiesTotal());
         book.setCategories(categories);
 
+        int copiesTotal = request.getCopiesTotal();
+        Integer copiesAvailableRequest = request.getCopiesAvailable();
+
+        int copiesAvailable;
+        if (copiesAvailableRequest == null) {
+            copiesAvailable = copiesTotal;
+        } else {
+            if (copiesAvailableRequest < 0 || copiesAvailableRequest > copiesTotal) {
+                throw new RuntimeException("copiesAvailable must be between 0 and copiesTotal");
+            }
+            copiesAvailable = copiesAvailableRequest;
+        }
+
+        book.setCopiesTotal(copiesTotal);
+        book.setCopiesAvailable(copiesAvailable);
+
         Books savedBook = bookRepository.save(book);
 
         return bookMapper.toResponseDTO(savedBook);
@@ -82,25 +98,20 @@ public class BookServiceImpl implements BookService {
         Books book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
+        if (request.getYearPublished() != null) {
+            int currentYear = Year.now().getValue();
+            if (request.getYearPublished() > currentYear) {
+                throw new RuntimeException("Năm xuất bản không được lớn hơn năm hiện tại");
+            }
+        }
+
+        if (request.getIsbn() != null &&
+                !request.getIsbn().equals(book.getIsbn()) &&
+                bookRepository.existsByIsbn(request.getIsbn())) {
+            throw new RuntimeException("ISBN already exists");
+        }
+
         if (request.getCategoryIds() != null) {
-
-            if (request.getYearPublished() != null) {
-                int currentYear = java.time.Year.now().getValue();
-                if (request.getYearPublished() > currentYear) {
-                    throw new RuntimeException(
-                            "Năm xuất bản không được lớn hơn năm hiện tại"
-                    );
-                }
-            }
-
-            if (request.getIsbn() == null || request.getIsbn().isEmpty()) {
-                throw new RuntimeException("ISBN is required");
-            }
-
-            if (bookRepository.existsByIsbn(request.getIsbn())) {
-                throw new RuntimeException("ISBN already exists");
-            }
-
             Set<Categories> categories = new HashSet<>(
                     categoryRepository.findAllById(request.getCategoryIds())
             );
@@ -110,17 +121,29 @@ public class BookServiceImpl implements BookService {
             }
 
             book.setCategories(categories);
-
-            if (!book.getIsActive()) {
-                book.setIsActive(true);
-            }
+            book.setIsActive(true);
         }
+
+
+        if (request.getCopiesTotal() != null) {
+            int oldTotal = book.getCopiesTotal();
+            int oldAvailable = book.getCopiesAvailable();
+            int borrowed = oldTotal - oldAvailable;
+
+            int newTotal = request.getCopiesTotal();
+
+            if (newTotal < borrowed) {
+                throw new RuntimeException(
+                        "copiesTotal cannot be less than borrowed books (" + borrowed + ")"
+                );
+            }
+
+            book.setCopiesTotal(newTotal);
+            book.setCopiesAvailable(newTotal - borrowed);
+        }
+
 
         bookMapper.updateBookFromDto(request, book);
-
-        if (request.getCopiesTotal() < book.getCopiesAvailable()) {
-            book.setCopiesAvailable(request.getCopiesTotal());
-        }
 
         return bookMapper.toResponseDTO(book);
     }
