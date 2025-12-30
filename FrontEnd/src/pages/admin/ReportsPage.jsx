@@ -1,178 +1,166 @@
-import { useState, useEffect, useCallback } from "react";
-import {
-  BarChart3, TrendingUp, TrendingDown, Download, Calendar,
-  BookOpen, Users, ShoppingCart, DollarSign
-} from "lucide-react";
+import { useState } from "react";
+import { FileText, Download, Calendar, Filter, RefreshCw, BookOpen, Users, AlertCircle } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function ReportsPage() {
-  const [dateRange, setDateRange] = useState("month");
+  const [reportType, setReportType] = useState("borrows");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [stats, setStats] = useState({
-    totalBorrows: 0,
-    borrowsChange: 0,
-    totalReturns: 0,
-    returnsChange: 0,
-    newUsers: 0,
-    usersChange: 0,
-    newBooks: 0,
-    booksChange: 0,
-  });
+  const reportTypes = [
+    { value: "borrows", label: "Lịch sử mượn sách", icon: <BookOpen size={18} /> },
+    { value: "overdue", label: "Sách quá hạn", icon: <AlertCircle size={18} /> },
+    { value: "users", label: "Danh sách user", icon: <Users size={18} /> },
+    { value: "books", label: "Danh sách sách", icon: <BookOpen size={18} /> },
+  ];
 
-  const [topBorrowedBooks, setTopBorrowedBooks] = useState([]);
-  const [topCategories, setTopCategories] = useState([]);
-  const [monthlyData, setMonthlyData] = useState([]);
+  const handleExport = async (format) => {
+    if (!dateFrom || !dateTo) {
+      Swal.fire("Lỗi!", "Vui lòng chọn khoảng thời gian", "warning");
+      return;
+    }
 
-  const fetchReportData = useCallback(async () => {
-    // TODO: Gọi API khi backend sẵn sàng
-    // try {
-    //   const data = await getReportStats(dateRange);
-    //   setStats(data.stats);
-    //   setTopBorrowedBooks(data.topBooks);
-    //   setTopCategories(data.categories);
-    //   setMonthlyData(data.monthly);
-    // } catch (error) {
-    //   console.error("Error fetching reports:", error);
-    // }
-  }, [dateRange]);
-
-  useEffect(() => {
-    fetchReportData();
-  }, [fetchReportData]);
+    setLoading(true);
+    try {
+      // TODO: Gọi API xuất báo cáo
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      Swal.fire("Thành công!", `Đã xuất báo cáo ${format.toUpperCase()}`, "success");
+    } catch (error) {
+      Swal.fire("Lỗi!", "Không thể xuất báo cáo", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="admin-page reports-page">
+    <div className="admin-page">
       <div className="page-header">
         <div className="page-header-left">
-          <div className="page-icon"><BarChart3 size={28} /></div>
+          <div className="page-icon"><FileText size={28} /></div>
           <div>
-            <h1 className="page-title">Báo cáo thống kê</h1>
-            <p className="page-subtitle">Phân tích hoạt động thư viện</p>
-          </div>
-        </div>
-        <div className="page-header-right">
-          <select className="filter-select" value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
-            <option value="week">7 ngày qua</option>
-            <option value="month">30 ngày qua</option>
-            <option value="quarter">Quý này</option>
-            <option value="year">Năm nay</option>
-          </select>
-          <button className="btn-primary"><Download size={18} /> Xuất báo cáo</button>
-        </div>
-      </div>
-
-      {/* Overview Stats */}
-      <div className="stats-cards">
-        <div className="stat-card report-stat">
-          <div className="stat-card-icon blue"><ShoppingCart size={24} /></div>
-          <div className="stat-card-info">
-            <span className="stat-card-value">{stats.totalBorrows.toLocaleString()}</span>
-            <span className="stat-card-label">Lượt mượn</span>
-          </div>
-          <div className={`stat-trend ${stats.borrowsChange >= 0 ? "up" : "down"}`}>
-            {stats.borrowsChange >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-            {Math.abs(stats.borrowsChange)}%
-          </div>
-        </div>
-        <div className="stat-card report-stat">
-          <div className="stat-card-icon green"><BookOpen size={24} /></div>
-          <div className="stat-card-info">
-            <span className="stat-card-value">{stats.totalReturns.toLocaleString()}</span>
-            <span className="stat-card-label">Lượt trả</span>
-          </div>
-          <div className={`stat-trend ${stats.returnsChange >= 0 ? "up" : "down"}`}>
-            {stats.returnsChange >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-            {Math.abs(stats.returnsChange)}%
-          </div>
-        </div>
-        <div className="stat-card report-stat">
-          <div className="stat-card-icon orange"><Users size={24} /></div>
-          <div className="stat-card-info">
-            <span className="stat-card-value">{stats.newUsers}</span>
-            <span className="stat-card-label">Thành viên mới</span>
-          </div>
-          <div className={`stat-trend ${stats.usersChange >= 0 ? "up" : "down"}`}>
-            {stats.usersChange >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-            {Math.abs(stats.usersChange)}%
-          </div>
-        </div>
-        <div className="stat-card report-stat">
-          <div className="stat-card-icon purple"><BookOpen size={24} /></div>
-          <div className="stat-card-info">
-            <span className="stat-card-value">{stats.newBooks}</span>
-            <span className="stat-card-label">Sách mới</span>
-          </div>
-          <div className={`stat-trend ${stats.booksChange >= 0 ? "up" : "down"}`}>
-            {stats.booksChange >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-            {Math.abs(stats.booksChange)}%
+            <h1 className="page-title">Báo cáo</h1>
+            <p className="page-subtitle">Xuất báo cáo Excel / CSV</p>
           </div>
         </div>
       </div>
 
-      {/* Charts Grid */}
-      <div className="reports-grid">
-        {/* Monthly Chart */}
-        <div className="report-card chart-card">
+      <div className="dashboard-grid">
+        {/* Report Type Selection */}
+        <div className="dashboard-card">
           <div className="card-header">
-            <h3>Thống kê mượn/trả theo tháng</h3>
+            <h3><Filter size={20} /> Chọn loại báo cáo</h3>
           </div>
           <div className="card-body">
-            <div className="simple-chart">
-              {monthlyData.map((data, index) => (
-                <div key={index} className="chart-bar-group">
-                  <div className="chart-bars">
-                    <div className="chart-bar borrow" style={{ height: `${(data.borrows / 1300) * 100}%` }} title={`Mượn: ${data.borrows}`}></div>
-                    <div className="chart-bar return" style={{ height: `${(data.returns / 1300) * 100}%` }} title={`Trả: ${data.returns}`}></div>
-                  </div>
-                  <span className="chart-label">{data.month}</span>
-                </div>
-              ))}
-            </div>
-            <div className="chart-legend">
-              <span><span className="legend-dot borrow"></span> Mượn</span>
-              <span><span className="legend-dot return"></span> Trả</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Books */}
-        <div className="report-card">
-          <div className="card-header">
-            <h3>Sách được mượn nhiều nhất</h3>
-          </div>
-          <div className="card-body">
-            <div className="top-list">
-              {topBorrowedBooks.map((book) => (
-                <div key={book.rank} className="top-list-item">
-                  <span className="rank">#{book.rank}</span>
-                  <span className="title">{book.title}</span>
-                  <span className="value">{book.borrows}</span>
-                  <span className={`change ${book.change >= 0 ? "up" : "down"}`}>
-                    {book.change >= 0 ? "+" : ""}{book.change}%
+            <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+              {reportTypes.map(type => (
+                <label
+                  key={type.value}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: 12,
+                    background: reportType === type.value ? 'rgba(212,168,83,0.15)' : 'rgba(45,58,92,0.5)',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    border: reportType === type.value ? '1px solid rgba(212,168,83,0.5)' : '1px solid transparent',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value={type.value}
+                    checked={reportType === type.value}
+                    onChange={(e) => setReportType(e.target.value)}
+                    style={{display: 'none'}}
+                  />
+                  <span style={{color: reportType === type.value ? '#d4a853' : '#94a3b8'}}>{type.icon}</span>
+                  <span style={{color: reportType === type.value ? '#e2e8f0' : '#94a3b8', fontWeight: reportType === type.value ? 600 : 400}}>
+                    {type.label}
                   </span>
-                </div>
+                </label>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Categories Distribution */}
-        <div className="report-card">
+        {/* Date Range & Export */}
+        <div className="dashboard-card">
           <div className="card-header">
-            <h3>Phân bố theo danh mục</h3>
+            <h3><Calendar size={20} /> Khoảng thời gian</h3>
           </div>
           <div className="card-body">
-            <div className="category-bars">
-              {topCategories.map((cat, index) => (
-                <div key={index} className="category-bar-item">
-                  <div className="category-bar-header">
-                    <span className="category-name">{cat.name}</span>
-                    <span className="category-count">{cat.count} sách ({cat.percentage}%)</span>
-                  </div>
-                  <div className="category-bar-track">
-                    <div className="category-bar-fill" style={{ width: `${cat.percentage}%` }}></div>
-                  </div>
-                </div>
-              ))}
+            <div className="form-row">
+              <div className="form-group">
+                <label>Từ ngày</label>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Đến ngày</label>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div style={{display: 'flex', gap: 12, marginTop: 24}}>
+              <button
+                className="btn-primary"
+                onClick={() => handleExport('excel')}
+                disabled={loading}
+                style={{flex: 1}}
+              >
+                {loading ? <RefreshCw size={18} className="spin" /> : <Download size={18} />}
+                Xuất Excel
+              </button>
+              <button
+                className="btn-secondary"
+                onClick={() => handleExport('csv')}
+                disabled={loading}
+                style={{flex: 1}}
+              >
+                <Download size={18} />
+                Xuất CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Reports */}
+      <div style={{marginTop: 24}}>
+        <h3 style={{color: '#e2e8f0', marginBottom: 16, fontFamily: 'Playfair Display, serif'}}>Báo cáo nhanh</h3>
+        <div className="stats-cards">
+          <div className="stat-card" style={{cursor: 'pointer'}} onClick={() => { setReportType('borrows'); setDateFrom(new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0]); setDateTo(new Date().toISOString().split('T')[0]); }}>
+            <div className="stat-card-icon blue"><BookOpen size={24} /></div>
+            <div className="stat-card-info">
+              <span className="stat-card-label">Mượn sách 7 ngày qua</span>
+            </div>
+          </div>
+          <div className="stat-card" style={{cursor: 'pointer'}} onClick={() => { setReportType('overdue'); setDateFrom(new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0]); setDateTo(new Date().toISOString().split('T')[0]); }}>
+            <div className="stat-card-icon red"><AlertCircle size={24} /></div>
+            <div className="stat-card-info">
+              <span className="stat-card-label">Quá hạn tháng này</span>
+            </div>
+          </div>
+          <div className="stat-card" style={{cursor: 'pointer'}} onClick={() => { setReportType('users'); setDateFrom('2020-01-01'); setDateTo(new Date().toISOString().split('T')[0]); }}>
+            <div className="stat-card-icon green"><Users size={24} /></div>
+            <div className="stat-card-info">
+              <span className="stat-card-label">Tất cả user</span>
+            </div>
+          </div>
+          <div className="stat-card" style={{cursor: 'pointer'}} onClick={() => { setReportType('books'); setDateFrom('2020-01-01'); setDateTo(new Date().toISOString().split('T')[0]); }}>
+            <div className="stat-card-icon orange"><BookOpen size={24} /></div>
+            <div className="stat-card-info">
+              <span className="stat-card-label">Tất cả sách</span>
             </div>
           </div>
         </div>

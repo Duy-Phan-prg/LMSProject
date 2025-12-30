@@ -2,19 +2,27 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import AdminLayout from "../layouts/AdminLayout";
+import LibrarianLayout from "../layouts/LibrarianLayout";
 import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/HomePage";
 import BookDetailPage from "../pages/BookDetailPage";
 
 // Admin Pages
-import DashboardPage from "../pages/admin/DashboardPage";
-import UserListPage from "../features/users/UserListPage";
-import BooksPage from "../pages/admin/BooksPage";
-import CategoriesPage from "../pages/admin/CategoriesPage";
-import BorrowsPage from "../pages/admin/BorrowsPage";
+import AdminDashboardPage from "../pages/admin/DashboardPage";
+import UserManagementPage from "../pages/admin/UserManagementPage";
+import StatisticsPage from "../pages/admin/StatisticsPage";
+import ActivityLogPage from "../pages/admin/ActivityLogPage";
+import SystemConfigPage from "../pages/admin/SystemConfigPage";
 import ReportsPage from "../pages/admin/ReportsPage";
-import SettingsPage from "../pages/admin/SettingsPage";
+import BorrowHistoryPage from "../pages/admin/BorrowHistoryPage";
 import HelpPage from "../pages/admin/HelpPage";
+
+// Librarian Pages
+import LibrarianDashboard from "../pages/librarian/LibrarianDashboard";
+import LibrarianBooksPage from "../pages/librarian/LibrarianBooksPage";
+import LibrarianCategoriesPage from "../pages/librarian/LibrarianCategoriesPage";
+import LibrarianBorrowsPage from "../pages/librarian/LibrarianBorrowsPage";
+import LibrarianMembersPage from "../pages/librarian/LibrarianMembersPage";
 
 export default function AppRoutes() {
   return (
@@ -31,13 +39,23 @@ export default function AppRoutes() {
 
       {/* Admin - Admin Layout */}
       <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<DashboardPage />} />
-        <Route path="users" element={<UserListPage />} />
-        <Route path="books" element={<BooksPage />} />
-        <Route path="categories" element={<CategoriesPage />} />
-        <Route path="borrows" element={<BorrowsPage />} />
+        <Route index element={<AdminDashboardPage />} />
+        <Route path="users" element={<UserManagementPage />} />
+        <Route path="borrow-history" element={<BorrowHistoryPage />} />
+        <Route path="statistics" element={<StatisticsPage />} />
+        <Route path="activity-log" element={<ActivityLogPage />} />
+        <Route path="config" element={<SystemConfigPage />} />
         <Route path="reports" element={<ReportsPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        <Route path="help" element={<HelpPage />} />
+      </Route>
+
+      {/* Librarian - Librarian Layout */}
+      <Route path="/librarian" element={<LibrarianLayout />}>
+        <Route index element={<LibrarianDashboard />} />
+        <Route path="books" element={<LibrarianBooksPage />} />
+        <Route path="categories" element={<LibrarianCategoriesPage />} />
+        <Route path="borrows" element={<LibrarianBorrowsPage />} />
+        <Route path="members" element={<LibrarianMembersPage />} />
         <Route path="help" element={<HelpPage />} />
       </Route>
 
