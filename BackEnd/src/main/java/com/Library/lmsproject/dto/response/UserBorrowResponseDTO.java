@@ -1,11 +1,13 @@
 package com.Library.lmsproject.dto.response;
 
 import com.Library.lmsproject.entity.BorrowStatus;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,12 +16,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserBorrowResponseDTO {
 //    Khi user gọi /getAll, hệ thống lấy userId từ token (@AuthenticationPrincipal CustomUserDetails) → đảm bảo chỉ trả thông tin của chính user đó. ko caanf field userId nữa
-    private Long userId;
-    private String userName;
-    private String bookTitle;
 
-    private BorrowStatus status;
-    private LocalDateTime requestAt;
-    private String message;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(200)")
+    private String bookTitle;          // Mượn sách gì
+    private BorrowStatus status;       // Trạng thái
+
+    private LocalDateTime requestAt;   // Gửi yêu cầu lúc nào
+    private LocalDate dueDate;         // Hạn trả (có sau khi librarian giao sách)
+
+    private Double fineAmount;         // Chỉ có khi trả trễ
+    private String message;            // Message hiển thị
 
 }

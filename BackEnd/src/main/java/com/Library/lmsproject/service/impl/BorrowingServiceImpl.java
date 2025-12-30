@@ -27,8 +27,8 @@ public class BorrowingServiceImpl implements BorrowingService {
     private final BookRepository bookRepository;
     private final BorrowingRepository borrowingRepository;
     private final BorrowMapper borrowMapper;
-    @Transactional
     @Override
+    @Transactional
     public UserBorrowResponseDTO borrowBook(Long userId, UserCreateBorrowRequestDTO request) {
 
         Users user = usersRepository.findById(userId)
@@ -38,7 +38,6 @@ public class BorrowingServiceImpl implements BorrowingService {
                 request.getBookId(), true
         ).orElseThrow(() -> new RuntimeException("Book not found"));
 
-        // 1️⃣ Kiểm tra đã mượn chưa
         boolean borrowed = borrowingRepository.existsByUserAndBookAndStatusIn(
                 user,
                 book,
@@ -53,44 +52,45 @@ public class BorrowingServiceImpl implements BorrowingService {
             throw new RuntimeException("You already borrowed this book");
         }
 
-        // 2️⃣ Kiểm tra kho
         if (book.getCopiesAvailable() <= 0) {
             throw new RuntimeException("Book is out of stock");
         }
 
-        // 3️⃣ Trừ kho
         book.setCopiesAvailable(book.getCopiesAvailable() - 1);
 
-        // 4️⃣ Tạo borrowing
         Borrowings borrowing = new Borrowings();
         borrowing.setUser(user);
         borrowing.setBook(book);
         borrowing.setStatus(BorrowStatus.PENDING_PICKUP);
         borrowing.setRequestAt(LocalDateTime.now());
+        borrowing.setFineAmount(0.0);
 
         borrowingRepository.save(borrowing);
 
-        UserBorrowResponseDTO response = borrowMapper.toResponse(borrowing);
-        response.setMessage("Borrow request submitted");
+        UserBorrowResponseDTO dto = borrowMapper.toUserResponse(borrowing);
+        dto.setMessage(BorrowStatus.PENDING_PICKUP.getUserMessage());
 
-        return response;
+        return dto;
     }
+
 
     @Override
     public List<UserBorrowResponseDTO> getAllAndSearchByStatus(BorrowStatus status) {
 
-        List<Borrowings> borrowings;
-
-        if (status == null) {
-            borrowings = borrowingRepository.findAll();
-        } else {
-            borrowings = borrowingRepository.findByStatus(status);
-        }
+        List<Borrowings> borrowings =
+                (status == null)
+                        ? borrowingRepository.findAll()
+                        : borrowingRepository.findByStatus(status);
 
         return borrowings.stream()
-                .map(borrowMapper::toResponse)
+                .map(b -> {
+                    UserBorrowResponseDTO dto = borrowMapper.toUserResponse(b);
+                    dto.setMessage(b.getStatus().getUserMessage());
+                    return dto;
+                })
                 .toList();
     }
+
 
 
 }

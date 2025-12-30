@@ -26,8 +26,9 @@ public class Books {
 
     private String isbn;
 
+    @Column(nullable = false, columnDefinition = "NVARCHAR(200)")
     private String title;
-
+    @Column(nullable = false, columnDefinition = "NVARCHAR(200)")
     private String author;
 
     private String publisher;

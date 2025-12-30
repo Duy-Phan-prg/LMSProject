@@ -16,13 +16,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LibrarianBorrowResponseDTO {
     private Long borrowingId;
-    private String userName;
-    private String bookTitle;
-    private BorrowStatus status;
-    private LocalDateTime requestAt;
-    private LocalDateTime pickupAt;
-    private LocalDate dueDate;
-    private LocalDateTime returnedAt;
-    private String message;
 
+    private Long userId;
+    private String userName;
+
+    private Long bookId;
+    private String bookTitle;
+
+    private BorrowStatus status;
+
+    private LocalDateTime requestAt;
+    private LocalDateTime pickupAt;     // Giao sách
+    private LocalDate dueDate;           // Hạn trả
+    private LocalDateTime returnedAt;    // Trả thực tế
+
+    private Integer overdueDays;
+    private Double fineAmount;
+
+    private String message;
 }
