@@ -21,4 +21,7 @@ public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
     List<Borrowings> findByStatus(BorrowStatus status);
 
 
+    List<Borrowings> findByUser(Users user);
+
+    List<Borrowings> findByUserAndStatus(Users user, BorrowStatus status);
 }

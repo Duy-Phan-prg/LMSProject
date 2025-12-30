@@ -2,6 +2,7 @@ package com.Library.lmsproject.controller;
 
 import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
 import com.Library.lmsproject.dto.response.ApiResponse;
+import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
 import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
 import com.Library.lmsproject.entity.BorrowStatus;
 import com.Library.lmsproject.security.CustomUserDetails;
@@ -22,19 +23,22 @@ public class BorrowingController {
 
     private final BorrowingService borrowingService;
 
-    @PostMapping("/createBorrow")
-    @Operation(summary = "Tạo yêu cầu mượn sách")
-    public ResponseEntity<?> borrowBook(
+    // ================= USER =================
+
+    @PostMapping("/create")
+    @Operation(summary = "User tạo yêu cầu mượn sách")
+    public ResponseEntity<UserBorrowResponseDTO> borrowBook(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(required = false) Long userId, // nhập trên Swagger
+            @RequestParam(required = false) Long userId, // dùng cho Swagger
             @Valid @RequestBody UserCreateBorrowRequestDTO request
     ) {
+
         Long finalUserId;
 
         if (userDetails != null) {
-            finalUserId = userDetails.getId(); // prod
+            finalUserId = userDetails.getId();
         } else if (userId != null) {
-            finalUserId = userId; // dev / swagger
+            finalUserId = userId;
         } else {
             throw new RuntimeException("Không xác định được user");
         }
@@ -44,23 +48,66 @@ public class BorrowingController {
         );
     }
 
-
-    @GetMapping("/getAllAndSearchByStatus")
-    @Operation(summary = "Admin/Librarian xem tất cả yêu cầu mượn, lọc theo status")
-    public ResponseEntity<ApiResponse<List<UserBorrowResponseDTO>>> getAllAndSearchByStatus(
+    @GetMapping("/me")
+    @Operation(summary = "User xem danh sách mượn của mình (lọc theo status)")
+    public ResponseEntity<ApiResponse<List<UserBorrowResponseDTO>>> getMyBorrowings(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(required = false) BorrowStatus status
     ) {
-        List<UserBorrowResponseDTO> result =
-                borrowingService.getAllAndSearchByStatus(status);
+        if (userDetails == null) {
+            throw new RuntimeException("Bạn chưa đăng nhập");
+        }
 
-        return ResponseEntity.ok(ApiResponse.<List<UserBorrowResponseDTO>>builder()
-                .code(200)
-                .message("Lấy danh sách thành công")
-                .result(result)
-                .build());
+        List<UserBorrowResponseDTO> result =
+                borrowingService.getMyBorrowings(
+                        userDetails.getId(),
+                        status
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<UserBorrowResponseDTO>>builder()
+                        .code(200)
+                        .message("Lấy danh sách mượn của bạn thành công")
+                        .result(result)
+                        .build()
+        );
     }
 
+    // ================= ADMIN / LIBRARIAN =================
 
+    @GetMapping
+    @Operation(summary = "Admin/Librarian xem tất cả yêu cầu mượn (lọc theo status)")
+    public ResponseEntity<ApiResponse<List<LibrarianBorrowResponseDTO>>> getAllBorrowings(
+            @RequestParam(required = false) BorrowStatus status
+    ) {
 
+        List<LibrarianBorrowResponseDTO> result =
+                borrowingService.getAllBorrowings(status);
 
+        return ResponseEntity.ok(
+                ApiResponse.<List<LibrarianBorrowResponseDTO>>builder()
+                        .code(200)
+                        .message("Lấy danh sách mượn thành công")
+                        .result(result)
+                        .build()
+        );
+    }
+
+    @PutMapping("/{borrowingId}/pickup")
+    @Operation(summary = "Librarian giao sách cho user")
+    public ResponseEntity<ApiResponse<String>> pickupBook(
+            @PathVariable Long borrowingId,
+            @RequestParam Integer borrowDays
+    ) {
+
+        borrowingService.pickupBook(borrowingId, borrowDays);
+
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .code(200)
+                        .message("Giao sách thành công")
+                        .result("Pickup success")
+                        .build()
+        );
+    }
 }

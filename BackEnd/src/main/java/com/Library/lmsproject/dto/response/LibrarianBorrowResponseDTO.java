@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+// BORROWRESPONSEDTO
 public class LibrarianBorrowResponseDTO {
     private Long borrowingId;
 

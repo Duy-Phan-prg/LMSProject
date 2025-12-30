@@ -1,6 +1,7 @@
 package com.Library.lmsproject.service.impl;
 
 import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
+import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
 import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
 import com.Library.lmsproject.entity.Books;
 import com.Library.lmsproject.entity.BorrowStatus;
@@ -27,28 +28,35 @@ public class BorrowingServiceImpl implements BorrowingService {
     private final BookRepository bookRepository;
     private final BorrowingRepository borrowingRepository;
     private final BorrowMapper borrowMapper;
-    @Override
+
+    // ================= USER =================
+
     @Transactional
-    public UserBorrowResponseDTO borrowBook(Long userId, UserCreateBorrowRequestDTO request) {
+    @Override
+    public UserBorrowResponseDTO borrowBook(
+            Long userId,
+            UserCreateBorrowRequestDTO request
+    ) {
 
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Books book = bookRepository.findByBookIdAndIsActive(
-                request.getBookId(), true
-        ).orElseThrow(() -> new RuntimeException("Book not found"));
+        Books book = bookRepository
+                .findByBookIdAndIsActive(request.getBookId(), true)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
 
-        boolean borrowed = borrowingRepository.existsByUserAndBookAndStatusIn(
-                user,
-                book,
-                List.of(
-                        BorrowStatus.PENDING_PICKUP,
-                        BorrowStatus.ACTIVE,
-                        BorrowStatus.OVERDUE
-                )
-        );
+        boolean alreadyBorrowed =
+                borrowingRepository.existsByUserAndBookAndStatusIn(
+                        user,
+                        book,
+                        List.of(
+                                BorrowStatus.PENDING_PICKUP,
+                                BorrowStatus.ACTIVE,
+                                BorrowStatus.OVERDUE
+                        )
+                );
 
-        if (borrowed) {
+        if (alreadyBorrowed) {
             throw new RuntimeException("You already borrowed this book");
         }
 
@@ -56,6 +64,7 @@ public class BorrowingServiceImpl implements BorrowingService {
             throw new RuntimeException("Book is out of stock");
         }
 
+        // Trừ sách
         book.setCopiesAvailable(book.getCopiesAvailable() - 1);
 
         Borrowings borrowing = new Borrowings();
@@ -67,15 +76,42 @@ public class BorrowingServiceImpl implements BorrowingService {
 
         borrowingRepository.save(borrowing);
 
-        UserBorrowResponseDTO dto = borrowMapper.toUserResponse(borrowing);
+        UserBorrowResponseDTO dto =
+                borrowMapper.toUserResponse(borrowing);
         dto.setMessage(BorrowStatus.PENDING_PICKUP.getUserMessage());
 
         return dto;
     }
+    @Override
+    @Transactional
+    public List<UserBorrowResponseDTO> getMyBorrowings(
+            Long userId,
+            BorrowStatus status
+    ) {
 
+        Users user = usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Borrowings> borrowings =
+                (status == null)
+                        ? borrowingRepository.findByUser(user)
+                        : borrowingRepository.findByUserAndStatus(user, status);
+
+        return borrowings.stream()
+                .map(b -> {
+                    UserBorrowResponseDTO dto =
+                            borrowMapper.toUserResponse(b);
+                    dto.setMessage(b.getStatus().getUserMessage());
+                    return dto;
+                })
+                .toList();
+    }
+    // ================= LIBRARIAN / ADMIN =================
 
     @Override
-    public List<UserBorrowResponseDTO> getAllAndSearchByStatus(BorrowStatus status) {
+    public List<LibrarianBorrowResponseDTO> getAllBorrowings(
+            BorrowStatus status
+    ) {
 
         List<Borrowings> borrowings =
                 (status == null)
@@ -84,11 +120,39 @@ public class BorrowingServiceImpl implements BorrowingService {
 
         return borrowings.stream()
                 .map(b -> {
-                    UserBorrowResponseDTO dto = borrowMapper.toUserResponse(b);
-                    dto.setMessage(b.getStatus().getUserMessage());
+                    LibrarianBorrowResponseDTO dto =
+                            borrowMapper.toLibrarianResponse(b);
+                    dto.setMessage(b.getStatus().name());
                     return dto;
                 })
                 .toList();
+    }
+
+    @Override
+    public void pickupBook(
+            Long borrowingId,
+            Integer borrowDays
+    ) {
+
+        Borrowings borrowing = borrowingRepository.findById(borrowingId)
+                .orElseThrow(() -> new RuntimeException("Borrowing not found"));
+
+        if (borrowing.getStatus() != BorrowStatus.PENDING_PICKUP) {
+            throw new RuntimeException(
+                    "Borrowing is not in PENDING_PICKUP status"
+            );
+        }
+
+        LocalDateTime pickupAt = LocalDateTime.now();
+        borrowing.setPickupAt(pickupAt);
+
+        borrowing.setDueDate(
+                pickupAt.toLocalDate().plusDays(borrowDays)
+        );
+
+        borrowing.setStatus(BorrowStatus.ACTIVE);
+
+        borrowingRepository.save(borrowing);
     }
 
 
