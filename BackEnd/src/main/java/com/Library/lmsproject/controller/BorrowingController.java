@@ -2,17 +2,14 @@ package com.Library.lmsproject.controller;
 
 import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
 import com.Library.lmsproject.dto.response.ApiResponse;
-import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
 import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
 import com.Library.lmsproject.entity.BorrowStatus;
 import com.Library.lmsproject.security.CustomUserDetails;
 import com.Library.lmsproject.service.BorrowingService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,19 +24,24 @@ public class BorrowingController {
 
     @PostMapping("/createBorrow")
     @Operation(summary = "Tạo yêu cầu mượn sách")
-    public ResponseEntity<ApiResponse<UserBorrowResponseDTO>> borrowBook(
+    public ResponseEntity<?> borrowBook(
             @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) Long userId, // nhập trên Swagger
             @Valid @RequestBody UserCreateBorrowRequestDTO request
     ) {
-        // Dùng userId từ user đang đăng nhập thay vì nhận từ param
-        Long userId = userDetails.getId();
-        UserBorrowResponseDTO response = borrowingService.borrowBook(userId, request);
+        Long finalUserId;
 
-        return ResponseEntity.ok(ApiResponse.<UserBorrowResponseDTO>builder()
-                .code(200)
-                .message("Tạo yêu cầu mượn sách thành công")
-                .result(response)
-                .build());
+        if (userDetails != null) {
+            finalUserId = userDetails.getId(); // prod
+        } else if (userId != null) {
+            finalUserId = userId; // dev / swagger
+        } else {
+            throw new RuntimeException("Không xác định được user");
+        }
+
+        return ResponseEntity.ok(
+                borrowingService.borrowBook(finalUserId, request)
+        );
     }
 
 

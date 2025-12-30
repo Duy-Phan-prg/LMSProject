@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserBorrowResponseDTO {
 //    Khi user gọi /getAll, hệ thống lấy userId từ token (@AuthenticationPrincipal CustomUserDetails) → đảm bảo chỉ trả thông tin của chính user đó. ko caanf field userId nữa
-//    private Long userId;
+    private Long userId;
     private String userName;
     private String bookTitle;
 

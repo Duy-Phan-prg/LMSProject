@@ -1,7 +1,6 @@
 package com.Library.lmsproject.service.impl;
 
 import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
-import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
 import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
 import com.Library.lmsproject.entity.Books;
 import com.Library.lmsproject.entity.BorrowStatus;
@@ -16,11 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
