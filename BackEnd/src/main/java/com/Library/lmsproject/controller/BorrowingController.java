@@ -10,6 +10,7 @@ import com.Library.lmsproject.service.BorrowingService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,21 @@ public class BorrowingController {
     private final BorrowingService borrowingService;
 
     // ================= USER =================
+
+    @PutMapping("/{id}/cancel")
+    @Operation(summary = "User hủy yêu cầu mượn sách")
+    public ResponseEntity<UserBorrowResponseDTO> cancelBorrowing(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id
+    ) {
+        UserBorrowResponseDTO response =
+                borrowingService.cancelBorrowing(
+                        userDetails.getUser().getId(),
+                        id
+                );
+
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/create")
     @Operation(summary = "User tạo yêu cầu mượn sách")
@@ -74,22 +90,53 @@ public class BorrowingController {
     }
 
     // ================= ADMIN / LIBRARIAN =================
-
-    @GetMapping
-    @Operation(summary = "Admin/Librarian xem tất cả yêu cầu mượn (lọc theo status)")
-    public ResponseEntity<ApiResponse<List<LibrarianBorrowResponseDTO>>> getAllBorrowings(
-            @RequestParam(required = false) BorrowStatus status
+    @GetMapping("/getBorrowingDetails/{borrowingId}")
+    @Operation(summary = "Librarian/Admin xem chi tiết yêu cầu mượn sách")
+    public ResponseEntity<ApiResponse<LibrarianBorrowResponseDTO>> getBorrowingDetails(
+            @PathVariable Long borrowingId
     ) {
-
-        List<LibrarianBorrowResponseDTO> result =
-                borrowingService.getAllBorrowings(status);
+        LibrarianBorrowResponseDTO data =
+                borrowingService.getBorrowingDetails(borrowingId);
 
         return ResponseEntity.ok(
-                ApiResponse.<List<LibrarianBorrowResponseDTO>>builder()
+                ApiResponse.<LibrarianBorrowResponseDTO>builder()
                         .code(200)
-                        .message("Lấy danh sách mượn thành công")
-                        .result(result)
+                        .message("Lấy chi tiết yêu cầu mượn sách thành công")
+                        .result(data)
                         .build()
+        );
+    }
+
+    @PutMapping("/{borrowingId}/return")
+    @Operation(summary = "Librarian xác nhận user trả sách")
+    public ResponseEntity<ApiResponse<LibrarianBorrowResponseDTO>> returnBook(
+            @PathVariable Long borrowingId
+    ) {
+        LibrarianBorrowResponseDTO result =
+                borrowingService.returnBook(borrowingId);
+
+        ApiResponse<LibrarianBorrowResponseDTO> response = new ApiResponse<>();
+        response.setCode(200);
+        response.setMessage("Return book success");
+        response.setResult(result);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(summary = "Admin/Librarian xem tất cả yêu cầu mượn (lọc theo status)")
+    @GetMapping("/getAll")
+    public Page<LibrarianBorrowResponseDTO> getAllBorrowings(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) BorrowStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return borrowingService.getAllBorrowings(
+                keyword,
+                status,
+                page,
+                size
         );
     }
 

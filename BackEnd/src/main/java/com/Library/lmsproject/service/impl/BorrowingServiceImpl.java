@@ -13,10 +13,16 @@ import com.Library.lmsproject.repository.BorrowingRepository;
 import com.Library.lmsproject.repository.UsersRepository;
 import com.Library.lmsproject.service.BorrowingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -30,6 +36,39 @@ public class BorrowingServiceImpl implements BorrowingService {
     private final BorrowMapper borrowMapper;
 
     // ================= USER =================
+    @Transactional
+    public UserBorrowResponseDTO cancelBorrowing(
+            Long userId,
+            Long borrowingId
+    ) {
+
+        Borrowings borrowing = borrowingRepository.findById(borrowingId)
+                .orElseThrow(() -> new RuntimeException("Borrowing not found"));
+
+        if (!borrowing.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Access denied");
+        }
+
+        if (borrowing.getStatus() != BorrowStatus.PENDING_PICKUP) {
+            throw new RuntimeException(
+                    "Only PENDING_PICKUP borrowing can be canceled"
+            );
+        }
+
+        Books book = borrowing.getBook();
+        book.setCopiesAvailable(book.getCopiesAvailable() + 1);
+
+        borrowing.setStatus(BorrowStatus.CANCELED);
+
+        borrowingRepository.save(borrowing);
+
+        UserBorrowResponseDTO dto =
+                borrowMapper.toUserResponse(borrowing);
+        dto.setMessage(BorrowStatus.CANCELED.getUserMessage());
+
+        return dto;
+    }
+
 
     @Transactional
     @Override
@@ -107,26 +146,104 @@ public class BorrowingServiceImpl implements BorrowingService {
                 .toList();
     }
     // ================= LIBRARIAN / ADMIN =================
+    @Transactional
+    public LibrarianBorrowResponseDTO returnBook(Long borrowingId) {
 
-    @Override
-    public List<LibrarianBorrowResponseDTO> getAllBorrowings(
-            BorrowStatus status
+        Borrowings borrowing = borrowingRepository.findById(borrowingId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu mượn sách"));
+
+        // ===== VALIDATE STATUS =====
+        if (borrowing.getStatus() != BorrowStatus.ACTIVE
+                && borrowing.getStatus() != BorrowStatus.OVERDUE) {
+            throw new RuntimeException("Chỉ có thể trả sách khi đang mượn hoặc quá hạn");
+        }
+
+        // ===== UPDATE RETURNED =====
+        borrowing.setStatus(BorrowStatus.RETURNED);
+
+        LocalDateTime returnedAt = LocalDateTime.now();
+        borrowing.setReturnedAt(returnedAt);
+
+        // ===== TÍNH OVERDUE =====
+        int overdueDays = 0;
+        if (borrowing.getDueDate() != null &&
+                returnedAt.toLocalDate().isAfter(borrowing.getDueDate())) {
+
+            overdueDays = (int) ChronoUnit.DAYS.between(
+                    borrowing.getDueDate(),
+                    returnedAt.toLocalDate()
+            );
+        }
+
+        // ===== TÍNH PHẠT (5.000đ / ngày) =====
+        double fineAmount = overdueDays * 5000;
+        borrowing.setFineAmount(fineAmount);
+
+        borrowingRepository.save(borrowing);
+
+        // ===== MAP RESPONSE =====
+        LibrarianBorrowResponseDTO response =
+                borrowMapper.toLibrarianResponse(borrowing);
+
+        response.setOverdueDays(overdueDays);
+        response.setMessage(BorrowStatus.RETURNED.getUserMessage());
+
+        return response;
+    }
+
+    public Page<LibrarianBorrowResponseDTO> getAllBorrowings(
+            String keyword,
+            BorrowStatus status,
+            int page,
+            int size
     ) {
 
-        List<Borrowings> borrowings =
-                (status == null)
-                        ? borrowingRepository.findAll()
-                        : borrowingRepository.findByStatus(status);
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        Sort.by("requestAt").descending()
+                );
 
-        return borrowings.stream()
-                .map(b -> {
-                    LibrarianBorrowResponseDTO dto =
-                            borrowMapper.toLibrarianResponse(b);
-                    dto.setMessage(b.getStatus().name());
-                    return dto;
-                })
-                .toList();
+        Page<Borrowings> borrowingsPage =
+                borrowingRepository.searchBorrowings(
+                        status,
+                        keyword,
+                        pageable
+                );
+
+        return borrowingsPage.map(b -> {
+            LibrarianBorrowResponseDTO dto =
+                    borrowMapper.toLibrarianResponse(b);
+            dto.setMessage(b.getStatus().name());
+            return dto;
+        });
     }
+
+    @Override
+    public LibrarianBorrowResponseDTO getBorrowingDetails(Long borrowingId) {
+        Borrowings borrowing = borrowingRepository.findById(borrowingId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu mượn sách"));
+
+        LibrarianBorrowResponseDTO response =
+                borrowMapper.toLibrarianResponse(borrowing);
+
+        // tính overdueDays nếu cần
+        if (borrowing.getDueDate() != null
+                && borrowing.getReturnedAt() == null
+                && borrowing.getDueDate().isBefore(LocalDate.now())) {
+
+            long overdueDays = ChronoUnit.DAYS.between(
+                    borrowing.getDueDate(),
+                    LocalDate.now()
+            );
+            response.setOverdueDays((int) overdueDays);
+        }
+
+        response.setMessage("Lấy chi tiết yêu cầu mượn sách thành công");
+        return response;
+    }
+
 
     @Override
     public void pickupBook(

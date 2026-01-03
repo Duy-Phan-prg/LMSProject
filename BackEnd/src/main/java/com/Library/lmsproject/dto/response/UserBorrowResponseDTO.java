@@ -18,13 +18,14 @@ public class UserBorrowResponseDTO {
 //    Khi user gọi /getAll, hệ thống lấy userId từ token (@AuthenticationPrincipal CustomUserDetails) → đảm bảo chỉ trả thông tin của chính user đó. ko caanf field userId nữa
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(200)")
-    private String bookTitle;          // Mượn sách gì
-    private BorrowStatus status;       // Trạng thái
+    private String bookTitle;
 
-    private LocalDateTime requestAt;   // Gửi yêu cầu lúc nào
-    private LocalDate dueDate;         // Hạn trả (có sau khi librarian giao sách)
+    private BorrowStatus status;
+    private String statusMessage;
 
-    private Double fineAmount;         // Chỉ có khi trả trễ
-    private String message;            // Message hiển thị
+    private LocalDateTime requestAt;
+    private LocalDate dueDate;
 
+    private Double fineAmount;
+    private String message;
 }
