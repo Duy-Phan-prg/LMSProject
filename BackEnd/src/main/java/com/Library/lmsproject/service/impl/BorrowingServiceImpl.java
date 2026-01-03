@@ -146,50 +146,54 @@ public class BorrowingServiceImpl implements BorrowingService {
                 .toList();
     }
     // ================= LIBRARIAN / ADMIN =================
-    @Transactional
-    public LibrarianBorrowResponseDTO returnBook(Long borrowingId) {
+    @Override
+    public LibrarianBorrowResponseDTO updateStatus(
+            Long borrowingId,
+            BorrowStatus status
+    ) {
 
         Borrowings borrowing = borrowingRepository.findById(borrowingId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu mượn sách"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu mượn"));
 
-        // ===== VALIDATE STATUS =====
-        if (borrowing.getStatus() != BorrowStatus.ACTIVE
-                && borrowing.getStatus() != BorrowStatus.OVERDUE) {
-            throw new RuntimeException("Chỉ có thể trả sách khi đang mượn hoặc quá hạn");
+        switch (status) {
+
+            case RETURNED -> {
+                if (borrowing.getStatus() != BorrowStatus.ACTIVE
+                        && borrowing.getStatus() != BorrowStatus.OVERDUE) {
+                    throw new RuntimeException("Chỉ được trả sách khi đang mượn");
+                }
+
+                borrowing.setStatus(BorrowStatus.RETURNED);
+
+                LocalDateTime returnedAt = LocalDateTime.now();
+                borrowing.setReturnedAt(returnedAt);
+
+                int overdueDays = 0;
+                if (returnedAt.toLocalDate().isAfter(borrowing.getDueDate())) {
+                    overdueDays = (int) ChronoUnit.DAYS.between(
+                            borrowing.getDueDate(),
+                            returnedAt.toLocalDate()
+                    );
+                }
+
+                borrowing.setFineAmount((double) (overdueDays * 5000));
+            }
+
+            case EXPIRED_PICKUP -> {
+                if (borrowing.getStatus() != BorrowStatus.PENDING_PICKUP) {
+                    throw new RuntimeException("Chỉ được hủy khi chưa nhận sách");
+                }
+                borrowing.setStatus(BorrowStatus.EXPIRED_PICKUP);
+                borrowing.setMessage("Yêu cầu mượn đã quá hạn nhận sách");
+            }
+
+            default -> throw new RuntimeException("Không hỗ trợ trạng thái này");
         }
-
-        // ===== UPDATE RETURNED =====
-        borrowing.setStatus(BorrowStatus.RETURNED);
-
-        LocalDateTime returnedAt = LocalDateTime.now();
-        borrowing.setReturnedAt(returnedAt);
-
-        // ===== TÍNH OVERDUE =====
-        int overdueDays = 0;
-        if (borrowing.getDueDate() != null &&
-                returnedAt.toLocalDate().isAfter(borrowing.getDueDate())) {
-
-            overdueDays = (int) ChronoUnit.DAYS.between(
-                    borrowing.getDueDate(),
-                    returnedAt.toLocalDate()
-            );
-        }
-
-        // ===== TÍNH PHẠT (5.000đ / ngày) =====
-        double fineAmount = overdueDays * 5000;
-        borrowing.setFineAmount(fineAmount);
 
         borrowingRepository.save(borrowing);
-
-        // ===== MAP RESPONSE =====
-        LibrarianBorrowResponseDTO response =
-                borrowMapper.toLibrarianResponse(borrowing);
-
-        response.setOverdueDays(overdueDays);
-        response.setMessage(BorrowStatus.RETURNED.getUserMessage());
-
-        return response;
+        return borrowMapper.toLibrarianResponse(borrowing);
     }
+
 
     public Page<LibrarianBorrowResponseDTO> getAllBorrowings(
             String keyword,

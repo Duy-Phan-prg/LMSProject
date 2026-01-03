@@ -1,5 +1,6 @@
 package com.Library.lmsproject.controller;
 
+import com.Library.lmsproject.dto.request.UpdateBorrowingStatusRequestDTO;
 import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
 import com.Library.lmsproject.dto.response.ApiResponse;
 import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
@@ -107,20 +108,22 @@ public class BorrowingController {
         );
     }
 
-    @PutMapping("/{borrowingId}/return")
-    @Operation(summary = "Librarian xác nhận user trả sách")
-    public ResponseEntity<ApiResponse<LibrarianBorrowResponseDTO>> returnBook(
-            @PathVariable Long borrowingId
+    @PutMapping("/borrowings/{borrowingId}/status")
+    @Operation(summary = "Librarian cập nhật trạng thái mượn sách (RETURNED / EXPIRED_PICKUP)")
+    public ResponseEntity<ApiResponse<LibrarianBorrowResponseDTO>> updateBorrowingStatus(
+            @PathVariable Long borrowingId,
+            @RequestBody UpdateBorrowingStatusRequestDTO request
     ) {
         LibrarianBorrowResponseDTO result =
-                borrowingService.returnBook(borrowingId);
+                borrowingService.updateStatus(borrowingId, request.getStatus());
 
-        ApiResponse<LibrarianBorrowResponseDTO> response = new ApiResponse<>();
-        response.setCode(200);
-        response.setMessage("Return book success");
-        response.setResult(result);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.<LibrarianBorrowResponseDTO>builder()
+                        .code(200)
+                        .message("Cập nhật trạng thái mượn sách thành công")
+                        .result(result)
+                        .build()
+        );
     }
 
 

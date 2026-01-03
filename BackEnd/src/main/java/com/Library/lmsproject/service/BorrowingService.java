@@ -30,5 +30,5 @@ public interface BorrowingService {
     // Librarian giao sách
     void pickupBook(Long borrowingId, Integer borrowDays);
 
-    LibrarianBorrowResponseDTO returnBook(Long borrowingId);
+    LibrarianBorrowResponseDTO updateStatus(Long borrowingId, BorrowStatus status);
 }

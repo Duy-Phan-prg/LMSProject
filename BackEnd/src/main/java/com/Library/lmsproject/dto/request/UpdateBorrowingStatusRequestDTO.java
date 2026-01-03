@@ -1,7 +1,9 @@
 package com.Library.lmsproject.dto.request;
 
 import com.Library.lmsproject.entity.BorrowStatus;
+import lombok.Data;
 
-public class UpdateBorrowStatusRequest {
+@Data
+public class UpdateBorrowingStatusRequestDTO {
     private BorrowStatus status;
 }
