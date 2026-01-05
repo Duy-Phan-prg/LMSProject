@@ -21,9 +21,13 @@ public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
             List<BorrowStatus> statuses
     );
 
-    // Thêm method này để lấy nhiều status cùng lúc
-    List<Borrowings> findByStatus(BorrowStatus status);
+    boolean existsByUserAndBookAndStatus(
+            Users user,
+            Books book,
+            BorrowStatus status
+    );
 
+    List<Borrowings> findByStatus(BorrowStatus status);
 
     List<Borrowings> findByUser(Users user);
 

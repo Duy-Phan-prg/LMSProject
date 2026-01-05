@@ -27,10 +27,14 @@ public class Review {
 
     private Integer rating; // có thể null
 
-    @Column(length = 1000)
+    @Column(length = 1000, columnDefinition = "NVARCHAR(2000)")
     private String comment;
 
-    private Boolean isDeleted = false;
+    @Column(nullable = false, columnDefinition = "bit default 0")
+    private Boolean isDeleted;
+
+    @Column(nullable = false, columnDefinition = "bit default 0")
+    private Boolean isEdited;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
