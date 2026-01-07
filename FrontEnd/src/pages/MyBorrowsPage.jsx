@@ -27,7 +27,7 @@ export default function MyBorrowsPage() {
     }
   };
 
-  const handleCancel = async (borrow, index) => {
+  const handleCancel = async (borrow) => {
     const result = await Swal.fire({
       title: "Hủy yêu cầu mượn?",
       text: `Bạn có chắc muốn hủy yêu cầu mượn sách "${borrow.bookTitle}"?`,
@@ -41,7 +41,7 @@ export default function MyBorrowsPage() {
     
     if (result.isConfirmed) {
       try {
-        await cancelBorrow(borrow.borrowingId || index);
+        await cancelBorrow(borrow.borrowingId);
         Swal.fire("Thành công!", "Đã hủy yêu cầu mượn sách", "success");
         fetchBorrows();
       } catch (error) {
@@ -169,8 +169,7 @@ export default function MyBorrowsPage() {
                     <button className="btn-view" onClick={() => setViewingBorrow(borrow)}>
                       <Eye size={16} /> Chi tiết
                     </button>
-                    {/* Cần backend trả về borrowingId để hủy được */}
-                    {borrow.status === "PENDING_PICKUP" && borrow.id && (
+                    {borrow.status === "PENDING_PICKUP" && borrow.borrowingId && (
                       <button className="btn-cancel-borrow" onClick={() => handleCancel(borrow)}>
                         <XCircle size={16} /> Hủy
                       </button>

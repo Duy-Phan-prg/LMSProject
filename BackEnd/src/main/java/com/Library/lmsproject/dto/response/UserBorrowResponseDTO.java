@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 public class UserBorrowResponseDTO {
 //    Khi user gọi /getAll, hệ thống lấy userId từ token (@AuthenticationPrincipal CustomUserDetails) → đảm bảo chỉ trả thông tin của chính user đó. ko caanf field userId nữa
 
+    private Long borrowingId;
+
     @Column(nullable = false, columnDefinition = "NVARCHAR(200)")
     private String bookTitle;
 

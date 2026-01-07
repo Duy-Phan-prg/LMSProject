@@ -2601,3 +2601,154 @@
   color: var(--admin-text-muted);
   font-style: italic;
 }
+
+
+/* ===== FIX TABLE OVERFLOW ===== */
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  min-width: 900px;
+}
+
+/* Search button in toolbar */
+.search-input .search-btn {
+  padding: 6px 12px;
+  background: var(--admin-gold);
+  color: var(--admin-navy-dark);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.search-input .search-btn:hover {
+  background: var(--admin-gold-light);
+}
+
+/* Book info cell */
+.book-info-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.book-info-cell .book-name {
+  font-weight: 600;
+  color: var(--admin-text-light);
+}
+
+.book-info-cell .book-id {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+}
+
+/* Status badges for expired and canceled */
+.status-badge.status-expired,
+.status-badge.status-canceled {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.2) 0%, rgba(107, 114, 128, 0.3) 100%);
+  color: #9ca3af;
+}
+
+/* Pagination simple style */
+.table-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: rgba(15, 23, 41, 0.5);
+  border-top: 1px solid rgba(212, 168, 83, 0.1);
+}
+
+.table-pagination button {
+  padding: 8px 16px;
+  background: var(--admin-navy-light);
+  border: 1px solid rgba(212, 168, 83, 0.2);
+  border-radius: 8px;
+  color: var(--admin-text-light);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.table-pagination button:hover:not(:disabled) {
+  background: var(--admin-navy-lighter);
+  border-color: var(--admin-gold);
+}
+
+.table-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.table-pagination span {
+  color: var(--admin-text-muted);
+  font-size: 0.9rem;
+}
+
+
+/* Fix table actions being covered */
+.admin-content {
+  position: relative;
+  z-index: 1;
+}
+
+.table-container {
+  position: relative;
+  z-index: 2;
+}
+
+.action-buttons {
+  position: relative;
+  z-index: 10;
+}
+
+/* Ensure modal is on top */
+.modal-overlay {
+  z-index: 1000;
+}
+
+/* Make sure nothing covers the table */
+.borrows-page .table-container {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.borrows-page .data-table {
+  min-width: 1000px;
+}
+
+.borrows-page .th-actions {
+  width: 160px;
+  min-width: 160px;
+}
+
+
+/* Fix search button position */
+.search-input {
+  position: relative;
+}
+
+.search-input .search-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px 12px;
+  background: var(--admin-gold);
+  color: var(--admin-navy-dark);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.search-input input {
+  padding-right: 60px;
+}

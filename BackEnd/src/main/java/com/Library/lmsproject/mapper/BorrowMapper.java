@@ -11,6 +11,7 @@ public interface BorrowMapper {
 
 
     // ================= USER =================
+    @Mapping(source = "borrowingId", target = "borrowingId")
     @Mapping(source = "book.title", target = "bookTitle")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "status.userMessage", target = "statusMessage")
@@ -19,6 +20,7 @@ public interface BorrowMapper {
     @Mapping(source = "fineAmount", target = "fineAmount")
     @Mapping(target = "message", ignore = true)
     UserBorrowResponseDTO toUserResponse(Borrowings borrowing);
+
 
     // ================= LIBRARIAN =================
     @Mapping(source = "borrowingId", target = "borrowingId")

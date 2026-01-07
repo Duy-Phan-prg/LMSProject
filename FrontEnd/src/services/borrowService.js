@@ -1,11 +1,13 @@
 import axiosClient from "../lib/axiosClient";
 
-// GET - Admin/Librarian xem tất cả yêu cầu mượn (lọc theo status)
-export const getAllBorrowings = async (status = "") => {
-  const params = {};
-  if (status) params.status = status;
+// GET - Admin/Librarian xem tất cả yêu cầu mượn (lọc theo status, keyword, pagination)
+export const getAllBorrowings = async (params = {}) => {
+  const { status = "", keyword = "", page = 0, size = 10 } = params;
+  const queryParams = { page, size };
+  if (status) queryParams.status = status;
+  if (keyword) queryParams.keyword = keyword;
   
-  const response = await axiosClient.get("/api/borrowings/getAll", { params });
+  const response = await axiosClient.get("/api/borrowings/getAll", { params: queryParams });
   return response.data;
 };
 
@@ -44,15 +46,15 @@ export const cancelBorrow = async (borrowingId) => {
 };
 
 // PUT - Librarian giao sách cho user
-export const pickupBorrow = async (borrowingId) => {
-  const response = await axiosClient.put(`/api/borrowings/${borrowingId}/pickup`);
+export const pickupBorrow = async (borrowingId, borrowDays) => {
+  const response = await axiosClient.put(`/api/borrowings/${borrowingId}/pickup`, null, {
+    params: { borrowDays }
+  });
   return response.data;
 };
 
 // PUT - Librarian cập nhật trạng thái mượn sách (RETURNED / EXPIRED_PICKUP)
 export const updateBorrowStatus = async (borrowingId, status) => {
-  const response = await axiosClient.put(`/api/borrowings/borrowings/${borrowingId}/status`, null, {
-    params: { status }
-  });
+  const response = await axiosClient.put(`/api/borrowings/borrowings/${borrowingId}/status`, { status });
   return response.data;
 };
