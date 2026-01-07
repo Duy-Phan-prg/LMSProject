@@ -2,16 +2,51 @@ import { Outlet } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { 
   BookOpen, Search, Bell, User, ChevronRight, Mail, Phone, MapPin,
-  ChevronDown, Heart, ShoppingCart, Menu, X, Home, Grid3X3, Users, Headphones
+  ChevronDown, Heart, ShoppingCart, Menu, X, Home, Grid3X3, Users, Headphones,
+  LogOut, Settings, History
 } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { isAuthenticated, clearTokens, getUserRole } from "../services/authService";
+import { getUserById } from "../services/userService";
 
 export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (isAuthenticated()) {
+        setIsLoggedIn(true);
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+          try {
+            const response = await getUserById(userId);
+            setCurrentUser(response.result || response);
+          } catch (error) {
+            console.error("Error fetching user:", error);
+          }
+        }
+      } else {
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+      }
+    };
+    checkAuth();
+  }, [location.pathname]);
+
+  const handleLogout = () => {
+    clearTokens();
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    setUserDropdownOpen(false);
+    navigate("/login");
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -91,10 +126,52 @@ export default function MainLayout() {
                 <Bell size={20} />
                 <span className="action-badge pulse">5</span>
               </button>
-              <Link to="/login" className="login-btn">
-                <User size={18} />
-                <span>Đăng nhập</span>
-              </Link>
+              {isLoggedIn ? (
+                <div className="user-menu-wrapper">
+                  <button 
+                    className="user-menu-btn"
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  >
+                    <div className="user-avatar-small">
+                      {currentUser?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                    </div>
+                    <span className="user-name-display">{currentUser?.fullName || "User"}</span>
+                    <ChevronDown size={16} className={userDropdownOpen ? "rotate" : ""} />
+                  </button>
+                  {userDropdownOpen && (
+                    <div className="user-dropdown">
+                      <div className="user-dropdown-header">
+                        <div className="user-avatar-large">
+                          {currentUser?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                        </div>
+                        <div className="user-info">
+                          <span className="user-fullname">{currentUser?.fullName}</span>
+                          <span className="user-email">{currentUser?.email}</span>
+                        </div>
+                      </div>
+                      <div className="user-dropdown-divider"></div>
+                      <Link to="/profile" className="user-dropdown-item" onClick={() => setUserDropdownOpen(false)}>
+                        <User size={16} /> Tài khoản của tôi
+                      </Link>
+                      <Link to="/my-borrows" className="user-dropdown-item" onClick={() => setUserDropdownOpen(false)}>
+                        <History size={16} /> Lịch sử mượn sách
+                      </Link>
+                      <Link to="/settings" className="user-dropdown-item" onClick={() => setUserDropdownOpen(false)}>
+                        <Settings size={16} /> Cài đặt
+                      </Link>
+                      <div className="user-dropdown-divider"></div>
+                      <button className="user-dropdown-item logout" onClick={handleLogout}>
+                        <LogOut size={16} /> Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link to="/login" className="login-btn">
+                  <User size={18} />
+                  <span>Đăng nhập</span>
+                </Link>
+              )}
               <button 
                 className="mobile-menu-btn"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -168,9 +245,23 @@ export default function MainLayout() {
             ))}
           </ul>
           <div className="mobile-menu-footer">
-            <Link to="/login" className="mobile-login-btn" onClick={() => setMobileMenuOpen(false)}>
-              <User size={18} /> Đăng nhập
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <div className="mobile-user-info">
+                  <div className="user-avatar-small">
+                    {currentUser?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                  <span>{currentUser?.fullName || "User"}</span>
+                </div>
+                <button className="mobile-logout-btn" onClick={handleLogout}>
+                  <LogOut size={18} /> Đăng xuất
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="mobile-login-btn" onClick={() => setMobileMenuOpen(false)}>
+                <User size={18} /> Đăng nhập
+              </Link>
+            )}
           </div>
         </div>
       </div>

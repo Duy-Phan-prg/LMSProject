@@ -4,7 +4,7 @@ import {
   RefreshCw, AlertCircle, X, BookOpen, User, Calendar
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { getAllBorrowings } from "../../services/borrowService";
+import { getAllBorrowings, pickupBorrow, updateBorrowStatus } from "../../services/borrowService";
 
 export default function LibrarianBorrowsPage() {
   const [borrows, setBorrows] = useState([]);
@@ -43,35 +43,47 @@ export default function LibrarianBorrowsPage() {
 
   const handleApprove = async (borrow) => {
     const result = await Swal.fire({
-      title: "Xác nhận cho mượn?",
-      text: `Duyệt yêu cầu mượn sách "${borrow.bookTitle}" của ${borrow.userName}?`,
+      title: "Xác nhận giao sách?",
+      text: `Xác nhận giao sách "${borrow.bookTitle}" cho ${borrow.userName}?`,
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#22c55e",
       cancelButtonColor: "#64748b",
-      confirmButtonText: "Duyệt",
+      confirmButtonText: "Xác nhận",
       cancelButtonText: "Hủy"
     });
     if (result.isConfirmed) {
-      // TODO: Gọi API khi backend sẵn sàng
-      Swal.fire("Thông báo", "API duyệt chưa được implement ở backend", "info");
+      try {
+        await pickupBorrow(borrow.id);
+        Swal.fire("Thành công!", "Đã giao sách cho người mượn", "success");
+        fetchBorrows();
+      } catch (error) {
+        console.error("Error pickup borrow:", error);
+        Swal.fire("Lỗi!", "Không thể thực hiện thao tác", "error");
+      }
     }
   };
 
   const handleReject = async (borrow) => {
     const result = await Swal.fire({
-      title: "Từ chối yêu cầu?",
-      text: `Từ chối yêu cầu mượn sách "${borrow.bookTitle}" của ${borrow.userName}?`,
+      title: "Hủy yêu cầu?",
+      text: `Đánh dấu yêu cầu mượn sách "${borrow.bookTitle}" của ${borrow.userName} là hết hạn lấy sách?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "#64748b",
-      confirmButtonText: "Từ chối",
+      confirmButtonText: "Xác nhận",
       cancelButtonText: "Hủy"
     });
     if (result.isConfirmed) {
-      // TODO: Gọi API khi backend sẵn sàng
-      Swal.fire("Thông báo", "API từ chối chưa được implement ở backend", "info");
+      try {
+        await updateBorrowStatus(borrow.id, "EXPIRED_PICKUP");
+        Swal.fire("Thành công!", "Đã cập nhật trạng thái", "success");
+        fetchBorrows();
+      } catch (error) {
+        console.error("Error update status:", error);
+        Swal.fire("Lỗi!", "Không thể thực hiện thao tác", "error");
+      }
     }
   };
 
@@ -87,8 +99,14 @@ export default function LibrarianBorrowsPage() {
       cancelButtonText: "Hủy"
     });
     if (result.isConfirmed) {
-      // TODO: Gọi API khi backend sẵn sàng
-      Swal.fire("Thông báo", "API trả sách chưa được implement ở backend", "info");
+      try {
+        await updateBorrowStatus(borrow.id, "RETURNED");
+        Swal.fire("Thành công!", "Đã xác nhận trả sách", "success");
+        fetchBorrows();
+      } catch (error) {
+        console.error("Error return borrow:", error);
+        Swal.fire("Lỗi!", "Không thể thực hiện thao tác", "error");
+      }
     }
   };
 

@@ -6,6 +6,9 @@ import LibrarianLayout from "../layouts/LibrarianLayout";
 import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/HomePage";
 import BookDetailPage from "../pages/BookDetailPage";
+import ProfilePage from "../pages/ProfilePage";
+import MyBorrowsPage from "../pages/MyBorrowsPage";
+import SettingsPage from "../pages/SettingsPage";
 
 // Admin Pages
 import AdminDashboardPage from "../pages/admin/DashboardPage";
@@ -35,6 +38,9 @@ export default function AppRoutes() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/book/:id" element={<BookDetailPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/my-borrows" element={<MyBorrowsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
       {/* Admin - Admin Layout */}

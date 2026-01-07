@@ -6,6 +6,7 @@ import {
   FileText, Hash, Layers, CheckCircle, XCircle, ShoppingCart
 } from "lucide-react";
 import { getBookById } from "../services/bookService";
+import { createBorrow } from "../services/borrowService";
 import { isAuthenticated } from "../services/authService";
 import Swal from "sweetalert2";
 import "../styles/book-detail.css";
@@ -61,15 +62,17 @@ export default function BookDetailPage() {
 
     setBorrowing(true);
     try {
-      // TODO: Gọi API mượn sách khi backend sẵn sàng
-      // await borrowBook({ bookId: book.bookId, userId: getUserId() });
+      await createBorrow(book.bookId);
       
       Swal.fire({
         title: "Thành công!",
-        text: "Yêu cầu mượn sách đã được gửi",
+        text: "Yêu cầu mượn sách đã được gửi. Vui lòng đến thư viện để lấy sách.",
         icon: "success",
         confirmButtonColor: "#d4a853",
       });
+      
+      // Refresh lại thông tin sách
+      fetchBookDetail();
     } catch (error) {
       console.error("Error borrowing book:", error);
       Swal.fire("Lỗi!", error.response?.data?.message || "Không thể mượn sách", "error");

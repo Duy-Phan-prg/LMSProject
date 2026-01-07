@@ -6,7 +6,9 @@ export const login = async (credentials) => {
     email: credentials.email,
     password: credentials.password,
   });
-  return response.data;
+  console.log("Login response:", response.data);
+  // Nếu response có wrapper result thì lấy result, không thì lấy trực tiếp
+  return response.data.result || response.data;
 };
 
 // POST - Register
