@@ -180,11 +180,23 @@ public class BorrowingServiceImpl implements BorrowingService {
             }
 
             case EXPIRED_PICKUP -> {
+
                 if (borrowing.getStatus() != BorrowStatus.PENDING_PICKUP) {
-                    throw new RuntimeException("Chỉ được hủy khi chưa nhận sách");
+                    throw new RuntimeException("Chỉ được đánh dấu quá hạn khi chưa nhận sách");
                 }
+
+                // quá 1 ngày kể từ lúc request
+                LocalDateTime deadline = borrowing.getRequestAt().plusDays(1);
+                if (LocalDateTime.now().isBefore(deadline)) {
+                    throw new RuntimeException("Chưa quá hạn nhận sách");
+                }
+
+                // cộng lại sách
+                Books book = borrowing.getBook();
+                book.setCopiesAvailable(book.getCopiesAvailable() + 1);
+
                 borrowing.setStatus(BorrowStatus.EXPIRED_PICKUP);
-                borrowing.setMessage("Yêu cầu mượn đã quá hạn nhận sách");
+                borrowing.setMessage("Quá 1 ngày chưa đến nhận sách");
             }
 
             default -> throw new RuntimeException("Không hỗ trợ trạng thái này");

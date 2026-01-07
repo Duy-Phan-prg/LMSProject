@@ -77,13 +77,18 @@ axiosClient.interceptors.response.use(
       }
 
       try {
+        console.log("Attempting to refresh token...");
         // Gọi API refresh token
         const response = await axios.post(
           "http://localhost:8080/api/user/refresh-token",
           { refreshToken }
         );
 
-        const { accessToken, refreshToken: newRefreshToken, id, role } = response.data;
+        console.log("Refresh token response:", response.data);
+        
+        // Response có thể có wrapper result hoặc không
+        const data = response.data.result || response.data;
+        const { accessToken, refreshToken: newRefreshToken, id, role } = data;
 
         // Lưu token mới
         localStorage.setItem("accessToken", accessToken);
@@ -96,8 +101,10 @@ axiosClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         processQueue(null, accessToken);
+        console.log("Token refreshed successfully, retrying request...");
         return axiosClient(originalRequest);
       } catch (refreshError) {
+        console.error("Refresh token failed:", refreshError);
         // Refresh token thất bại -> logout
         processQueue(refreshError, null);
         localStorage.clear();
