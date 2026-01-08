@@ -9,33 +9,21 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final String secretKey = "THIS_IS_SECRET_KEY_256_ABCXYZ1234567890THIS_IS_SECRET_KEY_256";
+    private final String secretKey =
+            "THIS_IS_SECRET_KEY_256_ABCXYZ1234567890THIS_IS_SECRET_KEY_256";
 
-    private final long accessTokenExpiration = 15 * 60 * 1000;     // 15 phút
-    private final long refreshTokenExpiration = 7 * 24 * 60 * 60 * 1000; // 7 ngày
+    private final long accessTokenExpiration = 15 * 60 * 1000;
+    private final long refreshTokenExpiration = 7 * 24 * 60 * 60 * 1000;
 
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(String email, String role) {
         return Jwts.builder()
                 .subject(email)
                 .claim("type", "ACCESS")
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .compact();
-    }
-
-    public Date getExpiration(String token) {
-        try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            return claims.getExpiration();
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid JWT token");
-        }
     }
 
     public String generateRefreshToken(String email) {
@@ -48,18 +36,42 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public boolean isAccessToken(String token) {
+    public boolean validateToken(String token) {
         try {
-            Claims claims = Jwts.parser()
+            Jwts.parser()
                     .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                     .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            return "ACCESS".equals(claims.get("type"));
+                    .parseSignedClaims(token);
+            return true;
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public boolean isAccessToken(String token) {
+        return getType(token).equals("ACCESS");
+    }
+
+    public boolean isRefreshToken(String token) {
+        return getType(token).equals("REFRESH");
+    }
+
+    private String getType(String token) {
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("type", String.class);
+    }
+
+    public Date getExpiration(String token) {
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration();
     }
 
     public String extractEmail(String token) {
@@ -69,17 +81,5 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
-    }
-
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
     }
 }

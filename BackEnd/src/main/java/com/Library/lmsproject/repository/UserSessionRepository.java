@@ -8,8 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserSessionRepository extends JpaRepository<UserSession, Long> {
-    Optional<UserSession> findBySessionTokenAndIsActive(String sessionToken, Boolean isActive);
+    Optional<UserSession> findBySessionTokenAndTokenTypeAndIsActive(
+            String token,
+            String tokenType,
+            Boolean isActive
+    );
 
     List<UserSession> findAllByUserAndIsActive(Users user, Boolean isActive);
 
+    Optional<Object> findBySessionTokenAndIsActive(String sessionToken, Boolean isActive);
 }

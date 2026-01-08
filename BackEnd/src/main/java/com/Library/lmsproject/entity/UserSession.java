@@ -17,8 +17,11 @@ public class UserSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long sessionId;
 
-    @Column(name = "session_token",nullable = false, unique = true, length = 500)
+    @Column(nullable = false, unique = true, length = 500)
     private String sessionToken;
+
+    @Column(nullable = false)
+    private String tokenType; // ACCESS | REFRESH
 
     @Column(nullable = false)
     private Boolean isActive = true;

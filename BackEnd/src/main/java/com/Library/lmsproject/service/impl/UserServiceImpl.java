@@ -61,7 +61,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public LoginResponseDTO login(LoginRequestDTO request) {
-
         Users user = usersRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
@@ -69,21 +68,36 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid email or password");
         }
 
-        if (!user.isActive()) {
-            throw new RuntimeException("User account is not active");
-        }
+        String accessToken = jwtTokenProvider.generateAccessToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
 
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
 
-        // 🔥 LƯU USER SESSION
-        UserSession session = new UserSession();
-        session.setUser(user);                // ManyToOne
-        session.setSessionToken(accessToken); // access token
-        session.setLoginTime(LocalDateTime.now());
-        session.setIsActive(true);
+        userSessionRepository.save(
+                new UserSession(
+                        null,
+                        accessToken,
+                        "ACCESS",
+                        true,
+                        LocalDateTime.now(),
+                        null,
+                        user
+                )
+        );
 
-        userSessionRepository.save(session);
+        userSessionRepository.save(
+                new UserSession(
+                        null,
+                        refreshToken,
+                        "REFRESH",
+                        true,
+                        LocalDateTime.now(),
+                        null,
+                        user
+                )
+        );
 
         return LoginResponseDTO.builder()
                 .id(user.getId())
@@ -104,8 +118,12 @@ public class UserServiceImpl implements UserService {
 
         // 2. Invalidate session
         userSessionRepository
-                .findBySessionTokenAndIsActive(token, true)
-                .ifPresent(session -> {
+                .findBySessionTokenAndTokenTypeAndIsActive(
+                        token,
+                        "ACCESS",
+                        true
+                )
+                .ifPresent((UserSession session) -> {
                     session.setIsActive(false);
                     session.setLogoutTime(LocalDateTime.now());
                 });
@@ -189,22 +207,51 @@ public class UserServiceImpl implements UserService {
 
         String refreshToken = request.getRefreshToken();
 
-        // 1. Validate token (basic)
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
+        if (!jwtTokenProvider.validateToken(refreshToken)
+                || !jwtTokenProvider.isRefreshToken(refreshToken)) {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        // 2. Lấy email từ refresh token
-        String email = jwtTokenProvider.extractEmail(refreshToken);
+        UserSession refreshSession =
+                userSessionRepository
+                        .findBySessionTokenAndTokenTypeAndIsActive(
+                                refreshToken,
+                                "REFRESH",
+                                true
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException("Refresh token expired")
+                        );
 
-        // 3. Check user còn tồn tại không
-        Users user = usersRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Users user = refreshSession.getUser();
 
-        // 4. Generate access token mới
-        String newAccessToken = jwtTokenProvider.generateAccessToken(email);
+        // deactivate all old sessions
+        List<UserSession> sessions =
+                userSessionRepository.findAllByUserAndIsActive(user, true);
 
-        // 5. Trả response (giữ refresh token cũ)
+        for (UserSession s : sessions) {
+            s.setIsActive(false);
+            s.setLogoutTime(LocalDateTime.now());
+        }
+        userSessionRepository.saveAll(sessions);
+
+        String newAccessToken = jwtTokenProvider.generateAccessToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        userSessionRepository.save(
+                new UserSession(
+                        null,
+                        newAccessToken,
+                        "ACCESS",
+                        true,
+                        LocalDateTime.now(),
+                        null,
+                        user
+                )
+        );
+
         return LoginResponseDTO.builder()
                 .id(user.getId())
                 .role(user.getRole())

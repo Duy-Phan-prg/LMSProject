@@ -80,10 +80,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // ❌ 3. Session không active
             userSessionRepository
-                    .findBySessionTokenAndIsActive(token, true)
-                    .orElseThrow(() ->
-                            new RuntimeException("Session inactive")
-                    );
+                    .findBySessionTokenAndTokenTypeAndIsActive(
+                            token,
+                            "ACCESS",
+                            true
+                    )
+                    .orElseThrow(() -> new RuntimeException("Session inactive"));
 
             // ✅ 4. Authenticate
             String email = jwtTokenProvider.extractEmail(token);
