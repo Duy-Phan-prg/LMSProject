@@ -19,6 +19,7 @@ import SystemConfigPage from "../pages/admin/SystemConfigPage";
 import ReportsPage from "../pages/admin/ReportsPage";
 import BorrowHistoryPage from "../pages/admin/BorrowHistoryPage";
 import HelpPage from "../pages/admin/HelpPage";
+import ReviewsPage from "../pages/admin/ReviewsPage";
 
 // Librarian Pages
 import LibrarianDashboard from "../pages/librarian/LibrarianDashboard";
@@ -52,6 +53,7 @@ export default function AppRoutes() {
         <Route path="activity-log" element={<ActivityLogPage />} />
         <Route path="config" element={<SystemConfigPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="reviews" element={<ReviewsPage />} />
         <Route path="help" element={<HelpPage />} />
       </Route>
 

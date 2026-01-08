@@ -20,6 +20,7 @@ export default function AdminLayout() {
     { path: "/admin", icon: <LayoutDashboard size={20} />, label: "Dashboard", exact: true },
     { path: "/admin/users", icon: <Users size={20} />, label: "Quản lý phân quyền" },
     { path: "/admin/borrow-history", icon: <ShoppingCart size={20} />, label: "Lịch sử mượn" },
+    { path: "/admin/reviews", icon: <MessageSquare size={20} />, label: "Quản lý đánh giá" },
     { path: "/admin/statistics", icon: <BarChart3 size={20} />, label: "Thống kê" },
     { path: "/admin/activity-log", icon: <FileText size={20} />, label: "Log hành động" },
     { path: "/admin/config", icon: <Settings size={20} />, label: "Cấu hình" },

@@ -40,6 +40,9 @@ axiosClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    console.log("Interceptor caught error:", error.response?.status, originalRequest.url);
+    console.log("_retry:", originalRequest._retry);
+
     // Nếu lỗi 401 và chưa retry
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Bỏ qua nếu đang ở trang login/register hoặc đang gọi refresh-token
@@ -48,6 +51,7 @@ axiosClient.interceptors.response.use(
         originalRequest.url?.includes("/register") ||
         originalRequest.url?.includes("/refresh-token")
       ) {
+        console.log("Skipping refresh for auth URLs");
         return Promise.reject(error);
       }
 
@@ -88,13 +92,25 @@ axiosClient.interceptors.response.use(
         
         // Response có thể có wrapper result hoặc không
         const data = response.data.result || response.data;
+        console.log("Parsed data:", data);
+        
         const { accessToken, refreshToken: newRefreshToken, id, role } = data;
+        
+        console.log("New accessToken:", accessToken ? "exists" : "MISSING!");
+        console.log("New refreshToken:", newRefreshToken ? "exists" : "MISSING!");
+
+        if (!accessToken) {
+          console.error("No accessToken in refresh response!");
+          throw new Error("No accessToken in refresh response");
+        }
 
         // Lưu token mới
         localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", newRefreshToken);
-        localStorage.setItem("userId", id);
-        localStorage.setItem("userRole", role);
+        if (newRefreshToken) {
+          localStorage.setItem("refreshToken", newRefreshToken);
+        }
+        if (id) localStorage.setItem("userId", id);
+        if (role) localStorage.setItem("userRole", role);
 
         // Cập nhật header và retry request
         axiosClient.defaults.headers.Authorization = `Bearer ${accessToken}`;
@@ -102,6 +118,7 @@ axiosClient.interceptors.response.use(
 
         processQueue(null, accessToken);
         console.log("Token refreshed successfully, retrying request...");
+        console.log("Retry URL:", originalRequest.url);
         return axiosClient(originalRequest);
       } catch (refreshError) {
         console.error("Refresh token failed:", refreshError);

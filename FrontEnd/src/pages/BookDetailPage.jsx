@@ -3,10 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Container, Spinner } from "react-bootstrap";
 import {
   ArrowLeft, BookOpen, User, Calendar, Building2, Languages,
-  FileText, Hash, Layers, CheckCircle, XCircle, ShoppingCart
+  FileText, Hash, Layers, ShoppingCart, Star, Send, MessageSquare,
+  Edit2, Trash2, X
 } from "lucide-react";
 import { getBookById } from "../services/bookService";
 import { createBorrow } from "../services/borrowService";
+import { getReviewsByBook, createReview, updateReview, deleteReview } from "../services/reviewService";
 import { isAuthenticated } from "../services/authService";
 import Swal from "sweetalert2";
 import "../styles/book-detail.css";
@@ -17,16 +19,24 @@ export default function BookDetailPage() {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [borrowing, setBorrowing] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
+  const [editForm, setEditForm] = useState({ rating: 5, comment: "" });
+  
+  const currentUserId = parseInt(localStorage.getItem("userId"));
 
   useEffect(() => {
     fetchBookDetail();
+    fetchReviews();
   }, [id]);
 
   const fetchBookDetail = async () => {
     try {
       setLoading(true);
       const data = await getBookById(id);
-      console.log("Book data from API:", data); // Debug log
+      console.log("Book data from API:", data);
       setBook(data);
     } catch (error) {
       console.error("Error fetching book:", error);
@@ -34,6 +44,115 @@ export default function BookDetailPage() {
       navigate("/");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const data = await getReviewsByBook(id);
+      setReviews(data.result || data || []);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    
+    if (!isAuthenticated()) {
+      Swal.fire({
+        title: "Chưa đăng nhập",
+        text: "Vui lòng đăng nhập để viết đánh giá",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Đăng nhập",
+        cancelButtonText: "Hủy",
+        confirmButtonColor: "#d4a853",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login", { state: { from: `/book/${id}` } });
+        }
+      });
+      return;
+    }
+
+    if (!reviewForm.comment.trim()) {
+      Swal.fire("Lỗi!", "Vui lòng nhập nội dung đánh giá", "warning");
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      const userId = localStorage.getItem("userId");
+      await createReview(userId, {
+        bookId: parseInt(id),
+        rating: reviewForm.rating,
+        comment: reviewForm.comment
+      });
+      
+      Swal.fire("Thành công!", "Đánh giá của bạn đã được gửi", "success");
+      setReviewForm({ rating: 5, comment: "" });
+      fetchReviews();
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      Swal.fire("Lỗi!", error.response?.data?.message || "Không thể gửi đánh giá", "error");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const handleEditReview = (review) => {
+    setEditingReview(review.reviewId);
+    setEditForm({ rating: review.rating, comment: review.comment });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReview(null);
+    setEditForm({ rating: 5, comment: "" });
+  };
+
+  const handleUpdateReview = async (reviewId) => {
+    if (!editForm.comment.trim()) {
+      Swal.fire("Lỗi!", "Vui lòng nhập nội dung đánh giá", "warning");
+      return;
+    }
+
+    try {
+      await updateReview(reviewId, currentUserId, {
+        rating: editForm.rating,
+        comment: editForm.comment
+      });
+      
+      Swal.fire("Thành công!", "Đánh giá đã được cập nhật", "success");
+      setEditingReview(null);
+      setEditForm({ rating: 5, comment: "" });
+      fetchReviews();
+    } catch (error) {
+      console.error("Error updating review:", error);
+      Swal.fire("Lỗi!", error.response?.data?.message || "Không thể cập nhật đánh giá", "error");
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    const result = await Swal.fire({
+      title: "Xác nhận xóa",
+      text: "Bạn có chắc muốn xóa đánh giá này?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+      confirmButtonColor: "#ef4444",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteReview(reviewId, currentUserId);
+        Swal.fire("Đã xóa!", "Đánh giá đã được xóa", "success");
+        fetchReviews();
+      } catch (error) {
+        console.error("Error deleting review:", error);
+        Swal.fire("Lỗi!", error.response?.data?.message || "Không thể xóa đánh giá", "error");
+      }
     }
   };
 
@@ -230,6 +349,152 @@ export default function BookDetailPage() {
                 <h3>Mô tả</h3>
                 <p>{book.description}</p>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="reviews-section">
+          <h3><MessageSquare size={24} /> Đánh giá ({reviews.length})</h3>
+          
+          {/* Review Form */}
+          <div className="review-form-container">
+            <h4>Viết đánh giá của bạn</h4>
+            <form onSubmit={handleSubmitReview} className="review-form">
+              <div className="rating-input">
+                <label>Đánh giá:</label>
+                <div className="star-rating">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`star-btn ${star <= reviewForm.rating ? "active" : ""}`}
+                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                    >
+                      <Star size={24} fill={star <= reviewForm.rating ? "#d4a853" : "none"} />
+                    </button>
+                  ))}
+                  <span className="rating-text">{reviewForm.rating}/5</span>
+                </div>
+              </div>
+              <div className="comment-input">
+                <textarea
+                  placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."
+                  value={reviewForm.comment}
+                  onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                  rows={4}
+                />
+              </div>
+              <button type="submit" className="btn-submit-review" disabled={submittingReview}>
+                {submittingReview ? (
+                  <><Spinner size="sm" animation="border" /> Đang gửi...</>
+                ) : (
+                  <><Send size={18} /> Gửi đánh giá</>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* Reviews List */}
+          <div className="reviews-list">
+            {reviews.length === 0 ? (
+              <div className="no-reviews">
+                <MessageSquare size={48} />
+                <p>Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</p>
+              </div>
+            ) : (
+              reviews.map((review) => (
+                <div key={review.reviewId} className="review-item">
+                  {editingReview === review.reviewId ? (
+                    /* Edit Mode */
+                    <div className="review-edit-form">
+                      <div className="rating-input">
+                        <label>Đánh giá:</label>
+                        <div className="star-rating">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              className={`star-btn ${star <= editForm.rating ? "active" : ""}`}
+                              onClick={() => setEditForm({ ...editForm, rating: star })}
+                            >
+                              <Star size={24} fill={star <= editForm.rating ? "#d4a853" : "none"} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <textarea
+                        value={editForm.comment}
+                        onChange={(e) => setEditForm({ ...editForm, comment: e.target.value })}
+                        rows={3}
+                        className="edit-textarea"
+                      />
+                      <div className="edit-actions">
+                        <button 
+                          className="btn-save-edit" 
+                          onClick={() => handleUpdateReview(review.reviewId)}
+                        >
+                          Lưu
+                        </button>
+                        <button 
+                          className="btn-cancel-edit" 
+                          onClick={handleCancelEdit}
+                        >
+                          <X size={16} /> Hủy
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* View Mode */
+                    <>
+                      <div className="review-header">
+                        <div className="reviewer-info">
+                          <div className="reviewer-avatar">
+                            {review.userName?.charAt(0)?.toUpperCase() || "U"}
+                          </div>
+                          <div>
+                            <span className="reviewer-name">{review.userName}</span>
+                            <span className="review-date">
+                              {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="review-header-right">
+                          <div className="review-rating">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                size={16}
+                                fill={star <= review.rating ? "#d4a853" : "none"}
+                                color="#d4a853"
+                              />
+                            ))}
+                          </div>
+                          {review.userId === currentUserId && (
+                            <div className="review-actions">
+                              <button 
+                                className="btn-edit-review" 
+                                onClick={() => handleEditReview(review)}
+                                title="Chỉnh sửa"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                              <button 
+                                className="btn-delete-review" 
+                                onClick={() => handleDeleteReview(review.reviewId)}
+                                title="Xóa"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <p className="review-comment">{review.comment}</p>
+                    </>
+                  )}
+                </div>
+              ))
             )}
           </div>
         </div>
