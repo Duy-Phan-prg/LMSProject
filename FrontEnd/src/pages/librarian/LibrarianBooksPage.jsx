@@ -239,7 +239,7 @@ export default function LibrarianBooksPage() {
 }
 
 function BookViewModal({ book, onClose }) {
-  const defaultCover = "https://placehold.co/200x280/1a2744/d4a853?text=No+Cover";
+  const defaultCover = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop&q=80";
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content modal-lg" onClick={e => e.stopPropagation()}>
@@ -280,6 +280,19 @@ function BookViewModal({ book, onClose }) {
 }
 
 function BookFormModal({ book, onClose, onSuccess, categories = [] }) {
+  // Khi edit, cần map categories name sang categoryIds
+  const getInitialCategoryIds = () => {
+    if (!book) return [];
+    if (book.categoryIds && book.categoryIds.length > 0) return book.categoryIds;
+    // Map từ category names sang ids
+    if (book.categories && book.categories.length > 0) {
+      return categories
+        .filter(cat => book.categories.includes(cat.categoryName))
+        .map(cat => cat.categoryId);
+    }
+    return [];
+  };
+
   const [formData, setFormData] = useState({
     title: book?.title || "",
     author: book?.author || "",
@@ -289,12 +302,25 @@ function BookFormModal({ book, onClose, onSuccess, categories = [] }) {
     pages: book?.pages || "",
     language: book?.language || "Tiếng Việt",
     copiesTotal: book?.copiesTotal || 1,
+    copiesAvailable: book?.copiesAvailable || 1,
     description: book?.description || "",
     imageCover: book?.imageCover || "",
-    categoryIds: book?.categoryIds || [],
+    categoryIds: getInitialCategoryIds(),
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Update categoryIds khi categories được load
+  useEffect(() => {
+    if (book && categories.length > 0 && formData.categoryIds.length === 0) {
+      const ids = categories
+        .filter(cat => book.categories?.includes(cat.categoryName))
+        .map(cat => cat.categoryId);
+      if (ids.length > 0) {
+        setFormData(prev => ({ ...prev, categoryIds: ids }));
+      }
+    }
+  }, [categories, book]);
 
   const handleCategoryChange = (categoryId) => {
     setFormData(prev => ({
@@ -345,6 +371,7 @@ function BookFormModal({ book, onClose, onSuccess, categories = [] }) {
         description: formData.description.trim() || null,
         imageCover: formData.imageCover.trim() || null,
         copiesTotal: Number(formData.copiesTotal),
+        copiesAvailable: book ? Number(formData.copiesAvailable) : Number(formData.copiesTotal),
         categoryIds: formData.categoryIds,
       };
 

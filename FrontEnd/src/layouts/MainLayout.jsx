@@ -2,13 +2,14 @@ import { Outlet } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { 
   BookOpen, Search, Bell, User, ChevronRight, Mail, Phone, MapPin,
-  ChevronDown, Heart, ShoppingCart, Menu, X, Home, Grid3X3, Users, Headphones,
+  ChevronDown, Heart, Bookmark, Menu, X, Home, Grid3X3, Users, Headphones,
   LogOut, Settings, History
 } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { isAuthenticated, clearTokens, getUserRole } from "../services/authService";
 import { getUserById } from "../services/userService";
+import { useCart } from "../context/CartContext";
 
 export default function MainLayout() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function MainLayout() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { cartCount } = useCart();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -116,15 +118,13 @@ export default function MainLayout() {
             <div className="nav-actions">
               <button className="nav-action-btn" title="Yêu thích">
                 <Heart size={20} />
-                <span className="action-badge">3</span>
               </button>
-              <button className="nav-action-btn" title="Giỏ mượn">
-                <ShoppingCart size={20} />
-                <span className="action-badge">2</span>
+              <button className="nav-action-btn" title="Sách đã lưu" onClick={() => navigate("/cart")}>
+                <Bookmark size={20} />
+                {cartCount > 0 && <span className="action-badge">{cartCount}</span>}
               </button>
               <button className="nav-action-btn" title="Thông báo">
                 <Bell size={20} />
-                <span className="action-badge pulse">5</span>
               </button>
               {isLoggedIn ? (
                 <div className="user-menu-wrapper">

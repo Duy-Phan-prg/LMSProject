@@ -43,6 +43,7 @@ public class SecurityConfig {
             "/api/user/**",
             "/api/categories/**",
             "/api/books/**",
+            "/api/reviews/**",
 
             // Swagger
             "/swagger-ui.html",

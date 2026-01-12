@@ -786,3 +786,53 @@
   background: rgba(107, 114, 128, 0.15);
   color: #9ca3af;
 }
+
+
+/* History Table */
+.history-table {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.history-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-table td {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.history-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.book-title-cell {
+  font-weight: 500;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .history-table {
+    overflow-x: auto;
+  }
+  
+  .history-table table {
+    min-width: 500px;
+  }
+}

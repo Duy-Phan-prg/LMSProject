@@ -9,6 +9,7 @@ import BookDetailPage from "../pages/BookDetailPage";
 import ProfilePage from "../pages/ProfilePage";
 import MyBorrowsPage from "../pages/MyBorrowsPage";
 import SettingsPage from "../pages/SettingsPage";
+import CartPage from "../pages/CartPage";
 
 // Admin Pages
 import AdminDashboardPage from "../pages/admin/DashboardPage";
@@ -42,6 +43,7 @@ export default function AppRoutes() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/my-borrows" element={<MyBorrowsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/cart" element={<CartPage />} />
       </Route>
 
       {/* Admin - Admin Layout */}

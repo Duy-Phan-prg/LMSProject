@@ -4,12 +4,13 @@ import { Container, Spinner } from "react-bootstrap";
 import {
   ArrowLeft, BookOpen, User, Calendar, Building2, Languages,
   FileText, Hash, Layers, ShoppingCart, Star, Send, MessageSquare,
-  Edit2, Trash2, X
+  Edit2, Trash2, X, Plus
 } from "lucide-react";
 import { getBookById } from "../services/bookService";
 import { createBorrow } from "../services/borrowService";
 import { getReviewsByBook, createReview, updateReview, deleteReview } from "../services/reviewService";
 import { isAuthenticated } from "../services/authService";
+import { useCart } from "../context/CartContext";
 import Swal from "sweetalert2";
 import "../styles/book-detail.css";
 
@@ -26,6 +27,7 @@ export default function BookDetailPage() {
   const [editForm, setEditForm] = useState({ rating: 5, comment: "" });
   
   const currentUserId = parseInt(localStorage.getItem("userId"));
+  const { addToCart, isInCart } = useCart();
 
   useEffect(() => {
     fetchBookDetail();
@@ -183,11 +185,31 @@ export default function BookDetailPage() {
     try {
       await createBorrow(book.bookId);
       
+      // Tính ngày mai
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toLocaleDateString("vi-VN", { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'numeric', 
+        year: 'numeric' 
+      });
+      
       Swal.fire({
-        title: "Thành công!",
-        text: "Yêu cầu mượn sách đã được gửi. Vui lòng đến thư viện để lấy sách.",
+        title: "Mượn sách thành công!",
+        html: `
+          <div style="text-align: left; line-height: 1.8;">
+            <p><strong>📚 Sách:</strong> ${book.title}</p>
+            <p><strong>📍 Địa điểm:</strong> Thư viện trường</p>
+            <p><strong>📅 Ngày lấy:</strong> ${tomorrowStr}</p>
+            <p><strong>⏰ Giờ lấy:</strong> 7h00 - 11h00 sáng</p>
+            <hr style="border-color: rgba(0,0,0,0.1); margin: 12px 0;">
+            <p style="color: #d97706; font-size: 0.9rem;">⚠️ Vui lòng đến đúng giờ để nhận sách</p>
+          </div>
+        `,
         icon: "success",
         confirmButtonColor: "#d4a853",
+        confirmButtonText: "Đã hiểu"
       });
       
       // Refresh lại thông tin sách
@@ -200,7 +222,7 @@ export default function BookDetailPage() {
     }
   };
 
-  const defaultCover = "https://placehold.co/400x600/1a2744/d4a853?text=No+Cover";
+  const defaultCover = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop&q=80";
   
   const isValidImageUrl = (url) => {
     if (!url || url === "string" || url.trim() === "") return false;
@@ -271,9 +293,34 @@ export default function BookDetailPage() {
               ) : (
                 <>
                   <ShoppingCart size={20} />
-                  {book.copiesAvailable > 0 ? "Mượn sách" : "Hết sách"}
+                  {book.copiesAvailable > 0 ? "Mượn ngay" : "Hết sách"}
                 </>
               )}
+            </button>
+
+            {/* Add to Cart Button */}
+            <button
+              className={`btn-add-cart ${isInCart(book.bookId) ? "in-cart" : ""}`}
+              onClick={() => {
+                if (isInCart(book.bookId)) {
+                  navigate("/cart");
+                } else {
+                  const added = addToCart(book);
+                  if (added) {
+                    Swal.fire({
+                      title: "Đã thêm vào giỏ!",
+                      text: book.title,
+                      icon: "success",
+                      timer: 1500,
+                      showConfirmButton: false
+                    });
+                  }
+                }
+              }}
+              disabled={book.copiesAvailable <= 0}
+            >
+              <Plus size={20} />
+              {isInCart(book.bookId) ? "Đã trong giỏ" : "Thêm vào giỏ"}
             </button>
             
             <p className="copies-info">

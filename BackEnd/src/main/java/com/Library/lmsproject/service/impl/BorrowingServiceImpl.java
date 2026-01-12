@@ -177,8 +177,11 @@ public class BorrowingServiceImpl implements BorrowingService {
                 }
 
                 borrowing.setFineAmount((double) (overdueDays * 5000));
-            }
 
+
+                Books book = borrowing.getBook();
+                book.setCopiesAvailable(book.getCopiesAvailable() + 1);
+            }
             case EXPIRED_PICKUP -> {
 
                 if (borrowing.getStatus() != BorrowStatus.PENDING_PICKUP) {

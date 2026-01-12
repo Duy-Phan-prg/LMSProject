@@ -39,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
 
             Users lib1 = new Users();
             lib1.setEmail("librarian1@library.com");
-            lib1.setPassword("Lib@123");
+            lib1.setPassword("Lib@12344444");
             lib1.setFullName("Nguyen Thu Thu");
             lib1.setPhone("0901000001");
             lib1.setAddress("Ho Chi Minh City");
