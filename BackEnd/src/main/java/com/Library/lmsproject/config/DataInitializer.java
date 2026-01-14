@@ -255,7 +255,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private void saveBooks(Categories category, List<Books> books) {
         books.forEach(b -> {
-            b.setIsbn(UUID.randomUUID().toString());
+            b.setIsbn(generateIsbn13());
             b.setPublisher("NXB Tổng Hợp");
             b.setYearPublished(2015 + new Random().nextInt(10));
             b.setPages(200 + new Random().nextInt(400));
@@ -266,6 +266,31 @@ public class DataInitializer implements CommandLineRunner {
             b.getCategories().add(category);
         });
         bookRepository.saveAll(books);
+    }
+    private String generateIsbn13() {
+        Random random = new Random();
+
+        // Prefix chuẩn ISBN
+        String prefix = random.nextBoolean() ? "978" : "979";
+
+        StringBuilder isbn = new StringBuilder(prefix);
+
+        // Sinh 9 số tiếp theo (tổng 12 số)
+        for (int i = 0; i < 9; i++) {
+            isbn.append(random.nextInt(10));
+        }
+
+        // Tính checksum
+        int sum = 0;
+        for (int i = 0; i < 12; i++) {
+            int digit = Character.getNumericValue(isbn.charAt(i));
+            sum += (i % 2 == 0) ? digit : digit * 3;
+        }
+
+        int checksum = (10 - (sum % 10)) % 10;
+        isbn.append(checksum);
+
+        return isbn.toString();
     }
 
     private Books book(String title, String author) {

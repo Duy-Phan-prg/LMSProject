@@ -30,7 +30,7 @@ public class Books {
     private String title;
     @Column(nullable = false, columnDefinition = "NVARCHAR(200)")
     private String author;
-
+    @Column(nullable = false, columnDefinition = "NVARCHAR(200)")
     private String publisher;
 
     /* publication_year */

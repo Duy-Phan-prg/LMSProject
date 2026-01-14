@@ -29,6 +29,7 @@ public class ReviewReport {
     @JoinColumn(name = "reported_by", nullable = false)
     private Users reportedBy;
 
+    @Column(nullable = false, columnDefinition = "NVARCHAR(500)")
     private String reason;
 
     // luôn = true (đã vi phạm)
