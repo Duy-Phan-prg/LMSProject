@@ -302,6 +302,24 @@ export default function BookDetailPage() {
             <button
               className={`btn-add-cart ${isInCart(book.bookId) ? "in-cart" : ""}`}
               onClick={() => {
+                // Check login trước
+                if (!isAuthenticated()) {
+                  Swal.fire({
+                    title: "Chưa đăng nhập",
+                    text: "Vui lòng đăng nhập để lưu sách",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Đăng nhập",
+                    cancelButtonText: "Hủy",
+                    confirmButtonColor: "#d4a853",
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      navigate("/login", { state: { from: `/book/${id}` } });
+                    }
+                  });
+                  return;
+                }
+
                 if (isInCart(book.bookId)) {
                   navigate("/cart");
                 } else {

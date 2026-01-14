@@ -84,7 +84,7 @@ public class BorrowingServiceImpl implements BorrowingService {
                 .findByBookIdAndIsActive(request.getBookId(), true)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
-        boolean alreadyBorrowed =
+        int alreadyBorrowed =
                 borrowingRepository.existsByUserAndBookAndStatusIn(
                         user,
                         book,
@@ -95,8 +95,8 @@ public class BorrowingServiceImpl implements BorrowingService {
                         )
                 );
 
-        if (alreadyBorrowed) {
-            throw new RuntimeException("You already borrowed this book");
+        if (alreadyBorrowed >= 5) {
+            throw new RuntimeException("Chỉ được mượn tối đa 5 cuốn sách cùng lúc");
         }
 
         if (book.getCopiesAvailable() <= 0) {
@@ -277,6 +277,10 @@ public class BorrowingServiceImpl implements BorrowingService {
             throw new RuntimeException(
                     "Borrowing is not in PENDING_PICKUP status"
             );
+        }
+
+        if (borrowDays == null || borrowDays <= 0 || borrowDays > 14) {
+            throw new RuntimeException("Invalid borrow days");
         }
 
         LocalDateTime pickupAt = LocalDateTime.now();

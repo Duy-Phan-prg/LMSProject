@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
 
-    boolean existsByUserAndBookAndStatusIn(
+    int existsByUserAndBookAndStatusIn(
             Users user,
             Books book,
             List<BorrowStatus> statuses
@@ -27,7 +27,6 @@ public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
             BorrowStatus status
     );
 
-    List<Borrowings> findByStatus(BorrowStatus status);
 
     List<Borrowings> findByUser(Users user);
 
