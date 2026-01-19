@@ -11,7 +11,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Users {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,13 +18,13 @@ public class Users {
     @OneToMany(mappedBy = "user")
     private Set<Borrowings> borrowings;
 
-    @Column(nullable = false)
+    // ================= BASIC =================
+    @Column(nullable = false, unique = true)
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không hợp lệ")
     private String email;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Mật khẩu không được để trống")
+    // LOCAL cần, GOOGLE không
     private String password;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(100)")
@@ -36,18 +35,27 @@ public class Users {
     @Column(nullable = false)
     private Roles role;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Số điện thoại không được để trống")
-    private String phone;
+    // ================= OAUTH =================
+    @Column(nullable = false, columnDefinition = "bit default 0")
+    private boolean isOauth2User = false;
 
-    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
-    @NotBlank(message = "Địa chỉ không được để trống")
+    private String provider;
+    private String providerId;
+
+    // ================= OPTIONAL =================
+    // Google không trả 2 field này
+    private String phone;
     private String address;
 
+    private String avatar;
+
+    // ================= JWT =================
+    @Column(length = 500)
+    private String refreshToken;
+
+    // ================= SYSTEM =================
     @Column(nullable = false)
     private boolean isActive = true;
-
-    private String avatar;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -62,6 +70,5 @@ public class Users {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 
 }

@@ -1,6 +1,7 @@
 package com.Library.lmsproject.config;
 
 import com.Library.lmsproject.security.JwtAuthenticationFilter;
+import com.Library.lmsproject.security.OAuth2SuccessHandler;
 import com.Library.lmsproject.security.RestAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -29,14 +30,17 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Autowired
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            RestAuthenticationEntryPoint restAuthenticationEntryPoint
+            RestAuthenticationEntryPoint restAuthenticationEntryPoint,
+            OAuth2SuccessHandler oAuth2SuccessHandler
     ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
     }
 
     private static final String[] PUBLIC_ENDPOINTS = {
@@ -44,6 +48,10 @@ public class SecurityConfig {
             "/api/categories/**",
             "/api/books/**",
             "/api/reviews/**",
+
+            // Google OAuth2
+            "/oauth2/**",
+            "/login/oauth2/**",
 
             // Swagger
             "/swagger-ui.html",
@@ -61,24 +69,32 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
+
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(restAuthenticationEntryPoint)
                 )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 
-                        // 🔐 BẮT BUỘC LOGIN
+
                         .requestMatchers("/api/borrowings/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable());
+                .httpBasic(basic -> basic.disable())
 
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                );
+
+        // ✅ JWT filter chạy sau Google login
         http.addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class

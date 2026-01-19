@@ -19,10 +19,7 @@ public interface UsersRepository
 
     Optional<Users> findByIdAndIsActive(Long id, boolean isActive);
 
-    Page<Users> findByIsActiveTrueAndFullNameContainingIgnoreCase(
-            String fullName,
-            Pageable pageable
-    );
+    Optional<Users> findByProviderAndProviderId(String provider, String providerId);
 
     boolean existsByEmailAndIdNot(String email, Long id);
     boolean existsByPhoneAndIdNot(String phone, Long id);

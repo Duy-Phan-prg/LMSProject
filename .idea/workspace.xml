@@ -1,14 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="98154acb-755b-46b5-82b8-7f4f8095c5e5" name="Changes" comment="" />
+    <list default="true" id="98154acb-755b-46b5-82b8-7f4f8095c5e5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/config/DataInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/controller/AdminReviewController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/controller/ReviewController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/dto/request/CreateReviewRequestDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/dto/request/ReportReviewRequestDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/dto/request/UpdateBorrowingStatusRequestDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/dto/request/UpdateReviewRequestDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/dto/response/ApiResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/dto/response/ReportedReviewResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/dto/response/ReviewResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/entity/ReportStatus.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/entity/Review.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/entity/ReviewReport.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/mapper/ReviewMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/mapper/ReviewReportMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/repository/ReviewReportRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/repository/ReviewRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/service/ReviewReportService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/service/ReviewService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/service/impl/ReviewReportServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BackEnd/src/main/java/com/Library/lmsproject/service/impl/ReviewServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/.idea/StorageLLMproject.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/.idea/dbnavigator.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/.idea/dbnavigator.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/config/OpenApiConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/controller/BookController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/controller/CategoryController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/controller/UserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/CreateBookRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/CreateCategoryRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/CreateUserRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/LoginRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/RefreshTokenRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/UpdateBookRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/UpdateCategoryRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/UpdateUserRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/request/UserRegisterRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/response/BookResponseDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/response/CategoryResponseDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/response/LoginResponseDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/dto/response/UserResponseDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/entity/BlacklistedToken.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/entity/Books.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/entity/Categories.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/entity/Roles.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/entity/UserSession.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/entity/Users.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/exception/GlobalExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/lmsProjectApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/mapper/BookMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/mapper/CategoryMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/mapper/UserMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/repository/BlacklistRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/repository/BookRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/repository/CategoryRespository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/repository/UserSessionRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/repository/UsersRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/security/CustomUserDetailsService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/security/JwtAuthenticationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/security/JwtTokenProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/security/RestAuthenticationEntryPoint.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/service/BookService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/service/CategoryService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/service/UserService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/service/impl/BookServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/service/impl/CategoryServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/java/com/Library/lmsproject/service/impl/UserServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/BackEnd/src/test/java/com/Library/lmsproject/lmsProjectApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/eslint.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/public/vite.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/App.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/App.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/assets/react.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/context/AuthContext.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/features/auth/LoginPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/features/users/UserListPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/layouts/AdminLayout.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/layouts/MainLayout.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/lib/axiosClient.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/main.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/HomePage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/LoginPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/RegisterPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/admin/BooksPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/admin/BorrowsPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/admin/CategoriesPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/admin/DashboardPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/admin/HelpPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/admin/ReportsPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/pages/admin/SettingsPage.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/routes/AppRoutes.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/services/authService.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/services/bookService.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/services/categoryService.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/services/userService.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/styles/admin.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/styles/header.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/styles/home.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/src/styles/login.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/FrontEnd/vite.config.js" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/BackEnd" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -31,18 +155,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/LMSProject&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/LMSProject",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -60,6 +189,9 @@
       <updated>1766166607327</updated>
       <workItem from="1766166608582" duration="165000" />
       <workItem from="1766168511890" duration="17000" />
+      <workItem from="1768446188142" duration="32000" />
+      <workItem from="1768448497650" duration="15000" />
+      <workItem from="1768464251448" duration="625000" />
     </task>
     <servers />
   </component>

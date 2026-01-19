@@ -21,8 +21,6 @@ public interface BorrowMapper {
     @Mapping(target = "message", ignore = true)
     UserBorrowResponseDTO toUserResponse(Borrowings borrowing);
 
-
-    // ================= LIBRARIAN =================
     @Mapping(source = "borrowingId", target = "borrowingId")
 
     @Mapping(source = "user.id", target = "userId")
@@ -38,7 +36,7 @@ public interface BorrowMapper {
     @Mapping(source = "returnedAt", target = "returnedAt")
 
     @Mapping(source = "fineAmount", target = "fineAmount")
-    @Mapping(target = "overdueDays", ignore = true) // tính ở service
+    @Mapping(target = "overdueDays", ignore = true)
     @Mapping(target = "message", ignore = true)
     LibrarianBorrowResponseDTO toLibrarianResponse(Borrowings borrowing);
 }

@@ -49,11 +49,11 @@ public class JwtTokenProvider {
     }
 
     public boolean isAccessToken(String token) {
-        return getType(token).equals("ACCESS");
+        return "ACCESS".equals(getType(token));
     }
 
     public boolean isRefreshToken(String token) {
-        return getType(token).equals("REFRESH");
+        return "REFRESH".equals(getType(token));
     }
 
     private String getType(String token) {
