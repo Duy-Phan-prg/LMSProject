@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
+import OAuth2Callback from "../pages/OAuth2Callback";
 import AdminLayout from "../layouts/AdminLayout";
 import LibrarianLayout from "../layouts/LibrarianLayout";
 import MainLayout from "../layouts/MainLayout";
@@ -35,6 +36,7 @@ export default function AppRoutes() {
       {/* Auth - No Layout */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/oauth2/callback" element={<OAuth2Callback />} />
 
       {/* Public - Main Layout */}
       <Route element={<MainLayout />}>

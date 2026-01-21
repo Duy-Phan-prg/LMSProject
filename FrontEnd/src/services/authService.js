@@ -1,69 +1,168 @@
-import axiosClient from "../lib/axiosClient";
+import axios from 'axios';
 
-// POST - Login
-export const login = async (credentials) => {
-  const response = await axiosClient.post("/api/user/login", {
-    email: credentials.email,
-    password: credentials.password,
-  });
-  console.log("Login response:", response.data);
-  // Nếu response có wrapper result thì lấy result, không thì lấy trực tiếp
-  return response.data.result || response.data;
+const API_BASE_URL = 'http://localhost:8080/api';
+
+const authService = {
+  // Lưu tokens vào localStorage
+  setTokens: (accessToken, refreshToken) => {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+  },
+
+  // Lấy access token
+  getAccessToken: () => {
+    return localStorage.getItem('accessToken');
+  },
+
+  // Lấy refresh token
+  getRefreshToken: () => {
+    return localStorage.getItem('refreshToken');
+  },
+
+  // Xóa tokens và user data
+  clearTokens: () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userRole');
+  },
+
+  // Kiểm tra user đã login chưa
+  isAuthenticated: () => {
+    return !!localStorage.getItem('accessToken');
+  },
+
+  // Gọi Google login - redirect sang backend OAuth2 endpoint
+  googleLogin: () => {
+    // Có thể dùng endpoint của Spring Security trực tiếp hoặc qua API
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  },
+
+  // Xử lý callback từ Google (lấy tokens từ URL)
+  handleOAuth2Callback: () => {
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get('accessToken');
+    const refreshToken = params.get('refreshToken');
+
+    if (accessToken && refreshToken) {
+      authService.setTokens(accessToken, refreshToken);
+      return true;
+    }
+    return false;
+  },
+
+  // Traditional login
+  login: async (email, password) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/user/login`, {
+        email,
+        password,
+      });
+      const { accessToken, refreshToken } = response.data;
+      authService.setTokens(accessToken, refreshToken);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Register
+  register: async (userData) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/user/register`, userData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Refresh token
+  refreshToken: async () => {
+    try {
+      const refreshToken = authService.getRefreshToken();
+      const response = await axios.post(`${API_BASE_URL}/user/refresh-token`, {
+        refreshToken,
+      });
+      const { accessToken, refreshToken: newRefreshToken } = response.data;
+      authService.setTokens(accessToken, newRefreshToken);
+      return response.data;
+    } catch (error) {
+      authService.clearTokens();
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Lấy thông tin user hiện tại
+  getCurrentUser: async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/user/me`, {
+        headers: {
+          Authorization: `Bearer ${authService.getAccessToken()}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Logout
+  logout: async () => {
+    try {
+      const accessToken = authService.getAccessToken();
+      await axios.post(
+        `${API_BASE_URL}/user/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      authService.clearTokens();
+    }
+  },
 };
 
-// POST - Register
-export const register = async (userData) => {
-  const response = await axiosClient.post("/api/user/register", {
-    email: userData.email,
-    password: userData.password,
-    fullName: userData.fullName,
-    phone: userData.phone || "",
-    address: userData.address || "",
-  });
-  return response.data;
-};
+export default authService;
 
-// POST - Logout
-export const logoutApi = async () => {
-  const response = await axiosClient.post("/api/user/logout");
-  return response.data;
-};
+// Named exports for backward compatibility
+export const login = (email, password) => authService.login(email, password);
+export const register = (userData) => authService.register(userData);
+export const refreshToken = () => authService.refreshToken();
+export const logout = () => authService.logout();
+export const getCurrentUser = () => authService.getCurrentUser();
+export const googleLogin = () => authService.googleLogin();
+export const handleOAuth2Callback = () => authService.handleOAuth2Callback();
+export const setTokens = (accessToken, refreshToken) => authService.setTokens(accessToken, refreshToken);
+export const getAccessToken = () => authService.getAccessToken();
+export const getRefreshToken = () => authService.getRefreshToken();
+export const clearTokens = () => authService.clearTokens();
+export const isAuthenticated = () => authService.isAuthenticated();
 
-// POST - Refresh Token
-export const refreshTokenApi = async () => {
-  const refreshToken = localStorage.getItem("refreshToken");
-  if (!refreshToken) {
-    throw new Error("No refresh token");
+// Helper function for getting user role
+export const getUserRole = () => {
+  try {
+    const token = authService.getAccessToken();
+    if (!token) return null;
+    
+    // Decode JWT to get role
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    
+    const payload = JSON.parse(jsonPayload);
+    return payload.role;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
   }
-  const response = await axiosClient.post("/api/user/refresh-token", {
-    refreshToken,
-  });
-  return response.data;
-};
-
-// Lưu token vào localStorage
-export const saveTokens = (data) => {
-  localStorage.setItem("accessToken", data.accessToken);
-  localStorage.setItem("refreshToken", data.refreshToken);
-  localStorage.setItem("userId", data.id);
-  localStorage.setItem("userRole", data.role);
-};
-
-// Lấy token
-export const getAccessToken = () => localStorage.getItem("accessToken");
-export const getRefreshToken = () => localStorage.getItem("refreshToken");
-export const getUserId = () => localStorage.getItem("userId");
-export const getUserRole = () => localStorage.getItem("userRole");
-
-// Xóa token (logout)
-export const clearTokens = () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("userId");
-  localStorage.removeItem("userRole");
-};
-
-// Kiểm tra đã login chưa
-export const isAuthenticated = () => {
-  return !!getAccessToken();
 };

@@ -3,6 +3,7 @@ package com.Library.lmsproject.config;
 import com.Library.lmsproject.security.JwtAuthenticationFilter;
 import com.Library.lmsproject.security.OAuth2SuccessHandler;
 import com.Library.lmsproject.security.RestAuthenticationEntryPoint;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,16 +45,24 @@ public class SecurityConfig {
     }
 
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/user/**",
+            // auth
+            "/api/user/login",
+            "/api/user/register",
+            "/api/user/refresh-token",
+
+            // 🔥 GOOGLE LOGIN ENTRY
+            "/api/auth/google-login",
+
+            // google oauth
+            "/oauth2/**",
+            "/login/oauth2/**",
+
+            // public data
             "/api/categories/**",
             "/api/books/**",
             "/api/reviews/**",
 
-            // Google OAuth2
-            "/oauth2/**",
-            "/login/oauth2/**",
-
-            // Swagger
+            // swagger
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/webjars/swagger-ui/**",
@@ -65,6 +74,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -81,10 +91,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-
-
                         .requestMatchers("/api/borrowings/**").authenticated()
-
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
@@ -92,9 +99,15 @@ public class SecurityConfig {
 
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2SuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            exception.printStackTrace();
+                            response.sendError(
+                                    HttpServletResponse.SC_UNAUTHORIZED,
+                                    exception.getMessage()
+                            );
+                        })
                 );
 
-        // ✅ JWT filter chạy sau Google login
         http.addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class
@@ -118,11 +131,6 @@ public class SecurityConfig {
                 new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean

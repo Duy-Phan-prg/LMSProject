@@ -1,7 +1,9 @@
 package com.Library.lmsproject.security;
 
 import com.Library.lmsproject.entity.Roles;
+import com.Library.lmsproject.entity.UserSession;
 import com.Library.lmsproject.entity.Users;
+import com.Library.lmsproject.repository.UserSessionRepository;
 import com.Library.lmsproject.repository.UsersRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -9,14 +11,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -24,8 +29,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UsersRepository usersRepository;
+    private final UserSessionRepository userSessionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -38,6 +46,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String name = oAuth2User.getAttribute("name");
         String providerId = oAuth2User.getAttribute("sub");
 
+        // Tìm hoặc tạo user
         Users user = usersRepository.findByEmail(email)
                 .orElseGet(() -> createNewGoogleUser(email, name, providerId));
 
@@ -48,9 +57,26 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String refreshToken =
                 jwtTokenProvider.generateRefreshToken(user.getEmail());
 
+        // 👉 Lưu UserSession cho ACCESS token
+        UserSession accessSession = new UserSession();
+        accessSession.setSessionToken(accessToken);
+        accessSession.setTokenType("ACCESS");
+        accessSession.setIsActive(true);
+        accessSession.setLoginTime(LocalDateTime.now());
+        accessSession.setUser(user);
+        userSessionRepository.save(accessSession);
+
+        // 👉 Lưu UserSession cho REFRESH token
+        UserSession refreshSession = new UserSession();
+        refreshSession.setSessionToken(refreshToken);
+        refreshSession.setTokenType("REFRESH");
+        refreshSession.setIsActive(true);
+        refreshSession.setLoginTime(LocalDateTime.now());
+        refreshSession.setUser(user);
+        userSessionRepository.save(refreshSession);
 
         String redirectUrl =
-                "http://localhost:3000/oauth2/callback"
+                "http://localhost:5173/oauth2/callback"
                         + "?accessToken=" + accessToken
                         + "&refreshToken=" + refreshToken;
 
@@ -66,6 +92,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         user.setProvider("GOOGLE");
         user.setProviderId(providerId);
         user.setActive(true);
+        user.setCreatedAt(LocalDateTime.now());
+        
+        // Tạo password mặc định cho user Google
+        // User có thể đổi password sau nếu muốn login bằng email/password
+        String defaultPassword = "Password@123";
+        user.setPassword(passwordEncoder.encode(defaultPassword));
 
         return usersRepository.save(user);
     }

@@ -37,14 +37,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         return HttpMethod.OPTIONS.matches(request.getMethod())
+
+                // Swagger
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-resources")
                 || path.startsWith("/webjars")
+
+                // Public APIs
+                || path.equals("/api/user/login")
+                || path.equals("/api/user/register")
+                || path.equals("/api/user/refresh-token")
+
                 || path.startsWith("/api/books")
                 || path.startsWith("/api/categories")
-                || path.startsWith("/api/user")
-                || path.startsWith("/api/reviews");
+                || path.startsWith("/api/reviews")
+
+                // Google OAuth2
+                || path.startsWith("/oauth2")
+                || path.startsWith("/login/oauth2");
     }
 
     @Override
