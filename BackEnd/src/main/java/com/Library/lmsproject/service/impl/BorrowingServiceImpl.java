@@ -84,7 +84,7 @@ public class BorrowingServiceImpl implements BorrowingService {
                 .findByBookIdAndIsActive(request.getBookId(), true)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
-        int alreadyBorrowed =
+        boolean alreadyBorrowed =
                 borrowingRepository.existsByUserAndBookAndStatusIn(
                         user,
                         book,
@@ -95,9 +95,6 @@ public class BorrowingServiceImpl implements BorrowingService {
                         )
                 );
 
-        if (alreadyBorrowed >= 5) {
-            throw new RuntimeException("Chỉ được mượn tối đa 5 cuốn sách cùng lúc");
-        }
 
         if (book.getCopiesAvailable() <= 0) {
             throw new RuntimeException("Book is out of stock");

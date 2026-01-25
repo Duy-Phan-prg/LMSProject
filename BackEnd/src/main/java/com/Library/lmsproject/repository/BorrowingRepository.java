@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
 
-    int existsByUserAndBookAndStatusIn(
+    boolean existsByUserAndBookAndStatusIn(
             Users user,
             Books book,
             List<BorrowStatus> statuses

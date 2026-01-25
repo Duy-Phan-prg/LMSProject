@@ -32,6 +32,7 @@ public class Users {
     private String fullName;
 
     @Enumerated(EnumType.STRING)
+
     @Column(nullable = false)
     private Roles role;
 

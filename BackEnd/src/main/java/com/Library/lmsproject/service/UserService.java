@@ -19,6 +19,7 @@ public interface UserService {
      UserResponseDTO register(UserRegisterRequestDTO request);
 
      LoginResponseDTO login(LoginRequestDTO request);
+
      void logout(String token);
 
      void logoutUser(Long userId);
