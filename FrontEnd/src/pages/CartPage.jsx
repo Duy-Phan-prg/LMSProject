@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
   Bookmark, Trash2, BookOpen, ArrowLeft, ShoppingCart,
   Clock, XCircle, Calendar, AlertCircle
@@ -12,12 +12,13 @@ import Swal from "sweetalert2";
 import "../styles/cart.css";
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, clearCart } = useCart();
+  const { cartItems, removeFromCart, clearCart, refreshPendingCount } = useCart();
   const [activeTab, setActiveTab] = useState("saved");
   const [pendingBorrows, setPendingBorrows] = useState([]);
   const [loadingBorrows, setLoadingBorrows] = useState(false);
   const [borrowingId, setBorrowingId] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const defaultCover = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop&q=80";
 
@@ -25,6 +26,15 @@ export default function CartPage() {
     if (!url || url === "string" || url.trim() === "") return false;
     return url.startsWith("http://") || url.startsWith("https://");
   };
+
+  // Check URL params for tab
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get("tab");
+    if (tab === "pending") {
+      setActiveTab("pending");
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (activeTab === "pending" && isAuthenticated()) {
@@ -37,7 +47,7 @@ export default function CartPage() {
     try {
       const response = await getMyBorrowings("");
       const pending = (response.result || []).filter(
-        b => b.status === "PENDING_PICKUP" || b.status === "ACTIVE"
+        b => b.status === "PENDING_PICKUP" || b.status === "ACTIVE" || b.status === "OVERDUE"
       );
       setPendingBorrows(pending);
     } catch (error) {
@@ -64,6 +74,17 @@ export default function CartPage() {
       });
       return;
     }
+
+    // Hiển thị loading
+    Swal.fire({
+      title: "Đang mượn sách...",
+      text: "Vui lòng đợi trong giây lát",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     setBorrowingId(book.bookId);
     try {
@@ -97,6 +118,7 @@ export default function CartPage() {
         confirmButtonText: "Đã hiểu"
       });
       fetchPendingBorrows();
+      refreshPendingCount();
     } catch (error) {
       Swal.fire("Lỗi!", error.response?.data?.message || "Không thể mượn sách", "error");
     } finally {
@@ -120,6 +142,7 @@ export default function CartPage() {
         await cancelBorrow(borrow.borrowingId);
         Swal.fire("Đã hủy!", "", "success");
         fetchPendingBorrows();
+        refreshPendingCount();
       } catch (error) {
         Swal.fire("Lỗi!", error.response?.data?.message || "Không thể hủy", "error");
       }
@@ -244,19 +267,31 @@ export default function CartPage() {
             ) : (
               <div className="cart-list">
                 {pendingBorrows.map((borrow) => (
-                  <div key={borrow.borrowingId} className="cart-item pending-item">
+                  <div key={borrow.borrowingId} className={`cart-item pending-item ${borrow.status === "OVERDUE" ? "overdue-item" : ""}`}>
                     <div className="pending-icon">
-                      {borrow.status === "PENDING_PICKUP" ? <Clock size={24} /> : <BookOpen size={24} />}
+                      {borrow.status === "PENDING_PICKUP" ? (
+                        <Clock size={24} />
+                      ) : borrow.status === "OVERDUE" ? (
+                        <AlertCircle size={24} />
+                      ) : (
+                        <BookOpen size={24} />
+                      )}
                     </div>
                     <div className="cart-item-info">
                       <h4>{borrow.bookTitle}</h4>
-                      <p className="status-text">
-                        {borrow.status === "PENDING_PICKUP" ? "Chờ lấy sách" : "Đang mượn"}
+                      <p className={`status-text ${borrow.status === "OVERDUE" ? "overdue-text" : ""}`}>
+                        {borrow.status === "PENDING_PICKUP" 
+                          ? "Chờ lấy sách" 
+                          : borrow.status === "OVERDUE"
+                          ? "⚠️ Quá hạn trả sách"
+                          : "Đang mượn"}
                       </p>
                       <div className="borrow-dates">
                         <span><Calendar size={14} /> Yêu cầu: {formatDate(borrow.requestAt)}</span>
                         {borrow.dueDate && (
-                          <span><Calendar size={14} /> Hạn trả: {formatDate(borrow.dueDate)}</span>
+                          <span className={borrow.status === "OVERDUE" ? "overdue-date" : ""}>
+                            <Calendar size={14} /> Hạn trả: {formatDate(borrow.dueDate)}
+                          </span>
                         )}
                       </div>
                     </div>

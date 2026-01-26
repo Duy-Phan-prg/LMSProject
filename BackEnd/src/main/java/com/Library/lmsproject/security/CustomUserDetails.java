@@ -1,6 +1,6 @@
-package com.Library.lmsproject.security;
+package com.library.lmsproject.security;
 
-import com.Library.lmsproject.entity.Users;
+import com.library.lmsproject.entity.Users;
 import lombok.Data;
 import org.springframework.security.core.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

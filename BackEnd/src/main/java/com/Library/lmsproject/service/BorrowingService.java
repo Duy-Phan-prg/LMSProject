@@ -1,9 +1,9 @@
-package com.Library.lmsproject.service;
+package com.library.lmsproject.service;
 
-import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
-import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
-import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
-import com.Library.lmsproject.entity.BorrowStatus;
+import com.library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
+import com.library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
+import com.library.lmsproject.dto.response.UserBorrowResponseDTO;
+import com.library.lmsproject.entity.BorrowStatus;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

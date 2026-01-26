@@ -1,10 +1,10 @@
-package com.Library.lmsproject.mapper;
+package com.library.lmsproject.mapper;
 
-import com.Library.lmsproject.dto.request.CreateUserRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateUserRequestDTO;
-import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
-import com.Library.lmsproject.dto.response.UserResponseDTO;
-import com.Library.lmsproject.entity.Users;
+import com.library.lmsproject.dto.request.CreateUserRequestDTO;
+import com.library.lmsproject.dto.request.UpdateUserRequestDTO;
+import com.library.lmsproject.dto.request.UserRegisterRequestDTO;
+import com.library.lmsproject.dto.response.UserResponseDTO;
+import com.library.lmsproject.entity.Users;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 

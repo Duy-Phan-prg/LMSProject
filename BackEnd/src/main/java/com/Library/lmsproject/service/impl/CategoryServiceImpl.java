@@ -1,13 +1,13 @@
-package com.Library.lmsproject.service.impl;
+package com.library.lmsproject.service.impl;
 
 
-import com.Library.lmsproject.dto.request.CreateCategoryRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateCategoryRequestDTO;
-import com.Library.lmsproject.dto.response.CategoryResponseDTO;
-import com.Library.lmsproject.entity.Categories;
-import com.Library.lmsproject.mapper.CategoryMapper;
-import com.Library.lmsproject.repository.CategoryRepository;
-import com.Library.lmsproject.service.CategoryService;
+import com.library.lmsproject.dto.request.CreateCategoryRequestDTO;
+import com.library.lmsproject.dto.request.UpdateCategoryRequestDTO;
+import com.library.lmsproject.dto.response.CategoryResponseDTO;
+import com.library.lmsproject.entity.Categories;
+import com.library.lmsproject.mapper.CategoryMapper;
+import com.library.lmsproject.repository.CategoryRepository;
+import com.library.lmsproject.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

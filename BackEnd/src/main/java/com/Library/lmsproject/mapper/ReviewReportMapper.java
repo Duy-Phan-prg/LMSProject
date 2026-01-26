@@ -1,7 +1,7 @@
-package com.Library.lmsproject.mapper;
+package com.library.lmsproject.mapper;
 
-import com.Library.lmsproject.dto.response.ReportedReviewResponseDTO;
-import com.Library.lmsproject.entity.ReviewReport;
+import com.library.lmsproject.dto.response.ReportedReviewResponseDTO;
+import com.library.lmsproject.entity.ReviewReport;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -1,4 +1,4 @@
-package com.Library.lmsproject.entity;
+package com.library.lmsproject.entity;
 
 public enum BorrowStatus {
     PENDING_PICKUP("Đang chờ nhận sách"),

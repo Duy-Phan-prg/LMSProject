@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, BookOpen, FolderTree, ShoppingCart,
@@ -7,14 +7,39 @@ import {
   FileText, Calendar, Bookmark
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { getAllBorrowings } from "../services/borrowService";
 import Swal from "sweetalert2";
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+
+  // Fetch pending borrows count
+  const fetchPendingCount = async () => {
+    try {
+      const response = await getAllBorrowings("", 1, 1000);
+      const allBorrows = response.result?.content || response.content || [];
+      const pending = allBorrows.filter(
+        b => b.status === "PENDING_PICKUP" || b.status === "OVERDUE" || b.status === "EXPIRED_PICKUP"
+      );
+      setPendingCount(pending.length);
+    } catch (error) {
+      console.error("Error fetching pending count:", error);
+      setPendingCount(0);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingCount();
+    
+    // Poll every 30 seconds to update count
+    const interval = setInterval(fetchPendingCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const menuItems = [
     { path: "/admin", icon: <LayoutDashboard size={20} />, label: "Dashboard", exact: true },
@@ -134,11 +159,14 @@ export default function AdminLayout() {
           <div className="header-right">
             <button className="header-btn" title="Tin nhắn">
               <MessageSquare size={20} />
-              <span className="header-badge">3</span>
             </button>
-            <button className="header-btn" title="Thông báo">
+            <button 
+              className="header-btn" 
+              title="Yêu cầu mượn sách"
+              onClick={() => navigate("/admin/borrow-history")}
+            >
               <Bell size={20} />
-              <span className="header-badge pulse">5</span>
+              {pendingCount > 0 && <span className="header-badge pulse">{pendingCount}</span>}
             </button>
             
             <div className="header-profile">

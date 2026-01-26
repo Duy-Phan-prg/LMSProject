@@ -1,10 +1,10 @@
-package com.Library.lmsproject.mapper;
+package com.library.lmsproject.mapper;
 
-import com.Library.lmsproject.dto.request.CreateBookRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateBookRequestDTO;
-import com.Library.lmsproject.dto.response.BookResponseDTO;
-import com.Library.lmsproject.entity.Books;
-import com.Library.lmsproject.entity.Categories;
+import com.library.lmsproject.dto.request.CreateBookRequestDTO;
+import com.library.lmsproject.dto.request.UpdateBookRequestDTO;
+import com.library.lmsproject.dto.response.BookResponseDTO;
+import com.library.lmsproject.entity.Books;
+import com.library.lmsproject.entity.Categories;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

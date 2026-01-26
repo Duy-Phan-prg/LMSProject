@@ -1,17 +1,15 @@
-package com.Library.lmsproject.service;
+package com.library.lmsproject.service;
 
 
-import com.Library.lmsproject.dto.request.CreateUserRequestDTO;
-import com.Library.lmsproject.dto.request.LoginRequestDTO;
-import com.Library.lmsproject.dto.request.RefreshTokenRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateUserRequestDTO;
-import com.Library.lmsproject.dto.request.UserRegisterRequestDTO;
+import com.library.lmsproject.dto.request.CreateUserRequestDTO;
+import com.library.lmsproject.dto.request.LoginRequestDTO;
+import com.library.lmsproject.dto.request.RefreshTokenRequestDTO;
+import com.library.lmsproject.dto.request.UpdateUserRequestDTO;
+import com.library.lmsproject.dto.request.UserRegisterRequestDTO;
 
-import com.Library.lmsproject.dto.response.LoginResponseDTO;
-import com.Library.lmsproject.dto.response.UserResponseDTO;
+import com.library.lmsproject.dto.response.LoginResponseDTO;
+import com.library.lmsproject.dto.response.UserResponseDTO;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 
 public interface UserService {

@@ -1,9 +1,9 @@
-package com.Library.lmsproject.controller;
+package com.library.lmsproject.controller;
 
-import com.Library.lmsproject.dto.request.CreateReviewRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateReviewRequestDTO;
-import com.Library.lmsproject.dto.response.ReviewResponseDTO;
-import com.Library.lmsproject.service.ReviewService;
+import com.library.lmsproject.dto.request.CreateReviewRequestDTO;
+import com.library.lmsproject.dto.request.UpdateReviewRequestDTO;
+import com.library.lmsproject.dto.response.ReviewResponseDTO;
+import com.library.lmsproject.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

@@ -1,6 +1,6 @@
-package com.Library.lmsproject.repository;
+package com.library.lmsproject.repository;
 
-import com.Library.lmsproject.entity.BlacklistedToken;
+import com.library.lmsproject.entity.BlacklistedToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BlacklistRepository

@@ -1,10 +1,10 @@
-package com.Library.lmsproject.mapper;
+package com.library.lmsproject.mapper;
 
-import com.Library.lmsproject.dto.request.CreateReviewRequestDTO;
-import com.Library.lmsproject.dto.response.ReviewResponseDTO;
-import com.Library.lmsproject.entity.Review;
-import com.Library.lmsproject.entity.Users;
-import com.Library.lmsproject.entity.Books;
+import com.library.lmsproject.dto.request.CreateReviewRequestDTO;
+import com.library.lmsproject.dto.response.ReviewResponseDTO;
+import com.library.lmsproject.entity.Review;
+import com.library.lmsproject.entity.Users;
+import com.library.lmsproject.entity.Books;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

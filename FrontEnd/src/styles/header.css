@@ -815,3 +815,204 @@
     display: none;
   }
 }
+
+
+/* ===== FOOTER ===== */
+.footer-main {
+  background: linear-gradient(135deg, #0a0f1a 0%, #0f1729 50%, #0a0f1a 100%);
+  border-top: 2px solid rgba(212, 168, 83, 0.2);
+  padding: 60px 0 0;
+  color: #8892b0;
+  position: relative;
+  margin-top: 0;
+}
+
+/* Galaxy stars effect for footer */
+.footer-main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.2), transparent),
+    radial-gradient(2px 2px at 50% 10%, rgba(212,168,83,0.3), transparent),
+    radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.2), transparent),
+    radial-gradient(2px 2px at 85% 50%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.2), transparent),
+    radial-gradient(2px 2px at 40% 80%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 65% 60%, rgba(212,168,83,0.2), transparent),
+    radial-gradient(2px 2px at 90% 85%, rgba(255,255,255,0.3), transparent);
+  background-size: 100% 100%;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.footer-main .container {
+  position: relative;
+  z-index: 1;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.footer-brand-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #d4a853 0%, #e8c97a 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(212, 168, 83, 0.3);
+}
+
+.footer-brand h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #f5f5f5;
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.footer-description {
+  color: #8892b0;
+  line-height: 1.7;
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-contact p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #8892b0;
+  margin: 0;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.footer-contact p:hover {
+  color: var(--header-accent);
+}
+
+.footer-contact svg {
+  color: var(--header-accent);
+  flex-shrink: 0;
+}
+
+.footer-links h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f5f5f5;
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.footer-links h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, #d4a853, transparent);
+  border-radius: 2px;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links ul li {
+  margin-bottom: 12px;
+}
+
+.footer-links ul li a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8892b0;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  padding: 4px 0;
+}
+
+.footer-links ul li a:hover {
+  color: var(--header-accent);
+  padding-left: 8px;
+}
+
+.footer-links ul li a svg {
+  color: var(--header-accent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.footer-links ul li a:hover svg {
+  opacity: 1;
+}
+
+.footer-bottom {
+  margin-top: 50px;
+  padding: 24px 0;
+  border-top: 1px solid rgba(212, 168, 83, 0.15);
+  text-align: center;
+  color: #8892b0;
+  font-size: 0.9rem;
+}
+
+/* Responsive Footer */
+@media (max-width: 768px) {
+  .footer-main {
+    padding: 40px 0 0;
+    margin-top: 60px;
+  }
+  
+  .footer-brand {
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .footer-description {
+    text-align: center;
+  }
+  
+  .footer-contact {
+    align-items: center;
+  }
+  
+  .footer-links {
+    text-align: center;
+  }
+  
+  .footer-links h4::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .footer-links ul li a {
+    justify-content: center;
+  }
+  
+  .footer-bottom {
+    margin-top: 30px;
+    padding: 20px 0;
+  }
+}

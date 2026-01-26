@@ -1,4 +1,4 @@
-package com.Library.lmsproject.dto.request;
+package com.library.lmsproject.dto.request;
 
 import lombok.Data;
 

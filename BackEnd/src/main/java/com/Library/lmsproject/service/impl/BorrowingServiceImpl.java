@@ -1,17 +1,17 @@
-package com.Library.lmsproject.service.impl;
+package com.library.lmsproject.service.impl;
 
-import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
-import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
-import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
-import com.Library.lmsproject.entity.Books;
-import com.Library.lmsproject.entity.BorrowStatus;
-import com.Library.lmsproject.entity.Borrowings;
-import com.Library.lmsproject.entity.Users;
-import com.Library.lmsproject.mapper.BorrowMapper;
-import com.Library.lmsproject.repository.BookRepository;
-import com.Library.lmsproject.repository.BorrowingRepository;
-import com.Library.lmsproject.repository.UsersRepository;
-import com.Library.lmsproject.service.BorrowingService;
+import com.library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
+import com.library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
+import com.library.lmsproject.dto.response.UserBorrowResponseDTO;
+import com.library.lmsproject.entity.Books;
+import com.library.lmsproject.entity.BorrowStatus;
+import com.library.lmsproject.entity.Borrowings;
+import com.library.lmsproject.entity.Users;
+import com.library.lmsproject.mapper.BorrowMapper;
+import com.library.lmsproject.repository.BookRepository;
+import com.library.lmsproject.repository.BorrowingRepository;
+import com.library.lmsproject.repository.UsersRepository;
+import com.library.lmsproject.service.BorrowingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -84,6 +84,21 @@ public class BorrowingServiceImpl implements BorrowingService {
                 .findByBookIdAndIsActive(request.getBookId(), true)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
+        int currentBorrowCount = borrowingRepository.countByUserAndStatusIn(
+                user,
+                List.of(
+                        BorrowStatus.PENDING_PICKUP,
+                        BorrowStatus.ACTIVE,
+                        BorrowStatus.OVERDUE
+                )
+        );
+
+        if (currentBorrowCount >= 5) {
+            throw new RuntimeException(
+                    "You can only borrow up to 5 books at the same time"
+            );
+        }
+
         boolean alreadyBorrowed =
                 borrowingRepository.existsByUserAndBookAndStatusIn(
                         user,
@@ -95,10 +110,18 @@ public class BorrowingServiceImpl implements BorrowingService {
                         )
                 );
 
+        if (alreadyBorrowed) {
+            throw new RuntimeException(
+                    "You have already borrowed this book and not returned it yet"
+            );
+        }
+
 
         if (book.getCopiesAvailable() <= 0) {
             throw new RuntimeException("Book is out of stock");
         }
+
+
 
         // Trừ sách
         book.setCopiesAvailable(book.getCopiesAvailable() - 1);

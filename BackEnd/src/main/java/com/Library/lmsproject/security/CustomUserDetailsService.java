@@ -1,7 +1,7 @@
-package com.Library.lmsproject.security;
+package com.library.lmsproject.security;
 
-import com.Library.lmsproject.entity.Users;
-import com.Library.lmsproject.repository.UsersRepository;
+import com.library.lmsproject.entity.Users;
+import com.library.lmsproject.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;

@@ -1,27 +1,22 @@
-package com.Library.lmsproject.security;
+package com.library.lmsproject.security;
 
-import com.Library.lmsproject.entity.Roles;
-import com.Library.lmsproject.entity.UserSession;
-import com.Library.lmsproject.entity.Users;
-import com.Library.lmsproject.repository.UserSessionRepository;
-import com.Library.lmsproject.repository.UsersRepository;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
+import com.library.lmsproject.entity.Roles;
+import com.library.lmsproject.entity.UserSession;
+import com.library.lmsproject.entity.Users;
+import com.library.lmsproject.repository.UserSessionRepository;
+import com.library.lmsproject.repository.UsersRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor

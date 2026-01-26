@@ -352,3 +352,35 @@
     justify-content: center;
   }
 }
+
+
+/* Overdue Styling */
+.overdue-item {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.overdue-item .pending-icon {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  animation: pulse-red 2s ease-in-out infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+.overdue-text {
+  color: #ef4444 !important;
+  font-weight: 600;
+}
+
+.overdue-date {
+  color: #ef4444 !important;
+  font-weight: 600;
+}

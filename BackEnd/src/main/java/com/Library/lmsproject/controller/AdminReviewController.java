@@ -1,10 +1,10 @@
-package com.Library.lmsproject.controller;
+package com.library.lmsproject.controller;
 
-import com.Library.lmsproject.dto.request.ReportReviewRequestDTO;
-import com.Library.lmsproject.dto.response.ReportedReviewResponseDTO;
-import com.Library.lmsproject.entity.Users;
-import com.Library.lmsproject.security.CustomUserDetails;
-import com.Library.lmsproject.service.ReviewReportService;
+import com.library.lmsproject.dto.request.ReportReviewRequestDTO;
+import com.library.lmsproject.dto.response.ReportedReviewResponseDTO;
+import com.library.lmsproject.entity.Users;
+import com.library.lmsproject.security.CustomUserDetails;
+import com.library.lmsproject.service.ReviewReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,14 +1,14 @@
-package com.Library.lmsproject.service.impl;
+package com.library.lmsproject.service.impl;
 
-import com.Library.lmsproject.dto.request.ReportReviewRequestDTO;
-import com.Library.lmsproject.dto.response.ReportedReviewResponseDTO;
-import com.Library.lmsproject.entity.Review;
-import com.Library.lmsproject.entity.ReviewReport;
-import com.Library.lmsproject.entity.Users;
-import com.Library.lmsproject.mapper.ReviewReportMapper;
-import com.Library.lmsproject.repository.ReviewReportRepository;
-import com.Library.lmsproject.repository.ReviewRepository;
-import com.Library.lmsproject.service.ReviewReportService;
+import com.library.lmsproject.dto.request.ReportReviewRequestDTO;
+import com.library.lmsproject.dto.response.ReportedReviewResponseDTO;
+import com.library.lmsproject.entity.Review;
+import com.library.lmsproject.entity.ReviewReport;
+import com.library.lmsproject.entity.Users;
+import com.library.lmsproject.mapper.ReviewReportMapper;
+import com.library.lmsproject.repository.ReviewReportRepository;
+import com.library.lmsproject.repository.ReviewRepository;
+import com.library.lmsproject.service.ReviewReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

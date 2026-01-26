@@ -1,14 +1,14 @@
-package com.Library.lmsproject.service.impl;
+package com.library.lmsproject.service.impl;
 
-import com.Library.lmsproject.dto.request.CreateBookRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateBookRequestDTO;
-import com.Library.lmsproject.dto.response.BookResponseDTO;
-import com.Library.lmsproject.entity.Books;
-import com.Library.lmsproject.entity.Categories;
-import com.Library.lmsproject.mapper.BookMapper;
-import com.Library.lmsproject.repository.BookRepository;
-import com.Library.lmsproject.repository.CategoryRepository;
-import com.Library.lmsproject.service.BookService;
+import com.library.lmsproject.dto.request.CreateBookRequestDTO;
+import com.library.lmsproject.dto.request.UpdateBookRequestDTO;
+import com.library.lmsproject.dto.response.BookResponseDTO;
+import com.library.lmsproject.entity.Books;
+import com.library.lmsproject.entity.Categories;
+import com.library.lmsproject.mapper.BookMapper;
+import com.library.lmsproject.repository.BookRepository;
+import com.library.lmsproject.repository.CategoryRepository;
+import com.library.lmsproject.service.BookService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

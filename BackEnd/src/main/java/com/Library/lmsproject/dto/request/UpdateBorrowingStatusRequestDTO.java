@@ -1,6 +1,6 @@
-package com.Library.lmsproject.dto.request;
+package com.library.lmsproject.dto.request;
 
-import com.Library.lmsproject.entity.BorrowStatus;
+import com.library.lmsproject.entity.BorrowStatus;
 import lombok.Data;
 
 @Data

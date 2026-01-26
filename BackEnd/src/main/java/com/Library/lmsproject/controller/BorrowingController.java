@@ -1,13 +1,13 @@
-package com.Library.lmsproject.controller;
+package com.library.lmsproject.controller;
 
-import com.Library.lmsproject.dto.request.UpdateBorrowingStatusRequestDTO;
-import com.Library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
-import com.Library.lmsproject.dto.response.ApiResponse;
-import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
-import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
-import com.Library.lmsproject.entity.BorrowStatus;
-import com.Library.lmsproject.security.CustomUserDetails;
-import com.Library.lmsproject.service.BorrowingService;
+import com.library.lmsproject.dto.request.UpdateBorrowingStatusRequestDTO;
+import com.library.lmsproject.dto.request.UserCreateBorrowRequestDTO;
+import com.library.lmsproject.dto.response.ApiResponse;
+import com.library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
+import com.library.lmsproject.dto.response.UserBorrowResponseDTO;
+import com.library.lmsproject.entity.BorrowStatus;
+import com.library.lmsproject.security.CustomUserDetails;
+import com.library.lmsproject.service.BorrowingService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

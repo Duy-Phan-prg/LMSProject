@@ -1,8 +1,8 @@
-package com.Library.lmsproject.mapper;
+package com.library.lmsproject.mapper;
 
-import com.Library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
-import com.Library.lmsproject.dto.response.UserBorrowResponseDTO;
-import com.Library.lmsproject.entity.Borrowings;
+import com.library.lmsproject.dto.response.LibrarianBorrowResponseDTO;
+import com.library.lmsproject.dto.response.UserBorrowResponseDTO;
+import com.library.lmsproject.entity.Borrowings;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

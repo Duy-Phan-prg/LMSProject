@@ -1,8 +1,8 @@
-package com.Library.lmsproject.mapper;
+package com.library.lmsproject.mapper;
 
-import com.Library.lmsproject.dto.request.CreateCategoryRequestDTO;
-import com.Library.lmsproject.dto.response.CategoryResponseDTO;
-import com.Library.lmsproject.entity.Categories;
+import com.library.lmsproject.dto.request.CreateCategoryRequestDTO;
+import com.library.lmsproject.dto.response.CategoryResponseDTO;
+import com.library.lmsproject.entity.Categories;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

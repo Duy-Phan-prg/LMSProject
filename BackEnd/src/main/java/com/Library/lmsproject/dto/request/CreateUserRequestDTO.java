@@ -1,7 +1,7 @@
-package com.Library.lmsproject.dto.request;
+package com.library.lmsproject.dto.request;
 
 
-import com.Library.lmsproject.entity.Roles;
+import com.library.lmsproject.entity.Roles;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

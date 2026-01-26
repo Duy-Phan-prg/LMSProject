@@ -1,4 +1,4 @@
-package com.Library.lmsproject.exception;
+package com.library.lmsproject.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

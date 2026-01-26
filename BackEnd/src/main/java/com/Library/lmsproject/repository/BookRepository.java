@@ -1,6 +1,6 @@
-package com.Library.lmsproject.repository;
+package com.library.lmsproject.repository;
 
-import com.Library.lmsproject.entity.Books;
+import com.library.lmsproject.entity.Books;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

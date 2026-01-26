@@ -1,7 +1,6 @@
-package com.Library.lmsproject.dto.response;
+package com.library.lmsproject.dto.response;
 
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

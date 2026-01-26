@@ -19,7 +19,7 @@ export default function MainLayout() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { cartCount } = useCart();
+  const { cartCount, pendingCount } = useCart();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -123,8 +123,9 @@ export default function MainLayout() {
                 <Bookmark size={20} />
                 {cartCount > 0 && <span className="action-badge">{cartCount}</span>}
               </button>
-              <button className="nav-action-btn" title="Thông báo">
+              <button className="nav-action-btn" title="Thông báo" onClick={() => navigate("/cart?tab=pending")}>
                 <Bell size={20} />
+                {pendingCount > 0 && <span className="action-badge">{pendingCount}</span>}
               </button>
               {isLoggedIn ? (
                 <div className="user-menu-wrapper">

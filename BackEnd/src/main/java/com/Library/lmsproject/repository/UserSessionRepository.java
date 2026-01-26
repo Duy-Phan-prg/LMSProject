@@ -1,7 +1,7 @@
-package com.Library.lmsproject.repository;
+package com.library.lmsproject.repository;
 
-import com.Library.lmsproject.entity.UserSession;
-import com.Library.lmsproject.entity.Users;
+import com.library.lmsproject.entity.UserSession;
+import com.library.lmsproject.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

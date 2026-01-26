@@ -1,16 +1,14 @@
-package com.Library.lmsproject.controller;
+package com.library.lmsproject.controller;
 
 
-import com.Library.lmsproject.dto.request.CreateCategoryRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateCategoryRequestDTO;
-import com.Library.lmsproject.dto.response.BookResponseDTO;
-import com.Library.lmsproject.dto.response.CategoryResponseDTO;
-import com.Library.lmsproject.service.CategoryService;
+import com.library.lmsproject.dto.request.CreateCategoryRequestDTO;
+import com.library.lmsproject.dto.request.UpdateCategoryRequestDTO;
+import com.library.lmsproject.dto.response.CategoryResponseDTO;
+import com.library.lmsproject.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

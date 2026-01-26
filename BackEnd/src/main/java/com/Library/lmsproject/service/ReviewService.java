@@ -1,11 +1,8 @@
-package com.Library.lmsproject.service;
+package com.library.lmsproject.service;
 
-import com.Library.lmsproject.dto.request.CreateReviewRequestDTO;
-import com.Library.lmsproject.dto.request.ReportReviewRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateReviewRequestDTO;
-import com.Library.lmsproject.dto.response.ReportedReviewResponseDTO;
-import com.Library.lmsproject.dto.response.ReviewResponseDTO;
-import com.Library.lmsproject.entity.Users;
+import com.library.lmsproject.dto.request.CreateReviewRequestDTO;
+import com.library.lmsproject.dto.request.UpdateReviewRequestDTO;
+import com.library.lmsproject.dto.response.ReviewResponseDTO;
 
 import java.util.List;
 

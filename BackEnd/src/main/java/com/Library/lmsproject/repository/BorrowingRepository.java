@@ -1,14 +1,13 @@
-package com.Library.lmsproject.repository;
+package com.library.lmsproject.repository;
 
-import com.Library.lmsproject.entity.Books;
-import com.Library.lmsproject.entity.BorrowStatus;
-import com.Library.lmsproject.entity.Borrowings;
-import com.Library.lmsproject.entity.Users;
+import com.library.lmsproject.entity.Books;
+import com.library.lmsproject.entity.BorrowStatus;
+import com.library.lmsproject.entity.Borrowings;
+import com.library.lmsproject.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -20,6 +19,11 @@ public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
             Books book,
             List<BorrowStatus> statuses
     );
+    int countByUserAndStatusIn(
+            Users user,
+            List<BorrowStatus> statuses
+    );
+
 
     boolean existsByUserAndBookAndStatus(
             Users user,

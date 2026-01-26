@@ -1,4 +1,4 @@
-package com.Library.lmsproject;
+package com.library.lmsproject;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

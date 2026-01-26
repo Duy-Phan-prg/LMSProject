@@ -1,18 +1,17 @@
-package com.Library.lmsproject.config;
+package com.library.lmsproject.config;
 
-import com.Library.lmsproject.entity.Books;
-import com.Library.lmsproject.entity.Categories;
-import com.Library.lmsproject.entity.Roles;
-import com.Library.lmsproject.entity.Users;
-import com.Library.lmsproject.repository.BookRepository;
-import com.Library.lmsproject.repository.CategoryRepository;
-import com.Library.lmsproject.repository.UsersRepository;
+import com.library.lmsproject.entity.Books;
+import com.library.lmsproject.entity.Categories;
+import com.library.lmsproject.entity.Roles;
+import com.library.lmsproject.entity.Users;
+import com.library.lmsproject.repository.BookRepository;
+import com.library.lmsproject.repository.CategoryRepository;
+import com.library.lmsproject.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class DataInitializer implements CommandLineRunner {

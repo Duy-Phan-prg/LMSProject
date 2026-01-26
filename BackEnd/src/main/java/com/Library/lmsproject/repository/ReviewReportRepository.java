@@ -1,8 +1,8 @@
-package com.Library.lmsproject.repository;
+package com.library.lmsproject.repository;
 
 
-import com.Library.lmsproject.entity.Review;
-import com.Library.lmsproject.entity.ReviewReport;
+import com.library.lmsproject.entity.Review;
+import com.library.lmsproject.entity.ReviewReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReviewReportRepository extends JpaRepository<ReviewReport, Long> {

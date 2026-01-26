@@ -1,4 +1,4 @@
-package com.Library.lmsproject.entity;
+package com.library.lmsproject.entity;
 
 
 //Là một enum đại diện cho các vai trò khác nhau trong hệ thống quản lý thư viện.

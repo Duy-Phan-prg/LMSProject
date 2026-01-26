@@ -1,4 +1,4 @@
-package com.Library.lmsproject.security;
+package com.library.lmsproject.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

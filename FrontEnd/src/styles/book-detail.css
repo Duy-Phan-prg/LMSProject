@@ -517,7 +517,8 @@
 }
 
 .btn-edit-review,
-.btn-delete-review {
+.btn-delete-review,
+.btn-report-review {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
@@ -545,6 +546,15 @@
 .btn-delete-review:hover {
   background: rgba(239, 68, 68, 0.2);
   border-color: #ef4444;
+}
+
+.btn-report-review {
+  color: #f59e0b;
+}
+
+.btn-report-review:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
 }
 
 /* Review Edit Form */

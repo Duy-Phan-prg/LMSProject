@@ -1,7 +1,7 @@
-package com.Library.lmsproject.security;
+package com.library.lmsproject.security;
 
-import com.Library.lmsproject.repository.BlacklistRepository;
-import com.Library.lmsproject.repository.UserSessionRepository;
+import com.library.lmsproject.repository.BlacklistRepository;
+import com.library.lmsproject.repository.UserSessionRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

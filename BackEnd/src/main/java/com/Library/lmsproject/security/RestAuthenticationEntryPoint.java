@@ -1,4 +1,4 @@
-package com.Library.lmsproject.security;
+package com.library.lmsproject.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

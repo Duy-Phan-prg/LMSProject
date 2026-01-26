@@ -1,8 +1,8 @@
-package com.Library.lmsproject.service;
+package com.library.lmsproject.service;
 
-import com.Library.lmsproject.dto.request.ReportReviewRequestDTO;
-import com.Library.lmsproject.dto.response.ReportedReviewResponseDTO;
-import com.Library.lmsproject.entity.Users;
+import com.library.lmsproject.dto.request.ReportReviewRequestDTO;
+import com.library.lmsproject.dto.response.ReportedReviewResponseDTO;
+import com.library.lmsproject.entity.Users;
 
 import java.util.List;
 

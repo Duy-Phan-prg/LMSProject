@@ -1,8 +1,8 @@
-package com.Library.lmsproject.service;
+package com.library.lmsproject.service;
 
-import com.Library.lmsproject.dto.request.CreateCategoryRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateCategoryRequestDTO;
-import com.Library.lmsproject.dto.response.CategoryResponseDTO;
+import com.library.lmsproject.dto.request.CreateCategoryRequestDTO;
+import com.library.lmsproject.dto.request.UpdateCategoryRequestDTO;
+import com.library.lmsproject.dto.response.CategoryResponseDTO;
 import org.springframework.data.domain.Page;
 
 public interface CategoryService {

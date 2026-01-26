@@ -1,6 +1,6 @@
-package com.Library.lmsproject.dto.response;
+package com.library.lmsproject.dto.response;
 
-import com.Library.lmsproject.entity.BorrowStatus;
+import com.library.lmsproject.entity.BorrowStatus;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

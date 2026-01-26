@@ -4,11 +4,12 @@ import { Container, Spinner } from "react-bootstrap";
 import {
   ArrowLeft, BookOpen, User, Calendar, Building2, Languages,
   FileText, Hash, Layers, ShoppingCart, Star, Send, MessageSquare,
-  Edit2, Trash2, X, Plus
+  Edit2, Trash2, X, Plus, Flag
 } from "lucide-react";
 import { getBookById } from "../services/bookService";
 import { createBorrow } from "../services/borrowService";
 import { getReviewsByBook, createReview, updateReview, deleteReview } from "../services/reviewService";
+import { reportReview } from "../services/reportService";
 import { isAuthenticated } from "../services/authService";
 import { useCart } from "../context/CartContext";
 import Swal from "sweetalert2";
@@ -27,7 +28,7 @@ export default function BookDetailPage() {
   const [editForm, setEditForm] = useState({ rating: 5, comment: "" });
   
   const currentUserId = parseInt(localStorage.getItem("userId"));
-  const { addToCart, isInCart } = useCart();
+  const { addToCart, isInCart, refreshPendingCount } = useCart();
 
   useEffect(() => {
     fetchBookDetail();
@@ -158,6 +159,119 @@ export default function BookDetailPage() {
     }
   };
 
+  const handleReportReview = async (review) => {
+    const { value: formValues } = await Swal.fire({
+      title: "Tố cáo đánh giá",
+      html: `
+        <div style="text-align: left;">
+          <p style="margin-bottom: 12px;"><strong>Người đánh giá:</strong> ${review.userName}</p>
+          <p style="margin-bottom: 12px;"><strong>Nội dung:</strong> "${review.comment}"</p>
+          <hr style="margin: 16px 0; border-color: rgba(0,0,0,0.1);">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Lý do tố cáo:</label>
+          <select id="report-reason" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #d1d5db; margin-bottom: 16px; font-size: 14px; background: white; color: #374151;">
+            <option value="">Chọn lý do tố cáo</option>
+            <option value="spam">Spam hoặc quảng cáo</option>
+            <option value="offensive">Ngôn từ xúc phạm, thô tục</option>
+            <option value="fake">Đánh giá giả mạo</option>
+            <option value="inappropriate">Nội dung không phù hợp</option>
+            <option value="other">Lý do khác</option>
+          </select>
+          <div id="other-reason-container" style="display: none; margin-top: 16px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Chi tiết lý do:</label>
+            <textarea id="other-reason-text" placeholder="Vui lòng mô tả chi tiết lý do tố cáo..." style="width: 100%; min-height: 100px; padding: 10px 12px; border-radius: 8px; border: 1px solid #d1d5db; resize: vertical; font-size: 14px; font-family: inherit; line-height: 1.5;"></textarea>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: "Gửi tố cáo",
+      cancelButtonText: "Hủy",
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      width: '500px',
+      didOpen: () => {
+        const reasonSelect = document.getElementById('report-reason');
+        const otherContainer = document.getElementById('other-reason-container');
+        
+        reasonSelect.addEventListener('change', (e) => {
+          if (e.target.value === 'other') {
+            otherContainer.style.display = 'block';
+            // Focus vào textarea
+            setTimeout(() => {
+              document.getElementById('other-reason-text').focus();
+            }, 100);
+          } else {
+            otherContainer.style.display = 'none';
+          }
+        });
+      },
+      preConfirm: () => {
+        const reason = document.getElementById('report-reason').value;
+        const otherText = document.getElementById('other-reason-text').value;
+        
+        if (!reason) {
+          Swal.showValidationMessage('Vui lòng chọn lý do tố cáo!');
+          return false;
+        }
+        
+        if (reason === 'other' && !otherText.trim()) {
+          Swal.showValidationMessage('Vui lòng nhập chi tiết lý do!');
+          return false;
+        }
+        
+        return { reason, otherText };
+      }
+    });
+
+    if (formValues) {
+      const reasonText = {
+        spam: "Spam hoặc quảng cáo",
+        offensive: "Ngôn từ xúc phạm, thô tục",
+        fake: "Đánh giá giả mạo",
+        inappropriate: "Nội dung không phù hợp",
+        other: formValues.otherText
+      };
+
+      const finalReason = reasonText[formValues.reason];
+
+      // Hiển thị loading
+      Swal.fire({
+        title: "Đang gửi tố cáo...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        await reportReview(review.reviewId, {
+          reason: finalReason
+        });
+
+        Swal.fire({
+          title: "Đã gửi tố cáo!",
+          html: `
+            <div style="text-align: left; line-height: 1.8;">
+              <p><strong>Lý do:</strong> ${finalReason}</p>
+              <p style="color: #64748b; font-size: 0.9rem; margin-top: 12px;">
+                Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét và xử lý trong thời gian sớm nhất.
+              </p>
+            </div>
+          `,
+          icon: "success",
+          confirmButtonColor: "#d4a853"
+        });
+      } catch (error) {
+        console.error("Error reporting review:", error);
+        Swal.fire({
+          title: "Lỗi!",
+          text: error.response?.data?.message || "Không thể gửi tố cáo. Vui lòng thử lại sau.",
+          icon: "error",
+          confirmButtonColor: "#d4a853"
+        });
+      }
+    }
+  };
+
   const handleBorrow = async () => {
     if (!isAuthenticated()) {
       Swal.fire({
@@ -180,6 +294,17 @@ export default function BookDetailPage() {
       Swal.fire("Hết sách!", "Sách này hiện không còn bản nào để mượn", "warning");
       return;
     }
+
+    // Hiển thị loading
+    Swal.fire({
+      title: "Đang mượn sách...",
+      text: "Vui lòng đợi trong giây lát",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     setBorrowing(true);
     try {
@@ -212,8 +337,9 @@ export default function BookDetailPage() {
         confirmButtonText: "Đã hiểu"
       });
       
-      // Refresh lại thông tin sách
+      // Refresh lại thông tin sách và pending count
       fetchBookDetail();
+      refreshPendingCount();
     } catch (error) {
       console.error("Error borrowing book:", error);
       Swal.fire("Lỗi!", error.response?.data?.message || "Không thể mượn sách", "error");
@@ -535,7 +661,7 @@ export default function BookDetailPage() {
                               />
                             ))}
                           </div>
-                          {review.userId === currentUserId && (
+                          {review.userId === currentUserId ? (
                             <div className="review-actions">
                               <button 
                                 className="btn-edit-review" 
@@ -552,6 +678,18 @@ export default function BookDetailPage() {
                                 <Trash2 size={16} />
                               </button>
                             </div>
+                          ) : (
+                            isAuthenticated() && (
+                              <div className="review-actions">
+                                <button 
+                                  className="btn-report-review" 
+                                  onClick={() => handleReportReview(review)}
+                                  title="Tố cáo vi phạm"
+                                >
+                                  <Flag size={16} />
+                                </button>
+                              </div>
+                            )
                           )}
                         </div>
                       </div>

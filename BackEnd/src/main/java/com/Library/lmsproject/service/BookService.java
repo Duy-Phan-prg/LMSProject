@@ -1,8 +1,8 @@
-package com.Library.lmsproject.service;
+package com.library.lmsproject.service;
 
-import com.Library.lmsproject.dto.request.CreateBookRequestDTO;
-import com.Library.lmsproject.dto.request.UpdateBookRequestDTO;
-import com.Library.lmsproject.dto.response.BookResponseDTO;
+import com.library.lmsproject.dto.request.CreateBookRequestDTO;
+import com.library.lmsproject.dto.request.UpdateBookRequestDTO;
+import com.library.lmsproject.dto.response.BookResponseDTO;
 import org.springframework.data.domain.Page;
 
 public interface BookService {

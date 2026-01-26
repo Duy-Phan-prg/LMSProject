@@ -1,6 +1,6 @@
-package com.Library.lmsproject.dto.response;
+package com.library.lmsproject.dto.response;
 
-import com.Library.lmsproject.entity.Roles;
+import com.library.lmsproject.entity.Roles;
 import lombok.*;
 
 @Data
