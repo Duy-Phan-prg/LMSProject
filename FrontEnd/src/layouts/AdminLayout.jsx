@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, BookOpen, FolderTree, ShoppingCart,
   Settings, LogOut, Bell, Search, Menu, X, ChevronDown,
   User, Moon, Sun, HelpCircle, MessageSquare, BarChart3,
-  FileText, Calendar, Bookmark
+  FileText, Calendar, Bookmark, Flag
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getAllBorrowings } from "../services/borrowService";
@@ -46,6 +46,7 @@ export default function AdminLayout() {
     { path: "/admin/users", icon: <Users size={20} />, label: "Quản lý phân quyền" },
     { path: "/admin/borrow-history", icon: <ShoppingCart size={20} />, label: "Lịch sử mượn" },
     { path: "/admin/reviews", icon: <MessageSquare size={20} />, label: "Quản lý đánh giá" },
+    { path: "/admin/reported-reviews", icon: <Flag size={20} />, label: "Tố cáo đánh giá" },
     { path: "/admin/statistics", icon: <BarChart3 size={20} />, label: "Thống kê" },
     { path: "/admin/activity-log", icon: <FileText size={20} />, label: "Log hành động" },
     { path: "/admin/config", icon: <Settings size={20} />, label: "Cấu hình" },

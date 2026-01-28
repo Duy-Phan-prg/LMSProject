@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class ReviewReport {
 
     @Id
@@ -29,12 +30,17 @@ public class ReviewReport {
     @JoinColumn(name = "reported_by", nullable = false)
     private Users reportedBy;
 
-    @Column(nullable = false, columnDefinition = "NVARCHAR(500)")
+    @Column(nullable = false)
     private String reason;
 
-    // luôn = true (đã vi phạm)
-    private Boolean isViolated = true;
+    @Enumerated(EnumType.STRING)
+    private ReportStatus status = ReportStatus.PENDING;
 
     private LocalDateTime createdAt;
+
+    @PrePersist
+    void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
 }
 

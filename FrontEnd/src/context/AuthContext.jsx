@@ -13,9 +13,19 @@ export const AuthProvider = ({ children }) => {
     try {
       if (authService.isAuthenticated()) {
         const userData = await authService.getCurrentUser();
-        setUser(userData);
-        setIsAuthenticated(true);
-        return userData;
+        if (userData) {
+          setUser(userData);
+          setIsAuthenticated(true);
+          
+          // Lưu userId và user vào localStorage (dùng id từ response)
+          const userId = userData.id || userData.userId;
+          if (userId) {
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('user', JSON.stringify(userData));
+          }
+          
+          return userData;
+        }
       }
     } catch (error) {
       console.error('Refresh user failed:', error);
@@ -30,7 +40,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       // Skip auth check nếu đang ở OAuth2 callback page
-      // vì tokens chưa được lưu vào localStorage tại thời điểm này
       if (window.location.pathname === '/oauth2/callback') {
         setLoading(false);
         return;
@@ -52,9 +61,20 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const data = await authService.login(email, password);
-      setUser(data.user);
+      
+      // Gọi API /user/me để lấy thông tin đầy đủ
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
       setIsAuthenticated(true);
-      return data;
+      
+      // Lưu userId và user vào localStorage (dùng id từ response)
+      const userId = userData.id || userData.userId;
+      if (userId) {
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
+      
+      return { ...data, user: userData };
     } catch (error) {
       throw error;
     }

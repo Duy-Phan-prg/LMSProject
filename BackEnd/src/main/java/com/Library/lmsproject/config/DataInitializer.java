@@ -55,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
             lib2.setActive(true);
 
             Users m1 = new Users();
-            m1.setEmail("duypd@gmail.com");
+            m1.setEmail("gg@gmail.com");
             m1.setPassword("31072005Xy09@");
             m1.setFullName("Le Van A");
             m1.setPhone("0902000001");

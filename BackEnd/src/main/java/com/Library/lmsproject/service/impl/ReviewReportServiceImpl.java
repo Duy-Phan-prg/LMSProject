@@ -2,6 +2,7 @@ package com.library.lmsproject.service.impl;
 
 import com.library.lmsproject.dto.request.ReportReviewRequestDTO;
 import com.library.lmsproject.dto.response.ReportedReviewResponseDTO;
+import com.library.lmsproject.entity.ReportStatus;
 import com.library.lmsproject.entity.Review;
 import com.library.lmsproject.entity.ReviewReport;
 import com.library.lmsproject.entity.Users;
@@ -29,34 +30,31 @@ public class ReviewReportServiceImpl implements ReviewReportService {
     public ReportedReviewResponseDTO reportReview(
             Long reviewId,
             ReportReviewRequestDTO request,
-            Users moderator
+            Users currentUser
     ) {
-        // 1. Lấy review
+
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
 
-        // 2. Check đã bị report chưa
         if (reviewReportRepository.existsByReview(review)) {
-            throw new RuntimeException("Review already marked as violated");
+            throw new RuntimeException("Review already reported");
         }
 
-        // 3. Ẩn (soft delete) review
-        review.setIsDeleted(true);
-
-        // 4. Tạo report
         ReviewReport report = new ReviewReport();
         report.setReview(review);
-        report.setReportedBy(moderator);
+        report.setReportedBy(currentUser);
         report.setReason(request.getReason());
-        report.setIsViolated(true);
+
+        report.setStatus(ReportStatus.PENDING);
         report.setCreatedAt(LocalDateTime.now());
 
-        // 5. Lưu
+
         reviewReportRepository.save(report);
 
-        // 6. Trả response DTO
+
         return reviewReportMapper.toResponseDTO(report);
     }
+
 
     /**
      * Danh sách review đã bị đánh dấu vi phạm

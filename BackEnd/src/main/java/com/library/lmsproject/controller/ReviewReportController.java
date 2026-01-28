@@ -5,6 +5,7 @@ import com.library.lmsproject.dto.response.ReportedReviewResponseDTO;
 import com.library.lmsproject.entity.Users;
 import com.library.lmsproject.security.CustomUserDetails;
 import com.library.lmsproject.service.ReviewReportService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,7 @@ public class ReviewReportController {
     }
 
     @PostMapping("/{reviewId}/report")
+    @Operation(summary = "User sẽ report bài review của user khác khi thấy nội dung không phù hợp")
     public ResponseEntity<ReportedReviewResponseDTO> reportReview(
             @PathVariable Long reviewId,
             @RequestBody ReportReviewRequestDTO request,

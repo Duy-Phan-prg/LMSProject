@@ -43,7 +43,7 @@ public class ReviewController {
     }
 
     @Operation(
-            summary = "Get reviews by book",
+            summary = "Get reviews by book và user có thể coi review chính mình trên đó ",
             description = "Get all non-deleted reviews of a specific book"
     )
     @ApiResponses({

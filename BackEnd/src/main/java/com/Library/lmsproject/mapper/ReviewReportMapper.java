@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ReviewReportMapper {
+
     @Mapping(target = "reviewId", source = "review.reviewId")
 
     @Mapping(target = "bookId", source = "review.book.bookId")
@@ -16,11 +17,13 @@ public interface ReviewReportMapper {
     @Mapping(target = "reviewContent", source = "review.comment")
     @Mapping(target = "rating", source = "review.rating")
 
-    @Mapping(target = "reportedBy", source = "reportedBy.fullName")
-    @Mapping(target = "reason", source = "reason")
-    @Mapping(target = "isViolated", source = "isViolated")
-    @Mapping(target = "reportedAt", source = "createdAt")
+    @Mapping(target = "reviewAuthor", source = "review.user.fullName")
 
+    @Mapping(target = "reportedBy", source = "reportedBy.fullName")
+
+    @Mapping(target = "reason", source = "reason")
+
+    @Mapping(target = "reportedAt", source = "createdAt")
 
     ReportedReviewResponseDTO toResponseDTO(ReviewReport report);
 }

@@ -1,5 +1,6 @@
 package com.library.lmsproject.dto.response;
 
+import com.library.lmsproject.entity.ReportStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportedReviewResponseDTO {
+
     private Long reviewId;
 
     private Long bookId;
@@ -21,9 +23,12 @@ public class ReportedReviewResponseDTO {
     private String reviewContent;
     private Integer rating;
 
+    private String reviewAuthor;
+
     private String reportedBy;
     private String reason;
 
-    private Boolean isViolated;
+    private ReportStatus status;
+
     private LocalDateTime reportedAt;
 }

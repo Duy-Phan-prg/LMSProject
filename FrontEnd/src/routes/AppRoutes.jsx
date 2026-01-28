@@ -22,6 +22,7 @@ import ReportsPage from "../pages/admin/ReportsPage";
 import BorrowHistoryPage from "../pages/admin/BorrowHistoryPage";
 import HelpPage from "../pages/admin/HelpPage";
 import ReviewsPage from "../pages/admin/ReviewsPage";
+import ReportedReviewsPage from "../pages/admin/ReportedReviewsPage";
 
 // Librarian Pages
 import LibrarianDashboard from "../pages/librarian/LibrarianDashboard";
@@ -58,6 +59,7 @@ export default function AppRoutes() {
         <Route path="config" element={<SystemConfigPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
+        <Route path="reported-reviews" element={<ReportedReviewsPage />} />
         <Route path="help" element={<HelpPage />} />
       </Route>
 
