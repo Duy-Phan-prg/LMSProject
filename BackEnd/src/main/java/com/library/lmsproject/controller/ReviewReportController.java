@@ -7,7 +7,6 @@ import com.library.lmsproject.security.CustomUserDetails;
 import com.library.lmsproject.service.ReviewReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +14,8 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/admin/reviews")
-public class AdminReviewController {
+@RequestMapping("/api/reviews")
+public class ReviewReportController {
     private final ReviewReportService reviewReportService;
 
     @GetMapping("/violated")
@@ -25,16 +24,20 @@ public class AdminReviewController {
     }
 
     @PostMapping("/{reviewId}/report")
-    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<ReportedReviewResponseDTO> reportReview(
             @PathVariable Long reviewId,
             @RequestBody ReportReviewRequestDTO request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Users moderator = userDetails.getUser();
+        if (userDetails == null) {
+            throw new RuntimeException("You must login to report review");
+        }
+
+        Users reporter = userDetails.getUser();
 
         return ResponseEntity.ok(
-                reviewReportService.reportReview(reviewId, request, moderator)
+                reviewReportService.reportReview(reviewId, request, reporter)
         );
     }
+
 }

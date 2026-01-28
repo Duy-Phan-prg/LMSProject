@@ -51,7 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 || path.startsWith("/api/books")
                 || path.startsWith("/api/categories")
-                || path.startsWith("/api/reviews")
+                // Reviews public GET only
+                || (path.startsWith("/api/reviews")
+                && request.getMethod().equals("GET"))
+
 
                 // Google OAuth2
                 || path.startsWith("/oauth2")

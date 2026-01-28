@@ -58,7 +58,6 @@ public class SecurityConfig {
             // public data
             "/api/categories/**",
             "/api/books/**",
-            "/api/reviews/**",
 
             // swagger
             "/swagger-ui.html",
@@ -87,11 +86,27 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // ✅ Public endpoints
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+
+                        // ✅ Reviews: GET public
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+
+                        // ✅ Reviews: Report phải login
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/reviews/*/report"
+                        ).authenticated()
+
+                        // Borrowings phải login
                         .requestMatchers("/api/borrowings/**").authenticated()
+
+                        // All others
                         .anyRequest().authenticated()
                 )
+
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 

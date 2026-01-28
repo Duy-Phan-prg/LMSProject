@@ -51,7 +51,6 @@ public class UserController {
 
     @GetMapping("/google-login")
     public void googleLogin(HttpServletResponse response) throws IOException {
-        // redirect sang endpoint OAuth2 của Spring Security
         response.sendRedirect("/oauth2/authorization/google");
     }
 

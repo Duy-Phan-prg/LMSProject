@@ -25,7 +25,7 @@ public class Review {
     @JoinColumn(name = "book_id", nullable = false)
     private Books book;
 
-    private Integer rating; // có thể null
+    private Integer rating;
 
     @Column(length = 1000, columnDefinition = "NVARCHAR(2000)")
     private String comment;
