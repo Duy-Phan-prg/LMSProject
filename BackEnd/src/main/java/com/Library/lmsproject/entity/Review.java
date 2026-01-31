@@ -30,11 +30,15 @@ public class Review {
     @Column(length = 1000, columnDefinition = "NVARCHAR(2000)")
     private String comment;
 
-    @Column(nullable = false, columnDefinition = "bit default 0")
-    private Boolean isDeleted;
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
-    @Column(nullable = false, columnDefinition = "bit default 0")
-    private Boolean isEdited;
+    @Column(name = "is_hidden", nullable = false)
+    private boolean hidden = false;
+
+    @Column(nullable = false)
+    private boolean isEdited = false;
+
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

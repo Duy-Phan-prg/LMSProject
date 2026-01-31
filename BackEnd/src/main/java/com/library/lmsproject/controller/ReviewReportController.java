@@ -1,7 +1,9 @@
 package com.library.lmsproject.controller;
 
 import com.library.lmsproject.dto.request.ReportReviewRequestDTO;
+import com.library.lmsproject.dto.request.UpdateReportStatusRequestDTO;
 import com.library.lmsproject.dto.response.ReportedReviewResponseDTO;
+import com.library.lmsproject.entity.ReportStatus;
 import com.library.lmsproject.entity.Users;
 import com.library.lmsproject.security.CustomUserDetails;
 import com.library.lmsproject.service.ReviewReportService;
@@ -19,9 +21,14 @@ import java.util.List;
 public class ReviewReportController {
     private final ReviewReportService reviewReportService;
 
-    @GetMapping("/violated")
-    public ResponseEntity<List<ReportedReviewResponseDTO>> getViolatedReviews() {
-        return ResponseEntity.ok(reviewReportService.getViolatedReviews());
+    @GetMapping("/reports")
+    @Operation(summary = "Admin/Librarian xem danh sách report theo trạng thái (PENDING, VIOLATED, IGNORED)")
+    public ResponseEntity<List<ReportedReviewResponseDTO>> getReportsByStatus(
+            @RequestParam ReportStatus status
+    ) {
+        return ResponseEntity.ok(
+                reviewReportService.getReportsByStatus(status)
+        );
     }
 
     @PostMapping("/{reviewId}/report")
@@ -41,5 +48,20 @@ public class ReviewReportController {
                 reviewReportService.reportReview(reviewId, request, reporter)
         );
     }
+
+//    Admin delete review nếu report đúng
+
+    @PutMapping("/report/{reportId}/status")
+    @Operation(summary = "Admin xử lý report (Pending → Violated hoặc Ignored)")
+    public ResponseEntity<ReportedReviewResponseDTO> updateReportStatus(
+            @PathVariable Long reportId,
+            @RequestBody UpdateReportStatusRequestDTO request
+    ) {
+        return ResponseEntity.ok(
+                reviewReportService.updateReportStatus(reportId, request.getStatus())
+        );
+    }
+
+
 
 }

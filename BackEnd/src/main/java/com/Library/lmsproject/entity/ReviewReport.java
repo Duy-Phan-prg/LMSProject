@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
         name = "review_reports",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"review_id"})
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"review_id", "reported_by"}
+        )
 )
 @Getter
 @Setter
@@ -30,7 +32,7 @@ public class ReviewReport {
     @JoinColumn(name = "reported_by", nullable = false)
     private Users reportedBy;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(500)" )
     private String reason;
 
     @Enumerated(EnumType.STRING)

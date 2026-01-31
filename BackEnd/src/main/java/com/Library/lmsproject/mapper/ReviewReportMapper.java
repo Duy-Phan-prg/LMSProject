@@ -23,6 +23,8 @@ public interface ReviewReportMapper {
 
     @Mapping(target = "reason", source = "reason")
 
+    @Mapping(target = "status", source = "status")
+
     @Mapping(target = "reportedAt", source = "createdAt")
 
     ReportedReviewResponseDTO toResponseDTO(ReviewReport report);

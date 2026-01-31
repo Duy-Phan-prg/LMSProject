@@ -116,7 +116,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("You are not allowed to delete this review");
         }
 
-        review.setIsDeleted(true);
+        review.setDeleted(true);
         reviewRepository.save(review);
     }
 

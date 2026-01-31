@@ -36,7 +36,11 @@ public class ReviewReportServiceImpl implements ReviewReportService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
 
-        if (reviewReportRepository.existsByReview(review)) {
+        if (review.isHidden()) {
+            throw new RuntimeException("Review was already hidden");
+        }
+
+        if (reviewReportRepository.existsByReviewAndReportedBy(review, currentUser)) {
             throw new RuntimeException("Review already reported");
         }
 
@@ -61,12 +65,56 @@ public class ReviewReportServiceImpl implements ReviewReportService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<ReportedReviewResponseDTO> getViolatedReviews() {
+    public List<ReportedReviewResponseDTO> getReportsByStatus(ReportStatus status) {
 
-        return reviewReportRepository.findAll()
+        return reviewReportRepository.findByStatus(status)
                 .stream()
                 .map(reviewReportMapper::toResponseDTO)
                 .toList();
     }
+
+    @Override
+    @Transactional
+    public ReportedReviewResponseDTO updateReportStatus(Long reportId, ReportStatus status) {
+
+        ReviewReport report = reviewReportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        if (report.getStatus() != ReportStatus.PENDING) {
+            throw new RuntimeException("Report already processed");
+        }
+
+        Review review = report.getReview();
+
+        if (status == ReportStatus.VIOLATED) {
+
+            report.setStatus(ReportStatus.VIOLATED);
+
+            // hide review
+            review.setHidden(true);
+
+        } else if (status == ReportStatus.IGNORED) {
+
+            report.setStatus(ReportStatus.IGNORED);
+
+            // unhide review
+            review.setHidden(false);
+
+        } else {
+            throw new RuntimeException("Invalid status");
+        }
+
+        // Save both
+        reviewRepository.save(review);
+        reviewReportRepository.save(report);
+
+        return reviewReportMapper.toResponseDTO(report);
+    }
+
+
+
+
+
+
 
 }
