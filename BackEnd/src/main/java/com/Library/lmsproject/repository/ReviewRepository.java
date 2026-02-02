@@ -19,16 +19,9 @@ WHERE r.book.bookId = :bookId
 AND r.isDeleted = false
 AND (
       r.hidden = false
-   OR (
-        r.hidden = true
-        AND r.user.id = :currentUserId
-        AND EXISTS (
-            SELECT rr FROM ReviewReport rr
-            WHERE rr.review.reviewId = r.reviewId
-            AND rr.status = 'VIOLATED'
-        )
-   )
+   OR (r.hidden = true AND r.user.id = :currentUserId)
 )
+ORDER BY r.createdAt DESC
 """)
     List<Review> findVisibleReviewsByBook(
             @Param("bookId") Long bookId,

@@ -106,6 +106,35 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<ReviewResponseDTO> getReviewsByBook(Long bookId, Long currentUserId) {
+
+        Books book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        Long userId = (currentUserId != null) ? currentUserId : -1L;
+
+        return reviewRepository
+                .findVisibleReviewsByBook(bookId, userId)
+                .stream()
+                .map(review -> {
+
+                    ReviewResponseDTO dto = reviewMapper.toResponseDTO(review);
+
+                    if (review.isHidden()
+                            && review.getUser().getId().equals(userId)) {
+
+                        dto.setWarningMessage(
+                                "Review của bạn đã bị đánh dấu VI PHẠM và đã bị ẩn khỏi người khác."
+                        );
+                    }
+
+                    return dto;
+                })
+                .toList();
+    }
+
+
+    @Override
     public void deleteReview(Long reviewId, Long userId) {
 
         Review review = reviewRepository.findByReviewIdAndIsDeletedFalse(reviewId)
@@ -121,16 +150,5 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
-    @Override
-    public List<ReviewResponseDTO> getReviewsByBook(Long bookId) {
 
-        Books book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
-
-        return reviewRepository
-                .findByBookAndIsDeletedFalseOrderByCreatedAtDesc(book)
-                .stream()
-                .map(reviewMapper::toResponseDTO)
-                .toList();
-    }
 }

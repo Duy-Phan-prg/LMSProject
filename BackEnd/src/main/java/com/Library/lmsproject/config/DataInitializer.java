@@ -29,7 +29,7 @@ public class DataInitializer implements CommandLineRunner {
         if (usersRepository.count() == 0) {
             Users admin = new Users();
             admin.setEmail("admin@library.com");
-            admin.setPassword("~_VM\\7@Hp153zX|&");
+            admin.setPassword("31072005Xy09@");
             admin.setFullName("System Administrator");
             admin.setPhone("0688684829");
             admin.setAddress("Library Head Office");

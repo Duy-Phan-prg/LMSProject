@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Flag, Search, Eye, Trash2, CheckCircle, XCircle, AlertTriangle, Calendar, User, BookOpen, Star } from "lucide-react";
-import { getViolatedReviews } from "../../services/reportService";
+import { getReports, updateReportStatus } from "../../services/reportService";
 import { deleteReview } from "../../services/reviewService";
 import Swal from "sweetalert2";
 
@@ -17,7 +17,7 @@ export default function ReportedReviewsPage() {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const data = await getViolatedReviews();
+      const data = await getReports(); // Lấy tất cả reports
       setReports(data || []);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -71,8 +71,14 @@ export default function ReportedReviewsPage() {
     });
 
     if (result.isConfirmed) {
-      Swal.fire("Đã bỏ qua!", "Tố cáo đã được đánh dấu", "success");
-      fetchReports();
+      try {
+        await updateReportStatus(report.reportId, "IGNORED");
+        Swal.fire("Đã bỏ qua!", "Tố cáo đã được đánh dấu", "success");
+        fetchReports();
+      } catch (error) {
+        console.error("Error updating report status:", error);
+        Swal.fire("Lỗi!", "Không thể cập nhật trạng thái", "error");
+      }
     }
   };
 

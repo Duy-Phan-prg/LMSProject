@@ -10,7 +10,8 @@ public interface ReviewService {
 
     ReviewResponseDTO createReview(CreateReviewRequestDTO request, Long userId);
 
-    List<ReviewResponseDTO> getReviewsByBook(Long bookId);
+    List<ReviewResponseDTO> getReviewsByBook(Long bookId, Long currentUserId);
+
 
     void deleteReview(Long reviewId, Long userId);
 

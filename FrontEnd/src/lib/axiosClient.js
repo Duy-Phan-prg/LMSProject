@@ -43,6 +43,12 @@ axiosClient.interceptors.response.use(
     console.log("Interceptor caught error:", error.response?.status, originalRequest.url);
     console.log("_retry:", originalRequest._retry);
 
+    // Nếu lỗi 403 (Forbidden) - không logout, chỉ reject
+    if (error.response?.status === 403) {
+      console.log("403 Forbidden - User không có quyền truy cập");
+      return Promise.reject(error);
+    }
+
     // Nếu lỗi 401 và chưa retry
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Bỏ qua nếu đang ở trang login/register hoặc đang gọi refresh-token
@@ -52,6 +58,15 @@ axiosClient.interceptors.response.use(
         originalRequest.url?.includes("/refresh-token")
       ) {
         console.log("Skipping refresh for auth URLs");
+        return Promise.reject(error);
+      }
+
+      // Nếu là API reports/reviews và user không có quyền, không logout
+      if (
+        originalRequest.url?.includes("/api/reviews/reports") ||
+        originalRequest.url?.includes("/api/reviews/getAllReviews")
+      ) {
+        console.log("401 on reports/reviews - User không có quyền, không logout");
         return Promise.reject(error);
       }
 

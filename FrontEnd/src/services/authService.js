@@ -100,7 +100,17 @@ const authService = {
           Authorization: `Bearer ${authService.getAccessToken()}`,
         },
       });
-      return response.data;
+      
+      const userData = response.data;
+      
+      // Lưu user info vào localStorage
+      if (userData) {
+        if (userData.id) localStorage.setItem('userId', userData.id);
+        if (userData.role) localStorage.setItem('userRole', userData.role);
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
+      
+      return userData;
     } catch (error) {
       throw error.response?.data || error.message;
     }

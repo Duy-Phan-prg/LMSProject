@@ -43,15 +43,19 @@ export default function AdminLayout() {
 
   const menuItems = [
     { path: "/admin", icon: <LayoutDashboard size={20} />, label: "Dashboard", exact: true },
-    { path: "/admin/users", icon: <Users size={20} />, label: "Quản lý phân quyền" },
-    { path: "/admin/borrow-history", icon: <ShoppingCart size={20} />, label: "Lịch sử mượn" },
-    { path: "/admin/reviews", icon: <MessageSquare size={20} />, label: "Quản lý đánh giá" },
-    { path: "/admin/reported-reviews", icon: <Flag size={20} />, label: "Tố cáo đánh giá" },
-    { path: "/admin/statistics", icon: <BarChart3 size={20} />, label: "Thống kê" },
-    { path: "/admin/activity-log", icon: <FileText size={20} />, label: "Log hành động" },
-    { path: "/admin/config", icon: <Settings size={20} />, label: "Cấu hình" },
-    { path: "/admin/reports", icon: <FileText size={20} />, label: "Báo cáo" },
+    { path: "/admin/users", icon: <Users size={20} />, label: "Quản lý phân quyền", adminOnly: true },
+    { path: "/admin/reviews", icon: <MessageSquare size={20} />, label: "Quản lý đánh giá", adminOnly: true },
+    { path: "/admin/reported-reviews", icon: <Flag size={20} />, label: "Tố cáo đánh giá", adminOnly: true },
+    { path: "/admin/statistics", icon: <BarChart3 size={20} />, label: "Thống kê", adminOnly: true },
   ];
+
+  // Lọc menu theo role
+  const filteredMenuItems = menuItems.filter(item => {
+    if (item.adminOnly && user?.role !== 'ADMIN') {
+      return false;
+    }
+    return true;
+  });
 
   const isActive = (path, exact = false) => {
     if (exact) return location.pathname === path;
@@ -98,7 +102,7 @@ export default function AdminLayout() {
           <div className="nav-section">
             {sidebarOpen && <span className="nav-section-title">MENU CHÍNH</span>}
             <ul>
-              {menuItems.map((item) => (
+              {filteredMenuItems.map((item) => (
                 <li key={item.path}>
                   <Link
                     to={item.path}

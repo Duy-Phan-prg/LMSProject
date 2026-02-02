@@ -12,10 +12,15 @@ import org.mapstruct.Mapping;
 public interface ReviewMapper {
 
     @Mapping(target = "reviewId", ignore = true)
+
     @Mapping(target = "isDeleted", constant = "false")
     @Mapping(target = "isEdited", constant = "false")
+
+    @Mapping(target = "hidden", constant = "false")
+
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+
     Review toEntity(CreateReviewRequestDTO dto, Users user, Books book);
 
     @Mapping(source = "user.id", target = "userId")

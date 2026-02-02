@@ -3,6 +3,7 @@ package com.library.lmsproject.controller;
 import com.library.lmsproject.dto.request.CreateReviewRequestDTO;
 import com.library.lmsproject.dto.request.UpdateReviewRequestDTO;
 import com.library.lmsproject.dto.response.ReviewResponseDTO;
+import com.library.lmsproject.security.CustomUserDetails;
 import com.library.lmsproject.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,14 +52,32 @@ public class ReviewController {
             @ApiResponse(responseCode = "200", description = "Success"),
             @ApiResponse(responseCode = "404", description = "Book not found")
     })
+
     @GetMapping("/book/{bookId}")
     public ResponseEntity<List<ReviewResponseDTO>> getReviewsByBook(
-            @PathVariable Long bookId
+            @PathVariable Long bookId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) Long testUserId // TODO: Remove in production - only for Swagger testing
     ) {
+
+        Long currentUserId = -1L;
+
+        if (userDetails != null) {
+            currentUserId = userDetails.getId();
+            System.out.println("✅ Authenticated user ID: " + currentUserId);
+        } else if (testUserId != null) {
+            // TODO: Remove in production - only for testing without authentication
+            currentUserId = testUserId;
+            System.out.println("⚠️ Using testUserId: " + currentUserId);
+        } else {
+            System.out.println("❌ No authentication - returning public reviews only");
+        }
+
         return ResponseEntity.ok(
-                reviewService.getReviewsByBook(bookId)
+                reviewService.getReviewsByBook(bookId, currentUserId)
         );
     }
+
 
     @Operation(
             summary = "Delete review",

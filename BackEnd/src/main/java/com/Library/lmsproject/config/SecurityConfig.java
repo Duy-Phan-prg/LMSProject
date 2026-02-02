@@ -89,23 +89,30 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // ✅ Public endpoints
+                        // Public endpoints
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 
-                        // ✅ Reviews: GET public
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        // ✅ Public review list theo book
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/reviews/book/**"
+                        ).permitAll()
 
-                        // ✅ Reviews: Report phải login
+                        // ✅ Admin xem reports
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/reviews/reports/**"
+                        ).hasRole("ADMIN")
+
+                        // ✅ User report review phải login
                         .requestMatchers(HttpMethod.POST,
                                 "/api/reviews/*/report"
                         ).authenticated()
 
-                        // Borrowings phải login
+                        // Borrowings login
                         .requestMatchers("/api/borrowings/**").authenticated()
 
-                        // All others
                         .anyRequest().authenticated()
                 )
+
 
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
