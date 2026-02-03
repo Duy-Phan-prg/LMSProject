@@ -34,6 +34,8 @@ public class ReviewController {
             @ApiResponse(responseCode = "400", description = "Invalid request or business rule violated"),
             @ApiResponse(responseCode = "404", description = "User or Book not found")
     })
+
+
     @PostMapping("/createReview")
     public ResponseEntity<ReviewResponseDTO> createReview(
             @RequestBody CreateReviewRequestDTO request,
@@ -56,26 +58,10 @@ public class ReviewController {
     @GetMapping("/book/{bookId}")
     public ResponseEntity<List<ReviewResponseDTO>> getReviewsByBook(
             @PathVariable Long bookId,
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(required = false) Long testUserId // TODO: Remove in production - only for Swagger testing
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-
-        Long currentUserId = -1L;
-
-        if (userDetails != null) {
-            currentUserId = userDetails.getId();
-            System.out.println("✅ Authenticated user ID: " + currentUserId);
-        } else if (testUserId != null) {
-            // TODO: Remove in production - only for testing without authentication
-            currentUserId = testUserId;
-            System.out.println("⚠️ Using testUserId: " + currentUserId);
-        } else {
-            System.out.println("❌ No authentication - returning public reviews only");
-        }
-
-        return ResponseEntity.ok(
-                reviewService.getReviewsByBook(bookId, currentUserId)
-        );
+        Long currentUserId = userDetails != null ? userDetails.getId() : -1L;
+        return ResponseEntity.ok(reviewService.getReviewsByBook(bookId, currentUserId));
     }
 
 
@@ -106,6 +92,8 @@ public class ReviewController {
             @ApiResponse(responseCode = "403", description = "Not allowed or already edited"),
             @ApiResponse(responseCode = "404", description = "Review not found")
     })
+
+
     @PutMapping("/updateReview/{reviewId}")
     public ResponseEntity<ReviewResponseDTO> updateReview(
             @PathVariable Long reviewId,
@@ -124,6 +112,8 @@ public class ReviewController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success")
     })
+
+
     @GetMapping("/getAllReviews")
     public ResponseEntity<List<ReviewResponseDTO>> getAllReviews() {
         return ResponseEntity.ok(
