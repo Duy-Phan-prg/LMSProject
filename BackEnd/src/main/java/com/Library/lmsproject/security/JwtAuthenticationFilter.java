@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/api/books")
                 || path.startsWith("/api/categories")
                 // Reviews public GET only
-                || (path.startsWith("/api/reviews")
+                || (path.startsWith("/api/reviews/book")
                 && request.getMethod().equals("GET"))
 
 
@@ -93,14 +93,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // ❌ 3. Session không active
-            userSessionRepository
-                    .findBySessionTokenAndTokenTypeAndIsActive(
-                            token,
-                            "ACCESS",
-                            true
-                    )
-                    .orElseThrow(() -> new RuntimeException("Session inactive"));
+            // ❌ 2. Token không hợp lệ / không phải access token
+            if (!jwtTokenProvider.validateToken(token)
+                    || !jwtTokenProvider.isAccessToken(token)) {
+
+                response.sendError(
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "Invalid or expired access token"
+                );
+                return;
+            }
+
+
 
             // ✅ 4. Authenticate
             String email = jwtTokenProvider.extractEmail(token);

@@ -102,6 +102,11 @@ public class SecurityConfig {
                                 "/api/reviews/reports/**"
                         ).hasRole("ADMIN")
 
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/reviews/getAllReviews/**"
+                        ).hasRole("ADMIN")
+
+
                         // ✅ User report review phải login
                         .requestMatchers(HttpMethod.POST,
                                 "/api/reviews/*/report"

@@ -6,17 +6,27 @@ export const reportReview = async (reviewId, reportData) => {
   return response.data;
 };
 
-// GET - Lấy danh sách tất cả reports theo trạng thái (PENDING, VIOLATED, IGNORED)
-export const getReports = async (status) => {
-  const params = status ? { status } : {};
-  const response = await axiosClient.get("/api/reviews/reports", { params });
+// GET - Lấy danh sách review bị tố cáo theo status (Admin)
+export const getReportsByStatus = async (status) => {
+  const response = await axiosClient.get(`/api/reviews/reports?status=${status}`);
   return response.data;
 };
 
-// PUT - Cập nhật trạng thái report (Admin xử lý report)
+// Backward compatibility & convenience functions
+export const getPendingReports = async () => {
+  return getReportsByStatus('PENDING');
+};
+
+export const getViolatedReports = async () => {
+  return getReportsByStatus('VIOLATED');
+};
+
+export const getIgnoredReports = async () => {
+  return getReportsByStatus('IGNORED');
+};
+
+// PUT - Cập nhật trạng thái report (Admin xử lý)
 export const updateReportStatus = async (reportId, status) => {
-  const response = await axiosClient.put(`/api/reviews/report/${reportId}/status`, null, {
-    params: { status }
-  });
+  const response = await axiosClient.put(`/api/reviews/report/${reportId}/status`, { status });
   return response.data;
 };

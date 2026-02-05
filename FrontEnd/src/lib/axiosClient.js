@@ -28,6 +28,9 @@ axiosClient.interceptors.request.use(
     const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log(`[Request] ${config.method?.toUpperCase()} ${config.url} - Token: ${token.substring(0, 20)}...`);
+    } else {
+      console.warn(`[Request] ${config.method?.toUpperCase()} ${config.url} - NO TOKEN!`);
     }
     return config;
   },
@@ -58,15 +61,6 @@ axiosClient.interceptors.response.use(
         originalRequest.url?.includes("/refresh-token")
       ) {
         console.log("Skipping refresh for auth URLs");
-        return Promise.reject(error);
-      }
-
-      // Nếu là API reports/reviews và user không có quyền, không logout
-      if (
-        originalRequest.url?.includes("/api/reviews/reports") ||
-        originalRequest.url?.includes("/api/reviews/getAllReviews")
-      ) {
-        console.log("401 on reports/reviews - User không có quyền, không logout");
         return Promise.reject(error);
       }
 
@@ -137,10 +131,35 @@ axiosClient.interceptors.response.use(
         return axiosClient(originalRequest);
       } catch (refreshError) {
         console.error("Refresh token failed:", refreshError);
-        // Refresh token thất bại -> logout
+        console.error("Refresh error response:", refreshError.response?.data);
+        
+        // Kiểm tra nếu refresh token hết hạn
+        const errorMsg = refreshError.response?.data?.message || refreshError.message || "";
+        if (errorMsg.includes("expired") || errorMsg.includes("hết hạn")) {
+          console.log("Refresh token expired - logging out...");
+          // Hiển thị thông báo trước khi logout
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              title: "Phiên đăng nhập hết hạn",
+              text: "Vui lòng đăng nhập lại",
+              icon: "warning",
+              confirmButtonText: "Đăng nhập"
+            }).then(() => {
+              localStorage.clear();
+              window.location.href = "/login";
+            });
+          } else {
+            alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+            localStorage.clear();
+            window.location.href = "/login";
+          }
+        } else {
+          // Lỗi khác -> logout ngay
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+        
         processQueue(refreshError, null);
-        localStorage.clear();
-        window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

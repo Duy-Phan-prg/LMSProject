@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -112,7 +113,6 @@ public class ReviewController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success")
     })
-
 
     @GetMapping("/getAllReviews")
     public ResponseEntity<List<ReviewResponseDTO>> getAllReviews() {

@@ -1,23 +1,25 @@
 import { useState, useEffect } from "react";
 import { Flag, Search, Eye, Trash2, CheckCircle, XCircle, AlertTriangle, Calendar, User, BookOpen, Star } from "lucide-react";
-import { getReports, updateReportStatus } from "../../services/reportService";
+import { getReportsByStatus, updateReportStatus } from "../../services/reportService";
 import { deleteReview } from "../../services/reviewService";
 import Swal from "sweetalert2";
+import "./ReportedReviewsPage.css";
 
 export default function ReportedReviewsPage() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewingReport, setViewingReport] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("PENDING");
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [statusFilter]);
 
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const data = await getReports(); // Lấy tất cả reports
+      const data = await getReportsByStatus(statusFilter);
       setReports(data || []);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -59,21 +61,43 @@ export default function ReportedReviewsPage() {
     }
   };
 
-  const handleIgnoreReport = async (report) => {
-    const result = await Swal.fire({
-      title: "Bỏ qua tố cáo?",
-      text: "Đánh giá này sẽ được giữ lại",
-      icon: "question",
+  const handleUpdateStatus = async (report) => {
+    const { value: status } = await Swal.fire({
+      title: "Xử lý tố cáo",
+      html: `
+        <div style="text-align: left; margin-bottom: 16px;">
+          <p><strong>Sách:</strong> ${report.bookTitle}</p>
+          <p><strong>Người viết:</strong> ${report.reviewAuthor}</p>
+          <p><strong>Nội dung:</strong> "${report.reviewContent}"</p>
+          <p><strong>Người tố cáo:</strong> ${report.reportedBy}</p>
+          <p><strong>Lý do:</strong> ${report.reason}</p>
+        </div>
+      `,
+      input: "select",
+      inputOptions: {
+        VIOLATED: "Vi phạm - Xác nhận đánh giá vi phạm",
+        IGNORED: "Bỏ qua - Đánh giá hợp lệ"
+      },
+      inputPlaceholder: "Chọn trạng thái",
       showCancelButton: true,
-      confirmButtonColor: "#22c55e",
-      confirmButtonText: "Bỏ qua",
-      cancelButtonText: "Hủy"
+      confirmButtonColor: "#d4a853",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+      inputValidator: (value) => {
+        if (!value) {
+          return "Vui lòng chọn trạng thái";
+        }
+      }
     });
 
-    if (result.isConfirmed) {
+    if (status) {
       try {
-        await updateReportStatus(report.reportId, "IGNORED");
-        Swal.fire("Đã bỏ qua!", "Tố cáo đã được đánh dấu", "success");
+        await updateReportStatus(report.reportId, status);
+        const message = status === "VIOLATED" 
+          ? "Đã xác nhận vi phạm" 
+          : "Đã bỏ qua tố cáo";
+        Swal.fire("Thành công!", message, "success");
         fetchReports();
       } catch (error) {
         console.error("Error updating report status:", error);
@@ -99,9 +123,9 @@ export default function ReportedReviewsPage() {
     switch (status) {
       case "PENDING":
         return <span className="status-badge pending"><AlertTriangle size={14} /> Chờ xử lý</span>;
-      case "APPROVED":
+      case "VIOLATED":
         return <span className="status-badge violated"><XCircle size={14} /> Vi phạm</span>;
-      case "REJECTED":
+      case "IGNORED":
         return <span className="status-badge resolved"><CheckCircle size={14} /> Đã bỏ qua</span>;
       default:
         return <span className="status-badge pending">{status}</span>;
@@ -119,53 +143,47 @@ export default function ReportedReviewsPage() {
   }
 
   return (
-    <div className="admin-page">
-      <div className="page-header">
+    <div className="admin-page compact-page">
+      <div className="page-header compact-header">
         <div className="page-title-section">
-          <Flag size={32} />
+          <Flag size={24} />
           <div>
             <h1>Quản lý đánh giá bị tố cáo</h1>
-            <p>Xem xét và xử lý các đánh giá vi phạm</p>
           </div>
+        </div>
+        <div className="header-stats">
+          <span className="stat-badge red"><AlertTriangle size={14} /> {reports.length}</span>
+          <span className="stat-badge orange"><Flag size={14} /> {reports.filter(r => r.status === "PENDING").length}</span>
+          <span className="stat-badge green"><CheckCircle size={14} /> {reports.filter(r => r.status === "VIOLATED").length}</span>
         </div>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-card-icon red">
-            <AlertTriangle size={24} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-value">{reports.length}</span>
-            <span className="stat-card-label">Tổng tố cáo</span>
-          </div>
+      <div className="page-controls compact-controls">
+        <div className="filter-tabs">
+          <button 
+            className={`filter-tab ${statusFilter === "PENDING" ? "active" : ""}`}
+            onClick={() => setStatusFilter("PENDING")}
+          >
+            <AlertTriangle size={16} /> Chờ xử lý
+          </button>
+          <button 
+            className={`filter-tab ${statusFilter === "VIOLATED" ? "active" : ""}`}
+            onClick={() => setStatusFilter("VIOLATED")}
+          >
+            <XCircle size={16} /> Vi phạm
+          </button>
+          <button 
+            className={`filter-tab ${statusFilter === "IGNORED" ? "active" : ""}`}
+            onClick={() => setStatusFilter("IGNORED")}
+          >
+            <CheckCircle size={16} /> Đã bỏ qua
+          </button>
         </div>
-        <div className="stat-card">
-          <div className="stat-card-icon orange">
-            <Flag size={24} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-value">{reports.filter(r => r.status === "PENDING").length}</span>
-            <span className="stat-card-label">Chờ xử lý</span>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-card-icon green">
-            <CheckCircle size={24} />
-          </div>
-          <div className="stat-card-info">
-            <span className="stat-card-value">{reports.filter(r => r.status === "APPROVED").length}</span>
-            <span className="stat-card-label">Đã xác nhận</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="page-controls">
         <div className="search-box-admin">
-          <Search size={18} />
+          <Search size={16} />
           <input
             type="text"
-            placeholder="Tìm theo sách, người tố cáo, người viết..."
+            placeholder="Tìm kiếm..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -173,45 +191,43 @@ export default function ReportedReviewsPage() {
       </div>
 
       {filteredReports.length === 0 ? (
-        <div className="empty-state">
-          <Flag size={64} />
-          <h3>Không có tố cáo nào</h3>
-          <p>Chưa có đánh giá nào bị tố cáo</p>
+        <div className="empty-state compact-empty">
+          <Flag size={48} />
+          <h3>Không có tố cáo</h3>
         </div>
       ) : (
-        <div className="table-container">
+        <div className="table-container compact-table">
           <table className="data-table">
             <thead>
               <tr>
                 <th>Sách</th>
                 <th>Nội dung</th>
-                <th>Sao</th>
+                <th style={{ width: '60px' }}>Sao</th>
                 <th>Người viết</th>
                 <th>Người tố cáo</th>
                 <th>Lý do</th>
-                <th>Thời gian</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
+                <th style={{ width: '100px' }}>Thời gian</th>
+                <th style={{ width: '100px' }}>Trạng thái</th>
+                <th style={{ width: '200px' }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {filteredReports.map((report) => (
                 <tr key={report.reviewId}>
                   <td>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div className="book-cell">
                       <strong>{report.bookTitle}</strong>
-                      <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>{report.isbn}</span>
                     </div>
                   </td>
                   <td>
-                    <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div className="content-cell">
                       {report.reviewContent}
                     </div>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Star size={14} fill="#f59e0b" color="#f59e0b" />
-                      <span>{report.rating}</span>
+                    <div className="rating-compact">
+                      <Star size={12} fill="#f59e0b" color="#f59e0b" />
+                      {report.rating}
                     </div>
                   </td>
                   <td>{report.reviewAuthor}</td>
@@ -219,34 +235,37 @@ export default function ReportedReviewsPage() {
                   <td>
                     <span className="reason-badge">{report.reason}</span>
                   </td>
-                  <td style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-                    {formatDate(report.reportedAt)}
+                  <td className="date-cell">
+                    {new Date(report.reportedAt).toLocaleDateString("vi-VN")}
                   </td>
                   <td>
                     {getStatusBadge(report.status)}
                   </td>
                   <td>
-                    <div className="action-buttons">
+                    <div className="action-buttons compact-actions">
                       <button
-                        className="btn-icon btn-view"
+                        className="btn-action btn-view"
                         onClick={() => setViewingReport(report)}
-                        title="Xem"
+                        title="Xem chi tiết"
                       >
-                        <Eye size={16} />
+                        <Eye size={14} />
+                        <span>Xem</span>
                       </button>
                       <button
-                        className="btn-icon btn-delete"
+                        className="btn-action btn-delete"
                         onClick={() => handleDeleteReview(report)}
-                        title="Xóa"
+                        title="Xóa đánh giá"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
+                        <span>Xóa</span>
                       </button>
                       <button
-                        className="btn-icon btn-success"
-                        onClick={() => handleIgnoreReport(report)}
-                        title="Bỏ qua"
+                        className="btn-action btn-edit"
+                        onClick={() => handleUpdateStatus(report)}
+                        title="Xử lý tố cáo"
                       >
-                        <CheckCircle size={16} />
+                        <CheckCircle size={14} />
+                        <span>Xử lý</span>
                       </button>
                     </div>
                   </td>
@@ -334,69 +353,6 @@ export default function ReportedReviewsPage() {
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .reason-badge {
-          display: inline-block;
-          padding: 4px 10px;
-          background: rgba(239, 68, 68, 0.1);
-          color: #ef4444;
-          border-radius: 12px;
-          font-size: 0.85rem;
-          font-weight: 500;
-        }
-        .status-badge.violated {
-          background: rgba(239, 68, 68, 0.1);
-          color: #ef4444;
-        }
-        .status-badge.pending {
-          background: rgba(245, 158, 11, 0.1);
-          color: #f59e0b;
-        }
-        .status-badge.resolved {
-          background: rgba(34, 197, 94, 0.1);
-          color: #22c55e;
-        }
-        .btn-success {
-          color: #22c55e;
-        }
-        .btn-success:hover {
-          background: rgba(34, 197, 94, 0.1);
-        }
-        .detail-section {
-          margin-bottom: 24px;
-          padding-bottom: 24px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .detail-section:last-child {
-          border-bottom: none;
-          margin-bottom: 0;
-          padding-bottom: 0;
-        }
-        .detail-section h4 {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #d4a853;
-          margin-bottom: 16px;
-          font-size: 1rem;
-        }
-        .btn-danger {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 20px;
-          background: #ef4444;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-        .btn-danger:hover {
-          background: #dc2626;
-        }
-      `}</style>
     </div>
   );
 }

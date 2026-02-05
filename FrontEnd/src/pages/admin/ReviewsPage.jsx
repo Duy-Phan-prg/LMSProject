@@ -15,13 +15,40 @@ export default function ReviewsPage() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
+      console.log("=== Fetching reviews ===");
+      console.log("Access Token:", localStorage.getItem("accessToken")?.substring(0, 30) + "...");
+      console.log("Refresh Token:", localStorage.getItem("refreshToken")?.substring(0, 30) + "...");
+      console.log("User Role:", localStorage.getItem("userRole"));
+      console.log("User ID:", localStorage.getItem("userId"));
+      
       const data = await getAllReviews();
+      console.log("Reviews fetched successfully:", data);
       const reviewList = data.result || data || [];
       setReviews(reviewList);
       setFilteredReviews(reviewList);
     } catch (error) {
-      console.error("Error fetching reviews:", error);
-      Swal.fire("Lỗi!", "Không thể tải danh sách đánh giá", "error");
+      // Skip if axios interceptor already handled (session expired)
+      if (!error || error.toString() === '[object Promise]') {
+        return; // Axios interceptor is handling it
+      }
+      
+      console.error("=== Error fetching reviews ===");
+      console.error("Error:", error);
+      console.error("Error response:", error.response);
+      console.error("Error status:", error.response?.status);
+      console.error("Error data:", error.response?.data);
+      
+      // Don't show popup for 401 errors (handled by axios interceptor)
+      if (error.response?.status === 401) {
+        return;
+      }
+      
+      const errorMsg = error.response?.data?.message || error.message || "Không thể tải danh sách đánh giá";
+      Swal.fire({
+        title: "Lỗi!",
+        text: errorMsg,
+        icon: "error",
+      });
     } finally {
       setLoading(false);
     }

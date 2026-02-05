@@ -80,6 +80,11 @@ const authService = {
   refreshToken: async () => {
     try {
       const refreshToken = authService.getRefreshToken();
+      
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+      
       const response = await axios.post(`${API_BASE_URL}/user/refresh-token`, {
         refreshToken,
       });
@@ -88,7 +93,9 @@ const authService = {
       return response.data;
     } catch (error) {
       authService.clearTokens();
-      throw error.response?.data || error.message;
+      // Throw error with proper message
+      const errorMessage = error.response?.data?.message || error.message || 'Refresh token failed';
+      throw new Error(errorMessage);
     }
   },
 
