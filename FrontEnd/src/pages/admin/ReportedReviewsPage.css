@@ -53,35 +53,33 @@
   align-items: center;
 }
 
-.filter-tabs {
-  display: flex;
-  gap: 8px;
-}
-
-.filter-tab {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.filter-select {
   padding: 8px 16px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  color: #94a3b8;
+  color: #f1f5f9;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 180px;
 }
 
-.filter-tab:hover {
+.filter-select:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-.filter-tab.active {
-  background: rgba(212, 168, 83, 0.15);
+.filter-select:focus {
+  outline: none;
   border-color: #d4a853;
-  color: #d4a853;
+  background: rgba(212, 168, 83, 0.1);
+}
+
+.filter-select option {
+  background: #1e293b;
+  color: #f1f5f9;
 }
 
 .compact-table {

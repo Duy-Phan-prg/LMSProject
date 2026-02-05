@@ -15,7 +15,7 @@ public interface ReviewReportService {
     );
     List<ReportedReviewResponseDTO> getReportsByStatus(ReportStatus status);
     ReportedReviewResponseDTO updateReportStatus(Long reportId, ReportStatus status);
-
+    List<ReportedReviewResponseDTO> getAllReports();
 
 
 }

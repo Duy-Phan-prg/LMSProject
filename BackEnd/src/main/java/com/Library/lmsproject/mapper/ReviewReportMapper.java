@@ -8,6 +8,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ReviewReportMapper {
 
+    @Mapping(target = "reportId", source = "id")
+
     @Mapping(target = "reviewId", source = "review.reviewId")
 
     @Mapping(target = "bookId", source = "review.book.bookId")
@@ -18,11 +20,9 @@ public interface ReviewReportMapper {
     @Mapping(target = "rating", source = "review.rating")
 
     @Mapping(target = "reviewAuthor", source = "review.user.fullName")
-
     @Mapping(target = "reportedBy", source = "reportedBy.fullName")
 
     @Mapping(target = "reason", source = "reason")
-
     @Mapping(target = "status", source = "status")
 
     @Mapping(target = "reportedAt", source = "createdAt")

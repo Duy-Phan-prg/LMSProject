@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Flag, Search, Eye, Trash2, CheckCircle, XCircle, AlertTriangle, Calendar, User, BookOpen, Star } from "lucide-react";
-import { getReportsByStatus, updateReportStatus } from "../../services/reportService";
+import { getReportsByStatus, getAllReports, updateReportStatus } from "../../services/reportService";
 import { deleteReview } from "../../services/reviewService";
 import Swal from "sweetalert2";
 import "./ReportedReviewsPage.css";
@@ -10,7 +10,7 @@ export default function ReportedReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewingReport, setViewingReport] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("PENDING");
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
   useEffect(() => {
     fetchReports();
@@ -19,7 +19,12 @@ export default function ReportedReviewsPage() {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const data = await getReportsByStatus(statusFilter);
+      let data;
+      if (statusFilter === "ALL") {
+        data = await getAllReports();
+      } else {
+        data = await getReportsByStatus(statusFilter);
+      }
       setReports(data || []);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -101,7 +106,7 @@ export default function ReportedReviewsPage() {
         fetchReports();
       } catch (error) {
         console.error("Error updating report status:", error);
-        Swal.fire("Lỗi!", "Không thể cập nhật trạng thái", "error");
+        Swal.fire("Lỗi!", error.response?.data?.message || "Không thể cập nhật trạng thái", "error");
       }
     }
   };
@@ -159,26 +164,6 @@ export default function ReportedReviewsPage() {
       </div>
 
       <div className="page-controls compact-controls">
-        <div className="filter-tabs">
-          <button 
-            className={`filter-tab ${statusFilter === "PENDING" ? "active" : ""}`}
-            onClick={() => setStatusFilter("PENDING")}
-          >
-            <AlertTriangle size={16} /> Chờ xử lý
-          </button>
-          <button 
-            className={`filter-tab ${statusFilter === "VIOLATED" ? "active" : ""}`}
-            onClick={() => setStatusFilter("VIOLATED")}
-          >
-            <XCircle size={16} /> Vi phạm
-          </button>
-          <button 
-            className={`filter-tab ${statusFilter === "IGNORED" ? "active" : ""}`}
-            onClick={() => setStatusFilter("IGNORED")}
-          >
-            <CheckCircle size={16} /> Đã bỏ qua
-          </button>
-        </div>
         <div className="search-box-admin">
           <Search size={16} />
           <input
@@ -188,6 +173,16 @@ export default function ReportedReviewsPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <select 
+          className="filter-select"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="PENDING">Chờ xử lý</option>
+          <option value="VIOLATED">Vi phạm</option>
+          <option value="IGNORED">Đã bỏ qua</option>
+        </select>
       </div>
 
       {filteredReports.length === 0 ? (

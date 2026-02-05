@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportedReviewResponseDTO {
-
+    private Long reportId;
     private Long reviewId;
 
     private Long bookId;

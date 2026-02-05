@@ -28,11 +28,6 @@ ORDER BY r.createdAt DESC
             @Param("currentUserId") Long currentUserId
     );
 
-    List<Review> findByBook_BookIdAndUser_IdAndIsDeletedFalse(
-            Long bookId,
-            Long userId
-    );
-    List<Review> findByBookAndIsDeletedFalseOrderByCreatedAtDesc(Books book);
 
     // Check user đã review book này chưa
     boolean existsByUserAndBookAndIsDeletedFalse(

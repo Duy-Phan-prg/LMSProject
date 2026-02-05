@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-// BORROWRESPONSEDTO
+
 public class LibrarianBorrowResponseDTO {
     private Long borrowingId;
 
@@ -27,9 +27,9 @@ public class LibrarianBorrowResponseDTO {
     private BorrowStatus status;
 
     private LocalDateTime requestAt;
-    private LocalDateTime pickupAt;     // Giao sách
-    private LocalDate dueDate;           // Hạn trả
-    private LocalDateTime returnedAt;    // Trả thực tế
+    private LocalDateTime pickupAt;
+    private LocalDate dueDate;
+    private LocalDateTime returnedAt;
 
     private Integer overdueDays;
     private Double fineAmount;

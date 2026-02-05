@@ -1,22 +1,25 @@
 import { useState, useEffect } from "react";
-import { BookOpen, Clock, CheckCircle, AlertCircle, XCircle, Calendar } from "lucide-react";
+import { BookOpen, Clock, CheckCircle, AlertCircle, XCircle, Calendar, Star } from "lucide-react";
 import { getMyBorrowings } from "../services/borrowService";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "../styles/profile.css";
 
 export default function MyBorrowsPage() {
   const [borrows, setBorrows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("");
+  const [activeTab, setActiveTab] = useState("ACTIVE");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBorrows();
-  }, [filter]);
+  }, [activeTab]);
 
   const fetchBorrows = async () => {
     setLoading(true);
     try {
-      const response = await getMyBorrowings(filter);
+      const status = activeTab === "ALL" ? "" : activeTab;
+      const response = await getMyBorrowings(status);
       setBorrows(response.result || []);
     } catch (error) {
       console.error("Error fetching borrows:", error);
@@ -66,15 +69,31 @@ export default function MyBorrowsPage() {
           </div>
         </div>
 
-        <div className="borrow-filter">
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="">Tất cả</option>
-            <option value="PENDING_PICKUP">Chờ lấy sách</option>
-            <option value="ACTIVE">Đang mượn</option>
-            <option value="RETURNED">Đã trả</option>
-            <option value="OVERDUE">Quá hạn</option>
-            <option value="CANCELED">Đã hủy</option>
-          </select>
+        <div className="borrow-tabs">
+          <button 
+            className={`tab-btn ${activeTab === "ACTIVE" ? "active" : ""}`}
+            onClick={() => setActiveTab("ACTIVE")}
+          >
+            <BookOpen size={18} /> Đang mượn
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === "PENDING_PICKUP" ? "active" : ""}`}
+            onClick={() => setActiveTab("PENDING_PICKUP")}
+          >
+            <Clock size={18} /> Chờ lấy sách
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === "RETURNED" ? "active" : ""}`}
+            onClick={() => setActiveTab("RETURNED")}
+          >
+            <CheckCircle size={18} /> Lịch sử đã trả
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === "ALL" ? "active" : ""}`}
+            onClick={() => setActiveTab("ALL")}
+          >
+            <Calendar size={18} /> Tất cả
+          </button>
         </div>
 
         {borrows.length === 0 ? (
@@ -92,6 +111,7 @@ export default function MyBorrowsPage() {
                   <th>Ngày yêu cầu</th>
                   <th>Hạn trả</th>
                   <th>Trạng thái</th>
+                  {activeTab === "RETURNED" && <th>Thao tác</th>}
                 </tr>
               </thead>
               <tbody>
@@ -101,6 +121,16 @@ export default function MyBorrowsPage() {
                     <td>{formatDate(borrow.requestAt)}</td>
                     <td>{formatDate(borrow.dueDate)}</td>
                     <td>{getStatusBadge(borrow.status)}</td>
+                    {activeTab === "RETURNED" && (
+                      <td>
+                        <button 
+                          className="btn-review"
+                          onClick={() => navigate(`/books/${borrow.bookId}`)}
+                        >
+                          <Star size={14} /> Đánh giá
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

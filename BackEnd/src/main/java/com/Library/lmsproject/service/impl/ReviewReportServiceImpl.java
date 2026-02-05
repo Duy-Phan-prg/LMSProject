@@ -111,10 +111,12 @@ public class ReviewReportServiceImpl implements ReviewReportService {
         return reviewReportMapper.toResponseDTO(report);
     }
 
-
-
-
-
-
+    @Override
+    public List<ReportedReviewResponseDTO> getAllReports() {
+        return reviewReportRepository.findAll()
+                .stream()
+                .map(reviewReportMapper::toResponseDTO)
+                .toList();
+    }
 
 }

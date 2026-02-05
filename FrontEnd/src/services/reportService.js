@@ -6,6 +6,12 @@ export const reportReview = async (reviewId, reportData) => {
   return response.data;
 };
 
+// GET - Lấy tất cả reports (Admin)
+export const getAllReports = async () => {
+  const response = await axiosClient.get('/api/reviews/reports/getall');
+  return response.data;
+};
+
 // GET - Lấy danh sách review bị tố cáo theo status (Admin)
 export const getReportsByStatus = async (status) => {
   const response = await axiosClient.get(`/api/reviews/reports?status=${status}`);

@@ -4,7 +4,7 @@ import { Container, Spinner } from "react-bootstrap";
 import {
   ArrowLeft, BookOpen, User, Calendar, Building2, Languages,
   FileText, Hash, Layers, ShoppingCart, Star, Send, MessageSquare,
-  Edit2, Trash2, X, Plus, Flag
+  Edit2, Trash2, X, Plus, Flag, AlertTriangle
 } from "lucide-react";
 import { getBookById } from "../services/bookService";
 import { createBorrow } from "../services/borrowService";
@@ -328,8 +328,15 @@ export default function BookDetailPage() {
             <p><strong>📍 Địa điểm:</strong> Thư viện trường</p>
             <p><strong>📅 Ngày lấy:</strong> ${tomorrowStr}</p>
             <p><strong>⏰ Giờ lấy:</strong> 7h00 - 11h00 sáng</p>
-            <hr style="border-color: rgba(0,0,0,0.1); margin: 12px 0;">
-            <p style="color: #d97706; font-size: 0.9rem;">⚠️ Vui lòng đến đúng giờ để nhận sách</p>
+            <hr style="border-color: rgba(0,0,0,0.1); margin: 16px 0;">
+            <div style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid #ef4444;">
+              <p style="color: #ef4444; font-weight: 600; margin-bottom: 8px;">⚠️ CHÍNH SÁCH PHẠT:</p>
+              <ul style="margin: 0; padding-left: 20px; color: #dc2626; font-size: 0.9rem;">
+                <li>Trả sách trễ: <strong>5.000đ/ngày</strong></li>
+                <li>Quá hạn trên 3 ngày: <strong>Khóa tài khoản</strong></li>
+              </ul>
+            </div>
+            <p style="color: #d97706; font-size: 0.9rem; margin-top: 12px;">⏰ Vui lòng đến đúng giờ để nhận sách</p>
           </div>
         `,
         icon: "success",
@@ -693,6 +700,24 @@ export default function BookDetailPage() {
                           )}
                         </div>
                       </div>
+                      {review.warningMessage && (
+                        <div className="review-warning" style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 16px',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          borderRadius: '8px',
+                          color: '#ef4444',
+                          fontSize: '0.9rem',
+                          fontWeight: '500',
+                          marginBottom: '12px'
+                        }}>
+                          <AlertTriangle size={16} />
+                          <span>{review.warningMessage}</span>
+                        </div>
+                      )}
                       <p className="review-comment">{review.comment}</p>
                     </>
                   )}

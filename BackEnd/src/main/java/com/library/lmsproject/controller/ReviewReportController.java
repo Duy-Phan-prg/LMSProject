@@ -49,7 +49,7 @@ public class ReviewReportController {
         );
     }
 
-//    Admin delete review nếu report đúng
+
 
     @PutMapping("/report/{reportId}/status")
     @Operation(summary = "Admin xử lý report (Pending → Violated hoặc Ignored)")
@@ -61,7 +61,12 @@ public class ReviewReportController {
                 reviewReportService.updateReportStatus(reportId, request.getStatus())
         );
     }
-
+ // thêm getall report review
+    @GetMapping("/reports/getall")
+    @Operation(summary="Admin/Librarian xem tất cả các report review")
+    public ResponseEntity<List<ReportedReviewResponseDTO>> getAllReports() {
+        return ResponseEntity.ok(reviewReportService.getAllReports());
+    }
 
 
 }
