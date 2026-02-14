@@ -24,7 +24,7 @@ export default function AdminLayout() {
       const response = await getAllBorrowings("", 1, 1000);
       const allBorrows = response.result?.content || response.content || [];
       const pending = allBorrows.filter(
-        b => b.status === "PENDING_PICKUP" || b.status === "OVERDUE" || b.status === "EXPIRED_PICKUP"
+        b => b.status === "PENDING_PICKUP" || b.status === "OVERDUE"
       );
       setPendingCount(pending.length);
     } catch (error) {

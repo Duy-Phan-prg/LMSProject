@@ -4,7 +4,7 @@ import {
   RefreshCw, AlertCircle, X, BookOpen, User, Calendar
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { getAllBorrowings, pickupBorrow, updateBorrowStatus } from "../../services/borrowService";
+import { getAllBorrowings, pickupBorrow, updateBorrowStatus, getBorrowingDetails } from "../../services/borrowService";
 
 export default function LibrarianBorrowsPage() {
   const [borrows, setBorrows] = useState([]);
@@ -49,6 +49,19 @@ export default function LibrarianBorrowsPage() {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") handleSearch();
+  };
+
+  const handleViewDetails = async (borrow) => {
+    try {
+      // Gọi API để lấy thông tin chi tiết đầy đủ
+      const response = await getBorrowingDetails(borrow.borrowingId);
+      const detailData = response.result || response;
+      setViewingBorrow(detailData);
+    } catch (error) {
+      console.error("Error fetching borrow details:", error);
+      // Nếu API lỗi, vẫn hiển thị data từ table
+      setViewingBorrow(borrow);
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -103,7 +116,7 @@ export default function LibrarianBorrowsPage() {
   const handleReject = async (borrow) => {
     const result = await Swal.fire({
       title: "Hủy yêu cầu?",
-      text: `Đánh dấu yêu cầu mượn sách "${borrow.bookTitle}" của ${borrow.userName} là hết hạn lấy sách?`,
+      text: `Hủy yêu cầu mượn sách "${borrow.bookTitle}" của ${borrow.userName}?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
@@ -113,8 +126,8 @@ export default function LibrarianBorrowsPage() {
     });
     if (result.isConfirmed) {
       try {
-        await updateBorrowStatus(borrow.borrowingId, "EXPIRED_PICKUP");
-        Swal.fire("Thành công!", "Đã cập nhật trạng thái", "success");
+        await updateBorrowStatus(borrow.borrowingId, "CANCELED");
+        Swal.fire("Thành công!", "Đã hủy yêu cầu mượn sách", "success");
         fetchBorrows();
       } catch (error) {
         console.error("Error update status:", error);
@@ -124,31 +137,21 @@ export default function LibrarianBorrowsPage() {
   };
 
   const handleReturn = async (borrow) => {
-    const { value: status } = await Swal.fire({
-      title: "Cập nhật trạng thái",
-      text: `Cập nhật trạng thái cho "${borrow.bookTitle}" của ${borrow.userName}`,
-      input: "select",
-      inputOptions: {
-        RETURNED: "Đã trả sách",
-        EXPIRED_PICKUP: "Hết hạn lấy sách"
-      },
-      inputPlaceholder: "Chọn trạng thái",
+    const result = await Swal.fire({
+      title: "Xác nhận trả sách?",
+      text: `Xác nhận "${borrow.bookTitle}" của ${borrow.userName} đã được trả?`,
+      icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#22c55e",
       cancelButtonColor: "#64748b",
       confirmButtonText: "Xác nhận",
-      cancelButtonText: "Hủy",
-      inputValidator: (value) => {
-        if (!value) {
-          return "Vui lòng chọn trạng thái";
-        }
-      }
+      cancelButtonText: "Hủy"
     });
     
-    if (status) {
+    if (result.isConfirmed) {
       try {
-        await updateBorrowStatus(borrow.borrowingId, status);
-        Swal.fire("Thành công!", status === "RETURNED" ? "Đã xác nhận trả sách" : "Đã cập nhật hết hạn lấy sách", "success");
+        await updateBorrowStatus(borrow.borrowingId, "RETURNED");
+        Swal.fire("Thành công!", "Đã xác nhận trả sách", "success");
         fetchBorrows();
       } catch (error) {
         console.error("Error update status:", error);
@@ -233,7 +236,6 @@ export default function LibrarianBorrowsPage() {
             <option value="ACTIVE">Đang mượn</option>
             <option value="RETURNED">Đã trả</option>
             <option value="OVERDUE">Quá hạn</option>
-            <option value="EXPIRED_PICKUP">Hết hạn lấy sách</option>
             <option value="CANCELED">Đã hủy</option>
           </select>
         </div>
@@ -288,17 +290,17 @@ export default function LibrarianBorrowsPage() {
                   <td>{getStatusBadge(borrow.status)}</td>
                   <td>
                     <div className="action-buttons">
-                      <button className="action-btn view" title="Xem chi tiết" onClick={() => setViewingBorrow(borrow)}>
+                      <button className="action-btn view" title="Xem chi tiết" onClick={() => handleViewDetails(borrow)}>
                         <Eye size={16} />
                       </button>
                       
-                      {/* Chờ lấy sách -> Giao sách hoặc Hết hạn */}
+                      {/* Chờ lấy sách -> Giao sách hoặc Hủy */}
                       {borrow.status === "PENDING_PICKUP" && (
                         <>
                           <button className="action-btn edit" title="Giao sách" onClick={() => handleApprove(borrow)}>
                             <CheckCircle size={16} />
                           </button>
-                          <button className="action-btn delete" title="Hết hạn lấy" onClick={() => handleReject(borrow)}>
+                          <button className="action-btn delete" title="Hủy yêu cầu" onClick={() => handleReject(borrow)}>
                             <XCircle size={16} />
                           </button>
                         </>
@@ -368,18 +370,18 @@ export default function LibrarianBorrowsPage() {
                 <h4>Trạng thái</h4>
                 {getStatusBadge(viewingBorrow.status)}
               </div>
-              {viewingBorrow.overdueDays > 0 && (
-                <div className="detail-section">
-                  <h4>Quá hạn</h4>
-                  <p style={{color: '#ef4444'}}>{viewingBorrow.overdueDays} ngày</p>
-                </div>
-              )}
-              {viewingBorrow.fineAmount > 0 && (
-                <div className="detail-section">
-                  <h4>Phí phạt</h4>
-                  <p style={{color: '#ef4444'}}>{viewingBorrow.fineAmount.toLocaleString("vi-VN")}đ</p>
-                </div>
-              )}
+              <div className="detail-section">
+                <h4>Số ngày quá hạn</h4>
+                <p style={{color: viewingBorrow.overdueDays > 0 ? '#ef4444' : '#64748b'}}>
+                  {viewingBorrow.overdueDays || 0} ngày
+                </p>
+              </div>
+              <div className="detail-section">
+                <h4>Phí phạt</h4>
+                <p style={{color: viewingBorrow.fineAmount > 0 ? '#ef4444' : '#64748b'}}>
+                  {(viewingBorrow.fineAmount || 0).toLocaleString("vi-VN")}đ
+                </p>
+              </div>
               {viewingBorrow.message && (
                 <div className="detail-section">
                   <h4>Ghi chú</h4>

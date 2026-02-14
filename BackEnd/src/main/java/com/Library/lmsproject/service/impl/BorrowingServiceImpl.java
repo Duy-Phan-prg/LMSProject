@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,6 +81,23 @@ public class BorrowingServiceImpl implements BorrowingService {
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (!user.isActive()) {
+            throw new RuntimeException("Your account is locked");
+        }
+
+
+        boolean hasOverdue =
+                borrowingRepository.existsByUserAndStatus(
+                        user,
+                        BorrowStatus.OVERDUE
+                );
+
+        if (hasOverdue) {
+            throw new RuntimeException(
+                    "You have overdue books. Please return them first."
+            );
+        }
+
         Books book = bookRepository
                 .findByBookIdAndIsActive(request.getBookId(), true)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
@@ -116,15 +134,13 @@ public class BorrowingServiceImpl implements BorrowingService {
             );
         }
 
-
         if (book.getCopiesAvailable() <= 0) {
             throw new RuntimeException("Book is out of stock");
         }
 
-
-
-        // Trừ sách
+        // ✅ trừ sách
         book.setCopiesAvailable(book.getCopiesAvailable() - 1);
+        bookRepository.save(book); // 🔥 QUAN TRỌNG (bản bạn thiếu)
 
         Borrowings borrowing = new Borrowings();
         borrowing.setUser(user);
@@ -313,6 +329,38 @@ public class BorrowingServiceImpl implements BorrowingService {
         borrowing.setStatus(BorrowStatus.ACTIVE);
 
         borrowingRepository.save(borrowing);
+    }
+    @Scheduled(cron = "0 0 0 * * ?") // mỗi ngày lúc 00:00
+    @Transactional
+    public void autoUpdateOverdueAndFine() {
+
+        List<Borrowings> borrowings =
+                borrowingRepository.findByStatusIn(
+                        List.of(BorrowStatus.ACTIVE, BorrowStatus.OVERDUE)
+                );
+
+        LocalDate today = LocalDate.now();
+
+        for (Borrowings b : borrowings) {
+
+            if (b.getDueDate() == null) continue;
+
+            if (today.isAfter(b.getDueDate())) {
+
+                long overdueDays = ChronoUnit.DAYS.between(
+                        b.getDueDate(),
+                        today
+                );
+
+                if (b.getStatus() == BorrowStatus.ACTIVE) {
+                    b.setStatus(BorrowStatus.OVERDUE);
+                }
+
+                b.setFineAmount(overdueDays * 5000.0);
+            }
+        }
+
+        borrowingRepository.saveAll(borrowings);
     }
 
 

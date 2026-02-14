@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
@@ -35,6 +36,7 @@ public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
     List<Borrowings> findByUser(Users user);
 
     List<Borrowings> findByUserAndStatus(Users user, BorrowStatus status);
+    boolean existsByUserAndStatus(Users user, BorrowStatus status);
 
     @Query("""
         SELECT b
@@ -50,4 +52,6 @@ public interface BorrowingRepository extends JpaRepository<Borrowings, Long> {
             @Param("keyword") String keyword,
             Pageable pageable
     );
+
+    List<Borrowings> findByStatusIn(Collection<BorrowStatus> statuses);
 }
