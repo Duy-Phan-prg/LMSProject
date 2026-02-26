@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import OAuth2Callback from "../pages/OAuth2Callback";
+import VNPayReturnPage from "../pages/VNPayReturnPage";
 import AdminLayout from "../layouts/AdminLayout";
 import LibrarianLayout from "../layouts/LibrarianLayout";
 import MainLayout from "../layouts/MainLayout";
@@ -38,6 +39,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/oauth2/callback" element={<OAuth2Callback />} />
+      <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
 
       {/* Public - Main Layout */}
       <Route element={<MainLayout />}>

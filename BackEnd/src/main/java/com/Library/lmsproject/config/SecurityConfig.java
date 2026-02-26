@@ -96,7 +96,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/reviews/book/**"
                         ).permitAll()
-                        .requestMatchers("/api/payment/**").permitAll()
+
+                        .requestMatchers("/api/payment/**")
+                        .permitAll()
 
                         // ✅ Admin xem reports
                         .requestMatchers(HttpMethod.GET,
