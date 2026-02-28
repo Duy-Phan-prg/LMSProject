@@ -277,25 +277,29 @@ public class BorrowingServiceImpl implements BorrowingService {
 
     @Override
     public LibrarianBorrowResponseDTO getBorrowingDetails(Long borrowingId) {
+
         Borrowings borrowing = borrowingRepository.findById(borrowingId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu mượn sách"));
 
         LibrarianBorrowResponseDTO response =
                 borrowMapper.toLibrarianResponse(borrowing);
 
-        // tính overdueDays nếu cần
+        int overdueDays = 0; // 🔥 luôn default = 0
+
         if (borrowing.getDueDate() != null
                 && borrowing.getReturnedAt() == null
                 && borrowing.getDueDate().isBefore(LocalDate.now())) {
 
-            long overdueDays = ChronoUnit.DAYS.between(
+            overdueDays = (int) ChronoUnit.DAYS.between(
                     borrowing.getDueDate(),
                     LocalDate.now()
             );
-            response.setOverdueDays((int) overdueDays);
         }
 
+        response.setOverdueDays(overdueDays); // 🔥 luôn set
+
         response.setMessage("Lấy chi tiết yêu cầu mượn sách thành công");
+
         return response;
     }
 

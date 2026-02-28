@@ -20,16 +20,25 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "borrowing_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private Users user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "borrowing_id")
     private Borrowings borrowing;
 
     private Double amount;
 
+    private String txnRef;
+
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    private String txnRef; // mã gửi VNPAY
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethod method;
 
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

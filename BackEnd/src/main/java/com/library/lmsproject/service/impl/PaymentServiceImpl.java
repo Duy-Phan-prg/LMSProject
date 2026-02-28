@@ -4,10 +4,9 @@ import com.library.lmsproject.config.VNPayConfig;
 import com.library.lmsproject.dto.request.CreatePaymentRequest;
 import com.library.lmsproject.entity.Borrowings;
 import com.library.lmsproject.entity.Payment;
+import com.library.lmsproject.entity.PaymentMethod;
 import com.library.lmsproject.entity.PaymentStatus;
-import com.library.lmsproject.enums.PaymentStatus;
 import com.library.lmsproject.repository.BorrowingRepository;
-import com.library.lmsproject.repository.BorrowingsRepository;
 import com.library.lmsproject.repository.PaymentRepository;
 import com.library.lmsproject.service.PaymentService;
 import com.library.lmsproject.utils.VNPayUtil;
@@ -27,9 +26,9 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final VNPayConfig vnpayConfig;
 
-    // =====================================
+    // ==============================
     // CREATE PAYMENT
-    // =====================================
+    // ==============================
     @Override
     @Transactional
     public String createPayment(CreatePaymentRequest request) throws Exception {
@@ -41,7 +40,6 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RuntimeException("No fine to pay");
         }
 
-        // ❗ tránh pay 2 lần
         if (paymentRepository.existsByBorrowingAndStatus(borrowing, PaymentStatus.SUCCESS)) {
             throw new RuntimeException("Fine already paid");
         }
@@ -50,9 +48,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = Payment.builder()
                 .borrowing(borrowing)
+                .user(borrowing.getUser())
                 .amount(borrowing.getFineAmount())
                 .status(PaymentStatus.PENDING)
                 .txnRef(txnRef)
+                .method(PaymentMethod.VNPAY)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -61,37 +61,59 @@ public class PaymentServiceImpl implements PaymentService {
         return buildVNPayUrl(payment);
     }
 
-    // =====================================
-    // BUILD VNPAY URL
-    // =====================================
+    // ==============================
+    // BUILD URL
+    // ==============================
     private String buildVNPayUrl(Payment payment) {
-
         Map<String, String> vnpParams = new HashMap<>();
 
         vnpParams.put("vnp_Version", vnpayConfig.getVersion());
         vnpParams.put("vnp_Command", vnpayConfig.getCommand());
         vnpParams.put("vnp_TmnCode", vnpayConfig.getTmnCode());
-        vnpParams.put("vnp_Amount", String.valueOf(payment.getAmount().longValue() * 100));
+
+        vnpParams.put("vnp_Amount",
+                String.valueOf(payment.getAmount().longValue() * 100));
+
         vnpParams.put("vnp_CurrCode", "VND");
         vnpParams.put("vnp_TxnRef", payment.getTxnRef());
-        vnpParams.put("vnp_OrderInfo", "Thanh toan tien phat borrowing " + payment.getBorrowing().getBorrowingId());
+
+        vnpParams.put("vnp_OrderInfo", "Thanh_toan_tien_phat");
+
         vnpParams.put("vnp_OrderType", vnpayConfig.getOrderType());
         vnpParams.put("vnp_Locale", "vn");
         vnpParams.put("vnp_ReturnUrl", vnpayConfig.getReturnUrl());
         vnpParams.put("vnp_IpAddr", "127.0.0.1");
 
-        String queryUrl = VNPayUtil.buildQueryUrl(vnpParams);
-        String secureHash = VNPayUtil.hmacSHA512(vnpayConfig.getHashSecret(), queryUrl);
+        String createDate = VNPayUtil.getCurrentTime();
+        vnpParams.put("vnp_CreateDate", createDate);
 
-        return vnpayConfig.getPayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + secureHash;
+        String expireDate = VNPayUtil.getExpireTime(15);
+        vnpParams.put("vnp_ExpireDate", expireDate);
+
+        String queryUrl = VNPayUtil.buildQueryUrl(vnpParams);
+        String secureHash =
+                VNPayUtil.hmacSHA512(vnpayConfig.getHashSecret(), queryUrl);
+
+        return vnpayConfig.getPayUrl()
+                + "?" + queryUrl
+                + "&vnp_SecureHash=" + secureHash;
     }
 
-    // =====================================
+    // ==============================
     // HANDLE RETURN
-    // =====================================
+    // ==============================
     @Override
     @Transactional
     public void handleVNPayReturn(Map<String, String> params) {
+
+        String secureHash = params.remove("vnp_SecureHash");
+
+        String signData = VNPayUtil.buildQueryUrl(params);
+        String checkHash = VNPayUtil.hmacSHA512(vnpayConfig.getHashSecret(), signData);
+
+        if (!checkHash.equals(secureHash)) {
+            throw new RuntimeException("Invalid signature");
+        }
 
         String txnRef = params.get("vnp_TxnRef");
         String responseCode = params.get("vnp_ResponseCode");
@@ -106,6 +128,5 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setUpdatedAt(LocalDateTime.now());
-        paymentRepository.save(payment);
     }
 }

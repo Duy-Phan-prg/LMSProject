@@ -59,11 +59,14 @@ public class VNPayUtil {
         return formatter.format(cld.getTime());
     }
 
-    public static String getExpireTime() {
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        cld.add(Calendar.MINUTE, 15);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        return formatter.format(cld.getTime());
+    public static String getExpireTime(int minutes) {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        cal.add(Calendar.MINUTE, minutes);
+
+        SimpleDateFormat formatter =
+                new SimpleDateFormat("yyyyMMddHHmmss");
+
+        return formatter.format(cal.getTime());
     }
 
     // ===== lấy IP =====
