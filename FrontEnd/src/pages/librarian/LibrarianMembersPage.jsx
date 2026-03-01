@@ -20,8 +20,15 @@ export default function LibrarianMembersPage() {
     setLoading(true);
     try {
       const data = await getAllUsers({ page: currentPage, size: 100 });
+      console.log("=== Members API Response ===");
+      console.log("Full response:", data);
+      console.log("Content:", data.content);
+      
       // Lọc chỉ lấy MEMBER (không lấy ADMIN, LIBRARIAN)
       const memberList = (data.content || []).filter(u => u.role === "MEMBER");
+      console.log("Filtered members:", memberList);
+      console.log("First member active status:", memberList[0]?.active);
+      
       setMembers(memberList);
       setTotalElements(memberList.length);
       setTotalPages(Math.ceil(memberList.length / pageSize));
